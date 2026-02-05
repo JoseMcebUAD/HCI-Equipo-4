@@ -1,0 +1,3 @@
+### Reflection on Nielsen Heuristics
+--- 
+I think these concepts are still significant nowadays , because is a set of universal rules in UI, that are not defined by logic or trends, but to human interactions and reactions. What makes these 10 heuristics valid in todays web apps, is that those concepts were made based on **human cognitions,and how people naturally interact with things** and its way of usability, per the International Standards Organization (ISO 9241-11:1998), is “the extent to which a product can be used by specified users to achieve specified goals with effectiveness, efficiency and satisfaction in a specified context of use", cannot be ignored. Many of human interactions stuides are used in many fields, and HCI is no different
