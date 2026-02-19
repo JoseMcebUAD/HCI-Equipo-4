@@ -2,7 +2,7 @@
 
 ## User Research
 
-### Functional Requirements
+### Usability Requirements
 
 | Requirement | Description |
 |-------------|-------------|
@@ -18,7 +18,7 @@
 | 10. Standard Date Format | All dates should be displayed and entered using the local format (dd/mm/yyyy) to avoid confusion. |
 
 
-### Usability Requirments
+### Functional Requirments
 | ID    | Requirement                                                                                                                                                                                                                                                                               | Priority |
 | ----- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | FR-01 | The system shall allow **Event Capture** with the fields: event type, patient, therapist, folio, date, start time, duration, room, payment receipt, fee amount, and reason/notes (optional). Fields shall be shown or hidden depending on the event type and whether payment is required. | High       |
