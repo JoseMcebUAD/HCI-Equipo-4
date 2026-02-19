@@ -2,7 +2,7 @@
 
 ## User Research
 
-User Research Brief
+#### **User Research Brief**
 
 Currently, the psychological care system is under development with the objective of facilitating the management of clinical and administrative services within the institution. One of these key components in the system is appointment scheduling, which will be mainly used by the administrative staff in charge of managing appointments between patients and the psychologists available on rotation.
 
@@ -12,46 +12,55 @@ The purpose of this User Research is to identify some of the problems that the a
 
 With this research, we seek to answer some questions that will help us establish the usability requirements of this functionality. Through the research methods we conduct, we aim to obtain answers to questions that:
 
-• Address the efficiency and workflow of the staff:
+#### - **Efficiency and Workflow**
 
-o How long does it take the user to complete the scheduling process?
-o Are there any unnecessary steps in the process?
-o Is the scheduling workflow clear for the user?
+- **How long does it take the user to complete the scheduling process?**
+- **Are there any unnecessary steps in the process?**
+- **Is the scheduling workflow clear for the user?**
 
-• Address the ease of use when staff utilize the functionality:
+#### - **Ease of Use**
 
-o Does the user easily understand how to register a new appointment?
-o Is it intuitive for them to check patient/specialist availability?
-o In the case of both correct and incorrect use, can the user detect it?
+- **Does the user easily understand how to register a new appointment?**
+- **Is it intuitive for them to check patient/specialist availability?**
+- **In the case of both correct and incorrect use, can the user detect it?**
 
-• Address the user experience:
+#### - **User Experience**
 
-o Does the user find it necessary and feel comfortable adapting to this new system?
-o What are the most common difficulties when performing the process?
-o What functionalities do they consider unnecessary or, instead, missing from the system?
+- **Does the user find it necessary and feel comfortable adapting to this new system?**
+- **What are the most common difficulties when performing the process?**
+- **What functionalities do they consider unnecessary or, instead, missing from the system?**
 
 For this type of research, we will need methods to collect the necessary information about the system’s issues. Some of the methods we will use are:
 
-• Usability testing
+#### - **Usability Testing**
 
-o We will observe how our users interact with the product in order to identify whether they can successfully complete specific tasks
+We will observe how our users interact with the product in order to identify whether they can successfully complete specific tasks.
 
-▪ Advantages: It will allow us to identify problems directly during interaction
-▪ Disadvantages: For our work team, applying these tests would result in high costs and time consumption, so although it is a reliable method, applying it in our context may be tedious
+**Advantages:**
+- It will allow us to identify problems directly during interaction.
 
-• User interviews
+**Disadvantages:**
+- For our work team, applying these tests would result in high costs and time consumption, so although it is a reliable method, applying it in our context may be tedious.
 
-o We will interview some users to learn about their experiences with this functionality
+#### - **User Interviews**
 
-▪ Advantages: They will help us understand users' needs, expectations, and frustrations with the system
-▪ Disadvantages: Finding and applying this method to a feasible sample population is unlikely
+We will interview some users to learn about their experiences with this functionality.
 
-• Heuristic evaluations
+**Advantages:**
+- They will help us understand users needs, expectations, and frustrations with the system.
 
-o Based on Jakob Nielsen’s 10 heuristics, we can identify problems in user interfaces
+**Disadvantages:**
+- Finding and applying this method to a feasible sample population is unlikely.
 
-▪ Advantages: It is a quick method that will save us time and costs
-▪ Disadvantages: Not being fully familiar with these heuristics may cause the results to be biased by our team's experience with them.
+#### - **Heuristic Evaluations**
+
+Based on Jakob Nielsen’s 10 heuristics, we can identify problems in user interfaces.
+
+**Advantages:**
+- It is a quick method that will save us time and costs.
+
+**Disadvantages:**
+- Not being fully familiar with these heuristics may cause the results to be biased by our team's experience with them.
 
 
 
