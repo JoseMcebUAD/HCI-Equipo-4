@@ -1,113 +1,85 @@
-# Introducción 
+# Introduction
 
-Los escenarios describen situaciones de uso representativas que permiten contrastar el
-estado futuro deseado (**Escenario Ideal**) frente al estado actual (**Escenario Contraste**),
-donde la clínica aún opera con procesos manuales y herramientas dispersas.
+Scenarios describe representative usage situations that contrast the desired future state (**Ideal Scenario**) against the current state (**Contrast Scenario**), where the clinic still operates with manual processes and scattered tools.
 
-A partir de las nuevas funcionalidades prototipadas para el **Módulo Administrativo** agenda,
-terapeutas, salas, reportes, requerimientos y notificaciones se han **actualizado los tres
-escenarios originales** y se añaden **tres nuevos** para cubrir el alcance completo del prototipo.
+Based on the new functionalities prototyped for the **Administrative Module** — agenda, therapists, rooms, reports, requirements, and notifications — the three original scenarios have been **updated** and **three new ones** have been added to cover the full scope of the prototype.
 
 ---
 
-## Escenario 1 — Reprogramación tras inasistencia
+## Scenario 1 — Rescheduling After a No-Show
 
-**Escenario Ideal**
-Gaby (secretaria) recibe una alerta de *“no asistencia”* en la bandeja. Filtra por nombre y
-servicio, selecciona la cita, elige el siguiente hueco disponible y confirma. El paciente
-recibe correo + WhatsApp al instante y los indicadores de ausentismo se actualizan.
+**Ideal Scenario**
+Gaby (secretary) receives a *"no-show"* alert in the inbox. She filters by name and service type, selects the appointment, chooses the next available slot, and confirms. The patient instantly receives an email and a WhatsApp message, and the absenteeism indicators are updated automatically.
 
-**Escenario Contraste**
-Gaby revisa una agenda impresa y hace varias llamadas para coordinar. Las notificaciones
-dependen de recordatorios personales; no existe métrica inmediata de ausencias.
+**Contrast Scenario**
+Gaby checks a printed agenda and makes several phone calls to coordinate. Notifications depend on personal reminders; there is no immediate metric for absences.
 
 ---
 
-## Escenario 2 — Análisis de reportes operativos
+## Scenario 2 — Operational Report Analysis
 
-**Escenario Ideal**
-Paulina (coordinadora) entra a **Reportes**, selecciona el último trimestre y filtra por
-especialidad. Obtiene una vista tabular filtrable de citas atendidas/canceladas y exporta
-a CSV/Excel para su reporte mensual.
+**Ideal Scenario**
+Paulina (coordinator) opens **Reports**, selects the last quarter, and filters by specialty. She gets a filterable tabular view of attended/canceled appointments and exports it to CSV/Excel for her monthly report.
 
-**Escenario Contraste**
-Los datos provienen de cuadernos, hojas de cálculo y archivos SPSS aislados. Paulina los
-consolida manualmente; el proceso tarda días y contiene errores.
+**Contrast Scenario**
+Data comes from notebooks, spreadsheets, and isolated SPSS files. Paulina consolidates them manually; the process takes days and contains errors.
 
 ---
 
-## Escenario 3 — Gestión de requerimientos de agenda
+## Scenario 3 — Agenda Requirements Management
 
-**Escenario Ideal**
-Un terapeuta sugiere aumentar la duración de sesiones. Paulina registra el requerimiento,
-adjunta evidencia y lo envía a aprobación. Tras el visto bueno, la configuración de agenda
-se actualiza y se notifican los usuarios.
+**Ideal Scenario**
+A therapist suggests increasing session duration. Paulina registers the requirement, attaches evidence, and sends it for approval. After it is approved, the agenda configuration is updated and all relevant users are notified.
 
-**Escenario Contraste**
-Las sugerencias llegan por conversaciones informales. No existe registro ni flujo de
-aprobación; muchos cambios se pierden o se aplican tarde.
+**Contrast Scenario**
+Suggestions arrive through informal conversations. There is no record or approval workflow; many changes are lost or applied too late.
 
 ---
 
-## Escenario 4 — Alta y edición de terapeutas
+## Scenario 4 — Therapist Registration and Editing
 
-**Escenario Ideal**
-Desde el **Gestor de Terapeutas**, Paulina pulsa **“Nuevo”**, captura datos, asigna rol *Pasante*
-y define horarios evitando traslapes. El sistema valida colisiones, guarda y envía
-credenciales temporales.
+**Ideal Scenario**
+From the **Therapist Manager**, Paulina clicks **"New"**, enters the data, assigns the *Intern* role, and defines schedules avoiding overlaps. The system validates conflicts, saves the record, and sends temporary credentials.
 
-**Escenario Contraste**
-La contratación se lleva en papel; los traslapes no se detectan hasta el día de la cita y las
-credenciales institucionales tardan días en generarse.
+**Contrast Scenario**
+Onboarding is handled on paper; schedule overlaps are not detected until the day of the appointment, and institutional credentials take days to be generated.
 
 ---
 
-## Escenario 5 — Bloqueo y liberación de salas/horarios *(Planeado)*
+## Scenario 5 — Room and Time Slot Blocking *(Planned)*
 
-**Escenario Ideal**
-Previo a un mantenimiento eléctrico, Paulina bloquea el **Consultorio 5** (10–12 h, 3 de abril).
-El sistema mueve las citas afectadas a reprogramación y envía avisos. Al terminar el
-mantenimiento, libera el espacio con un clic.
+**Ideal Scenario**
+Before scheduled electrical maintenance, Paulina blocks **Room 5** (10 AM–12 PM, April 3rd). The system moves the affected appointments to the rescheduling queue and sends notifications. Once maintenance is complete, she releases the room with a single click.
 
-**Escenario Contraste**
-Se pega un aviso en la puerta y se llama a cada paciente. Si el mantenimiento concluye
-antes, las horas siguen sin usarse por falta de actualización.
+**Contrast Scenario**
+A notice is posted on the door and each patient is called individually. If maintenance ends early, the hours remain unused due to the lack of a real-time update.
 
 ---
 
-## Escenario 6 — Bandeja de solicitudes de cita *(Primer Contacto)*
+## Scenario 6 — Appointment Request Inbox *(First Contact)*
 
-**Escenario Ideal**
-El paciente llena el Formulario Web. La entrada llega a la bandeja; Gaby valida
-disponibilidad y asigna horario. El paciente recibe confirmación por correo y puede ver
-su cita en **“Mis Citas”**.
+**Ideal Scenario**
+The patient fills out the Web Form. The entry arrives in the inbox; Gaby validates availability and assigns a time slot. The patient receives a confirmation email and can view their appointment under **"My Appointments"**.
 
-**Escenario Contraste**
-Todas las solicitudes llegan por teléfono y se anotan en libreta; cualquier cambio exige
-otra llamada.
+**Contrast Scenario**
+All requests come in by phone and are written in a notebook; any change requires another call.
 
 ---
 
-## Escenario 6 bis — Gestión del expediente de pacientes
+## Scenario 6b — Patient Record Management
 
-**Escenario Ideal**
-Lucy abre **Pacientes**, filtra por “Activo” y edita los datos de María López. Actualiza correo
-y registra la octava sesión en la **Hoja de Control**. Al finalizar el proceso terapéutico,
-archiva el expediente con un clic.
+**Ideal Scenario**
+Lucy opens **Patients**, filters by "Active", and edits María López's information. She updates the email address and logs the eighth session in the **Session Control Sheet**. When the therapeutic process is complete, she archives the record with a single click.
 
-**Escenario Contraste**
-Los expedientes se guardan en carpetas físicas; actualizar datos implica rehacer
-papelería y la información histórica se dispersa, dificultando auditorías.
+**Contrast Scenario**
+Records are stored in physical folders; updating data requires redoing paperwork, and historical information becomes scattered, making audits difficult.
 
 ---
 
-## Escenario 7 — Gestión integral de ocupación de salas *(Planeado)*
+## Scenario 7 — Comprehensive Room Occupancy Management *(Planned)*
 
-**Escenario Ideal**
-Desde **Módulo Salas** se visualiza un calendario comparativo de ocupación. Paulina detecta
-que la Sala 2 está infrautilizada por la tarde y redistribuye terapias. Los cambios se
-reflejan en la agenda de cada terapeuta y en los reportes de uso de infraestructura.
+**Ideal Scenario**
+From the **Rooms Module**, a comparative occupancy calendar is displayed. Paulina detects that Room 2 is underutilized in the afternoon and redistributes therapy sessions. Changes are reflected in each therapist's agenda and in the infrastructure usage reports.
 
-**Escenario Contraste**
-No existe visibilidad global; las reservas se hacen verbalmente y se duplican. Algunas
-salas permanecen vacías mientras otras están sobre-reservadas.
+**Contrast Scenario**
+There is no global visibility; reservations are made verbally and duplicated. Some rooms remain empty while others are overbooked.

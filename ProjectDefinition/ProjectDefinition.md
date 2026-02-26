@@ -1,19 +1,26 @@
-## Definición del Proyecto: Módulo de Agenda
-Este módulo se enfoca en la gestión digital de la disponibilidad y atención de pacientes en la clínica, orientado exclusivamente al **Personal Administrativo** (Secretarias y Coordinadores).
-### Relevancia Social
-*   **Acceso a la Salud Mental:** La agenda es la puerta de entrada al servicio. Un sistema ineficiente crea cuellos de botella que retrasan la atención de personas en crisis o situación de vulnerabilidad.
-*   **Sostenibilidad y Equidad:** Al gestionar eficientemente las cuotas socioeconómicas (mínima de $50 MXN) y los horarios, se garantiza que la clínica pueda atender a un mayor volumen de población de escasos recursos de manera organizada.
-*   **Impacto Comunitario:** La digitalización permite generar estadísticas (ingresos, edades, motivos de consulta) que son fundamentales para que la Facultad y Vinculación justifiquen la importancia social del servicio y busquen apoyos.
-### Innovación
-*   **Ruptura del Modelo Manual:** A diferencia de procesos previos basados en bitácoras físicas o llamadas telefónicas sin registro centralizado, esta propuesta introduce una **"Fuente Única de Verdad"** digital.
-*   **Diferenciación Operativa:**
-    *   *Antes:* Reprogramaciones manuales propensas a errores y falta de seguimiento de inasistencias.
-    *   *Ahora:* Automatización de reglas de negocio (ej. cancelación automática tras 20 min) y notificaciones digitales (WhatsApp/Correo) ante imprevistos.
-*   **Integración de Datos:** El sistema busca eliminar la doble captura de datos (manual y luego a SPSS), innovando en el flujo de trabajo administrativo para reducir el error humano.
-### Factibilidad
-*   **Debilidades y Desafíos:**
-    *   *Resistencia al Cambio:* Usuarios con más de 15 años en el puesto pueden percibir el sistema como una amenaza o una carga extra.
-    *   *Limitaciones de Infraestructura:* Dependencia de la estabilidad de la red y el hardware de la facultad.
-*   **Retos desde HCI/Producto:**
-    *   **Usabilidad Crítica:** La interfaz debe ser extremadamente simple ("a prueba de errores") para facilitar la transición digital.
-    *   **Gestión de Jerarquías:** Implementar un control de acceso que respete la cadena de mando (Administración ejecuta / Coordinación autoriza) para evitar bloqueos operativos.
+## Project Definition: Agenda Module
+
+This module focuses on the digital management of patient availability and care at the clinic, aimed exclusively at **Administrative Staff** (Secretaries and Coordinators).
+
+### Social Relevance
+
+- **Access to Mental Health:** The agenda is the entry point to the service. An inefficient system creates bottlenecks that delay care for people in crisis or vulnerable situations.
+- **Sustainability and Equity:** By efficiently managing socioeconomic fees (minimum $50 MXN) and schedules, the clinic can serve a larger volume of low-income patients in an organized manner.
+- **Community Impact:** Digitalization enables the generation of statistics (income, ages, consultation reasons) that are essential for the Faculty and the Vinculación office to justify the social importance of the service and seek institutional support.
+
+### Innovation
+
+- **Breaking the Manual Model:** Unlike previous processes based on physical logbooks or phone calls with no centralized record, this proposal introduces a digital **"Single Source of Truth"**.
+- **Operational Differentiation:**
+  - *Before:* Manual rescheduling prone to errors and lack of no-show tracking.
+  - *Now:* Automation of business rules (e.g., automatic cancellation after 20 minutes) and digital notifications (WhatsApp/Email) for unexpected events.
+- **Data Integration:** The system aims to eliminate double data entry (manual input followed by SPSS upload), innovating the administrative workflow to reduce human error.
+
+### Feasibility
+
+- **Weaknesses and Challenges:**
+  - *Resistance to Change:* Users with 15+ years in the role may perceive the system as a threat or an extra burden.
+  - *Infrastructure Limitations:* Dependency on the stability of the faculty's network and hardware.
+- **HCI/Product Challenges:**
+  - **Critical Usability:** The interface must be extremely simple ("error-proof") to facilitate the digital transition.
+  - **Hierarchy Management:** Implement access control that respects the chain of command (Administration executes / Coordination authorizes) to avoid operational bottlenecks.
