@@ -1,7 +1,0 @@
-### Are Nielsen´s heuristics still valid today, given the radically different technological conditions under wich were created?
-
---- 
-The Jakob Nielsen heuristics remain highly relevant today, even though they were made in the 90's, because they are based on universal principles of human cognition rather than on technological trends or visual fashions. 
-Based on human interactions Cognitive Psychology: Connecting Mind, Research, and Everyday Experience (2019), human cognitive processes—such as perception, attention, memory, and feedback interpretation—have not fundamentally changed over time. 
-Nielsen’s heuristics were derived from observing human–computer interaction problems and engineering solutions grounded in how the brain processes information, which gives them a timeless quality. Human interactions do not “age” in the same way interfaces or trends do; instead, they follow stable cognitive patterns and limitations. This is evident in our project, where these principles operate implicitly. 
-For example, in the file upload component, Nielsen’s first heuristic—visibility of system status—is clearly applied: the user must receive immediate and understandable feedback indicating whether files were uploaded successfully, failed, or encountered errors. This demonstrates that, even when not explicitly noticed, these heuristics remain inherent to effective and usable interface design.
