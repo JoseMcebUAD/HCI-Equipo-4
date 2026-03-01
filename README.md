@@ -19,6 +19,7 @@ This repository contains the user-centered design documentation for the **Agenda
 ## Project Planning
 
 Tasks, delivery calendar, and team assignments are managed in Notion:
+[Project deployment](https://proyectos-vinculacion-fmat.github.io/ClinicaWeb/)
 
 [View project board](https://www.notion.so/HCI-Cl-nica-web-31274f7dad3080029868c8b651749788)
 [Presentation](https://www.canva.com/design/DAHCafQG32g/oy3fc5AuoXbIO5Zc24JQzw/edit?utm_content=DAHCafQG32g&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
