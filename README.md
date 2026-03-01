@@ -23,3 +23,6 @@ Tasks, delivery calendar, and team assignments are managed in Notion:
 
 [View project board](https://www.notion.so/HCI-Cl-nica-web-31274f7dad3080029868c8b651749788)
 [Presentation](https://www.canva.com/design/DAHCafQG32g/oy3fc5AuoXbIO5Zc24JQzw/edit?utm_content=DAHCafQG32g&utm_campaign=designshare&utm_medium=link2&utm_source=sharebutton)
+
+## Presentation
+[video](https://drive.google.com/file/d/1VlMw0KKtXXH3iPOXo_FPWQd2GEBxCVbX/view?usp=sharing)
