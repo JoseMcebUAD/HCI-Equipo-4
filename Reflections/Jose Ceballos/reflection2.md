@@ -1,5 +1,0 @@
-## Reflection based on AI Tools
-The use of AI has become a tool used on a daily basis by many people, especially related to our fields, such as UX and UI designers, developers, and more.
-According to Anthony Cardillo, in Exploding Topics, in October 2025, around 65% of people use AI on a daily basis, growing rapidly from a 5 year span, due to its fast growth.
-The quality of AI design that can be produced right now is far better than a junior and possibly some mid-level designers, because most of the UX and UI design is based on the same methods, same heuristics, colors and more rules that can be replicated by many, but AI does it in a fraction of the time and way cheaper. With these tools, you can easily tell the agent what to do, how you want it, colors, schemes and it does that in minutes, but it doesn't include some Nielsen's attributes, such as error handling and the state of the system.
-No matter what we do or how good we are designing, an AI could always do it faster, but not always better, which is why I think design will evolve with many of these tools; we must adapt and if we don't, we are cooked.
