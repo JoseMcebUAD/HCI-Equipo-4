@@ -90,46 +90,20 @@
     background-color: #0066cc;
   }
   
-  /* Modal */
-  .modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.5);
-    z-index: 1000;
-    overflow: auto;
-  }
-  
-  .modal-content {
-    background-color: white;
-    margin: 5% auto;
-    padding: 2rem;
-    border-radius: 0.5rem;
-    width: 90%;
-    max-width: 600px;
-    position: relative;
-  }
-  
-  .close-modal {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    font-size: 1.5rem;
-    cursor: pointer;
-  }
-  
+  /* Modal – heredado de styles.css global, solo ajustes locales */
+
+  /* .close-button heredado de styles.css global */
+
   .form-group {
     margin-bottom: 1rem;
   }
-  
+
   .form-group label {
     display: block;
     margin-bottom: 0.5rem;
+    font-weight: 500;
   }
-  
+
   .form-group input,
   .form-group select {
     width: 100%;
@@ -137,19 +111,37 @@
     border: 1px solid #ddd;
     border-radius: 0.3rem;
   }
-  
+
+  /* Secciones del form con fondo y sombra */
+  .form-section {
+    background: #fff;
+    border-radius: 0.5rem;
+    box-shadow: 0 2px 5px 3px rgba(0, 0, 0, .15);
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  /* Rol y Tipo de servicio en una misma fila */
+  .form-row {
+    display: flex;
+    gap: 1rem;
+  }
+  .form-row > .form-group {
+    flex: 1;
+  }
+
   .horario-item {
     display: flex;
     gap: 1rem;
     margin-bottom: 0.5rem;
     align-items: center;
   }
-  
+
   .horario-item select,
   .horario-item input {
     padding: 0.5rem;
   }
-  
+
   .btn-add {
     background: none;
     border: none;
@@ -157,40 +149,43 @@
     cursor: pointer;
     margin: 0.5rem 0;
   }
-  
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1.5rem;
+
+  /* #saveBtn heredado de styles.css global */
+  #formTerapeuta > #saveBtn {
+    display: block;
+    margin: 0 auto;
+    width: 97.9%;
+    padding: .65rem 1rem;
+    font-size: 1rem;
   }
-  
-  .btn-primary {
-    background-color: #004080;
-    color: white;
-    padding: 0.7rem 1.5rem;
-    border: none;
-    border-radius: 0.3rem;
-    cursor: pointer;
+
+  /* Grid del form ≥720px */
+  @media (min-width: 720px) {
+    #modalTerapeuta .modal-content {
+      max-width: 900px;
+      width: 95%;
+    }
+
+    #formTerapeuta {
+      display: grid;
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+      gap: 1rem;
+    }
+
+    #formTerapeuta > .form-section {
+      margin-bottom: 0;
+    }
   }
-  
-  .btn-cancel {
-    background-color: #f0f0f0;
-    padding: 0.7rem 1.5rem;
-    border: none;
-    border-radius: 0.3rem;
-    cursor: pointer;
-  }
-  
+
   /* Responsive */
-  @media (max-width: 768px) {
+  @media (max-width: 719px) {
     .layout {
       grid-template-columns: 1fr;
     }
-    
-    .modal-content {
-      margin: 2rem auto;
-      width: 95%;
-      padding: 1.5rem;
+
+    .form-row {
+      flex-direction: column;
+      gap: 0;
     }
   }
