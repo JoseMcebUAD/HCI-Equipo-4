@@ -44,31 +44,41 @@
       <div class="modal-content">
         <span class="close-button" id="cerrarModalSala">&times;</span>
         <h2 id="formTitle">Agregar Sala</h2>
+        <hr/>
 
         <form id="salaForm">
           <input type="hidden" id="salaId">
 
-          <div class="form-group">
-            <label for="nombre">Nombre:</label>
-            <input type="text" id="nombre" required>
-          </div>
+          <!-- Sección 1: Datos de la sala -->
+          <section class="form-section">
+            <div class="form-group">
+              <label for="nombre">Nombre:</label>
+              <input type="text" id="nombre" required>
+            </div>
 
-          <!-- Servicios disponibles -->
-          <div class="form-group">
-            <label>Servicios que atiende:</label>
-            <label><input type="checkbox" name="servicios" value="Evaluación inicial integral"> Evaluación inicial integral</label><br>
-            <label><input type="checkbox" name="servicios" value="Cita de terapia"> Cita de terapia</label>
-          </div>
+            <div class="form-group">
+              <label>Servicios que atiende:</label>
+              <div class="servicios-opciones">
+                <label><input type="checkbox" name="servicios" value="Evaluación inicial integral"> Evaluación inicial integral</label>
+                <label><input type="checkbox" name="servicios" value="Cita de terapia"> Cita de terapia</label>
+              </div>
+            </div>
+          </section>
 
-          <!-- Horario operativo -->
-          <div class="form-group">
-            <label for="horaInicio">Hora de Inicio:</label>
-            <input type="time" id="horaInicio" min="09:00" max="18:00" required>
-          </div>
-          <div class="form-group">
-            <label for="horaFin">Hora de Fin:</label>
-            <input type="time" id="horaFin" min="09:00" max="18:00" required>
-          </div>
+          <!-- Sección 2: Horario -->
+          <h3 class="section-subtitle">Horario</h3>
+          <section class="form-section">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="horaInicio">Hora de Inicio:</label>
+                <input type="time" id="horaInicio" min="09:00" max="18:00" required>
+              </div>
+              <div class="form-group">
+                <label for="horaFin">Hora de Fin:</label>
+                <input type="time" id="horaFin" min="09:00" max="18:00" required>
+              </div>
+            </div>
+          </section>
 
           <button type="submit" id="guardarSala">Guardar</button>
         </form>

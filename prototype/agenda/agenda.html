@@ -89,84 +89,89 @@
     <div class="modal-content">
       <span class="close-button" id="closeNewEventModal">&times;</span>
       <h2 id="newEventTitle">Nuevo Evento</h2>
+      <hr>
 
       <form id="newEventForm">
         <!-- Tipo -->
-        <div class="form-group">
-          <label for="eventType">Tipo de Evento:</label>
-          <select id="eventType" name="eventType" required>
-            <option value="">Seleccionar tipo</option>
-            <option value="1">Evaluación inicial integral</option>
-            <option value="2">Cita de Terapia</option>
-          </select>
-        </div>
+         <section>
+           <div class="form-group">
+             <label for="eventType">Tipo de Evento:</label>
+             <select id="eventType" name="eventType" required>
+               <option value="">Seleccionar tipo</option>
+               <option value="1">Evaluación inicial integral</option>
+               <option value="2">Cita de Terapia</option>
+             </select>
+           </div>
+           <!-- Paciente -->
+            <div class="form-group">
+              <label for="eventPatient">Paciente:</label>
+              <select id="eventPatient" name="eventPatient" required>
+                <option value="">Seleccionar paciente</option>
+                <option>Ana Martínez</option><option>Luis García</option>
+                <option>Carmen Robles</option><option>José Romero</option>
+                <option>María Torres</option><option>Diego Fuentes</option>
+                <option>Sofía Paredes</option><option>Ricardo Vargas</option>
+                <option>Elena Castillo</option><option>Pedro Rivas</option>
+              </select>
+            </div>
+           <!-- Terapeuta -->
+            <div class="form-group" id="therapistGroup">
+              <label for="eventTherapist">Terapeuta:</label>
+              <select id="eventTherapist" name="eventTherapist"></select>
+            </div>
+             <!-- Sala -->
+           <div class="form-group">
+             <label for="eventRoom">Sala:</label>
+             <select id="eventRoom" name="eventRoom" required>
+               <option value="">Seleccionar sala</option>
+               <option>Sala 101</option><option>Sala 102</option><option>Sala 103</option>
+             </select>
+           </div>
+          </section>
+          
+          <section>
+            <!-- Fecha -->
+            <div class="form-group">
+              <label for="eventDate">Fecha:</label>
+              <input type="date" id="eventDate" name="eventDate" required />
+            </div>
+            
+            <!-- Hora -->
+            <div class="time-selection">
+              <div class="form-group">
+                <label for="eventStartTime">Hora Inicio:</label>
+                <input type="time" id="eventStartTime" name="eventStartTime" required />
+              </div>
+            </div>
+            
+            <!-- Duración (informativa) -->
+            <div class="form-group duration-info">
+              <strong>Duración:</strong>
+              <span id="eventDurationLabel">--</span>
+              <input type="hidden" id="eventDuration" name="eventDuration" />
+            </div>
+            <!-- Folio (readonly) -->
+            <div class="form-group">
+              <label for="eventFolio">Folio:</label>
+              <input type="text" id="eventFolio" name="eventFolio" readonly />
+            </div>
+            
+          </section>
+         <section>
+   
+           <!-- Comprobante de Pago -->
+           <div class="form-group" id="payProofGroup">
+             <label for="payProof">Comprobante de pago (PDF, PNG, JPG – máx&nbsp;5&nbsp;MB):</label>
+             <input type="file" id="payProof" name="payProof" accept=".pdf,image/png,image/jpeg" />
+           </div>
+   
+           <!-- Cuota (solo para Cita de terapia) -->
+           <div class="form-group hidden" id="feeGroup">
+             <label for="eventFee">Cuota a pagar (MXN):</label>
+             <input type="number" id="eventFee" name="eventFee" min="0" step="0.01" />
+           </div>
+         </section>
 
-        <!-- Paciente -->
-        <div class="form-group">
-          <label for="eventPatient">Paciente:</label>
-          <select id="eventPatient" name="eventPatient" required>
-            <option value="">Seleccionar paciente</option>
-            <option>Ana Martínez</option><option>Luis García</option>
-            <option>Carmen Robles</option><option>José Romero</option>
-            <option>María Torres</option><option>Diego Fuentes</option>
-            <option>Sofía Paredes</option><option>Ricardo Vargas</option>
-            <option>Elena Castillo</option><option>Pedro Rivas</option>
-          </select>
-        </div>
-
-        <!-- Terapeuta -->
-        <div class="form-group" id="therapistGroup">
-          <label for="eventTherapist">Terapeuta:</label>
-          <select id="eventTherapist" name="eventTherapist"></select>
-        </div>
-
-        <!-- Folio (readonly) -->
-        <div class="form-group">
-          <label for="eventFolio">Folio:</label>
-          <input type="text" id="eventFolio" name="eventFolio" readonly />
-        </div>
-
-        <!-- Fecha -->
-        <div class="form-group">
-          <label for="eventDate">Fecha:</label>
-          <input type="date" id="eventDate" name="eventDate" required />
-        </div>
-
-        <!-- Hora -->
-        <div class="time-selection">
-          <div class="form-group">
-            <label for="eventStartTime">Hora Inicio:</label>
-            <input type="time" id="eventStartTime" name="eventStartTime" required />
-          </div>
-        </div>
-
-        <!-- Duración (informativa) -->
-        <div class="form-group duration-info">
-          <strong>Duración:</strong>
-          <span id="eventDurationLabel">--</span>
-          <input type="hidden" id="eventDuration" name="eventDuration" />
-        </div>
-
-        <!-- Sala -->
-        <div class="form-group">
-          <label for="eventRoom">Sala:</label>
-          <select id="eventRoom" name="eventRoom" required>
-            <option value="">Seleccionar sala</option>
-            <option>Sala 101</option><option>Sala 102</option><option>Sala 103</option>
-          </select>
-        </div>
-
-        <!-- Comprobante de Pago -->
-        <div class="form-group" id="payProofGroup">
-          <label for="payProof">Comprobante de pago (PDF, PNG, JPG – máx&nbsp;5&nbsp;MB):</label>
-          <input type="file" id="payProof" name="payProof" accept=".pdf,image/png,image/jpeg" />
-        </div>
-
-        <!-- Cuota (solo para Cita de terapia) -->
-        <div class="form-group hidden" id="feeGroup">
-          <label for="eventFee">Cuota a pagar (MXN):</label>
-          <input type="number" id="eventFee" name="eventFee" min="0" step="0.01" />
-        </div>
 
         <button type="submit" id="saveBtn">Guardar</button>
       </form>
