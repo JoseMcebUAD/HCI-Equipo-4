@@ -177,13 +177,19 @@ main{
 .modal{
   display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:1000;
   overflow-y:auto;padding:2rem 1rem;
+  backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);
 }
 .modal-content{
   background:var(--clr-bg);margin:auto;padding:1.5rem;border-radius:var(--radius);
   max-width:600px;width:90%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-md);position:relative;
+  hr{
+    margin-bottom: 8px;
+  }
 }
 .close-button{
-  position:absolute;top:.6rem;right:.8rem;font-size:1.5rem;background:none;border:none;
+  position:absolute;
+  top: -0.1rem;
+  right: 0.6rem;font-size:1.5rem;background:none;border:none;
   color:var(--clr-text);cursor:pointer;transition:color .2s;
 }
 .close-button:hover{color:var(--clr-danger);}
@@ -218,6 +224,61 @@ input[type="file"]{
 
 /* -------------- UTILITARIOS ---------------------------------------- */
 .hidden{display:none !important;}
+
+/* -------------- MODAL NUEVO EVENTO --------------------------------- */
+/* Estilos globales (todos los tamaños) */
+#newEventForm > section{
+  background:#fff;
+  border-radius:var(--radius);
+  box-shadow:0 2px 5px 3px rgba(0, 0, 0, .15);
+  padding:.4rem 1rem;
+  margin-bottom:1rem;
+}
+
+#newEventForm > #saveBtn{
+  display:block;
+  margin:0 auto;
+  width:97.9%;
+  padding:.65rem 1rem;
+  font-size:1rem;
+}
+
+/* Grid solo a partir de 720px */
+@media(min-width:720px){
+  #newEventModal .modal-content{
+    max-width:900px;
+    width:95%;
+  }
+
+  #newEventForm{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows:auto auto;
+    gap:1rem;
+  }
+
+  #newEventForm > section{
+    margin-bottom:0;
+  }
+
+  #newEventForm > section:nth-of-type(1){
+    grid-column:1;
+    grid-row:1;
+  }
+  #newEventForm > section:nth-of-type(2){
+    grid-column:2;
+    grid-row:1;
+  }
+  #newEventForm > section:nth-of-type(3){
+    grid-column:1 / -1;
+    grid-row:2;
+  }
+
+  #newEventForm > #saveBtn{
+    grid-column:1 / -1;
+    justify-self:center;
+  }
+}
 
 /* -------------- RESPONSIVE ----------------------------------------- */
 @media(max-width:650px){      /* ↓ breakpoint reducido a 650 px */
