@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clínica – Agenda</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- ================= CABECERA ================= -->
+  <header>
+    <h1>Clínica de Atención Psicológica</h1>
+    <nav>
+      <ul>
+        <li><a href="agenda.html" class="active">Agenda</a></li>
+        <li><a href="../pacientes/pacientes.html">Pacientes</a></li>
+        <li><a href="../terapeuta/terapeuta.html">Terapeutas</a></li>
+        <li><a href="../salas/salas.html">Salas</a></li>
+        <li><a href="../reportes/reportes.html">Reportes</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ================= CONTENIDO ================= -->
+  <main>
+    <div class="main-container">
+      <!-- -------- SIDEBAR: Mini Calendario -------- -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+          <button id="sidebarToggle" title="Ocultar calendario">&#9776;</button>
+        </div>
+        <div class="mini-cal-header">
+          <button id="prevMonth" title="Mes anterior">&#8249;</button>
+          <span id="miniCalTitle"></span>
+          <button id="nextMonth" title="Mes siguiente">&#8250;</button>
+        </div>
+        <div class="mini-calendar" id="miniCalendar">
+          <!-- generado por JS -->
+        </div>
+      </aside>
+
+      <!-- -------- ÁREA DE AGENDA -------- -->
+      <div class="content-area">
+        <!-- Barra de filtros estilo Teams -->
+        <section id="filters">
+          <input type="hidden" id="filterDate" />
+          <div class="filter-bar">
+            <button id="sidebarShowBtn" class="sidebar-show-btn hidden" title="Mostrar calendario">&#9776;</button>
+
+            <div class="filter-group">
+              <label for="filterType">Tipo de evento:</label>
+              <select id="filterType">
+                <option value="">Todos</option>
+                <option value="1">Evaluación inicial integral</option>
+                <option value="2">Cita de terapia</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <button id="printView" class="btn-action">
+                <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                Imprimir
+              </button>
+              <button id="newEventBtn" class="btn-action btn-primary">
+                <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Nuevo Evento
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Calendario semanal -->
+        <section id="calendarContainer"><!-- grid dinámico --></section>
+
+        <!-- Leyenda de estados -->
+        <div class="status-legend" id="statusLegend">
+          <span class="legend-title">Estados:</span>
+          <span class="legend-item">
+            <span class="legend-dot legend-available"></span> Disponible
+          </span>
+          <span class="legend-item">
+            <span class="legend-dot legend-occupied"></span> Ocupado
+          </span>
+          <span class="legend-item">
+            <span class="legend-dot legend-conflict"></span> Conflicto
+          </span>
+          <span class="legend-item">
+            <span class="legend-dot legend-recommended"></span> Recomendado
+          </span>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= MODAL DETALLES ================= -->
+  <div id="appointmentModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" id="closeModal">&times;</span>
+      <h2>Detalles del Evento</h2>
+      <div id="modalInfo"></div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL NUEVO / REPROG. ================= -->
+  <div id="newEventModal" class="modal">
+    <div class="modal-content">
+      <span class="close-button" id="closeNewEventModal">&times;</span>
+      <h2 id="newEventTitle">Nuevo Evento</h2>
+      <hr>
+
+      <!-- Mensajes de validación inline -->
+      <div id="validationMessages" class="validation-messages" aria-live="polite"></div>
+
+      <form id="newEventForm" novalidate>
+        <!-- Tipo -->
+         <section>
+           <div class="form-group">
+             <label for="eventType">Tipo de Evento:</label>
+             <select id="eventType" name="eventType" required>
+               <option value="">Seleccionar tipo</option>
+               <option value="1">Evaluación inicial integral</option>
+               <option value="2">Cita de Terapia</option>
+             </select>
+           </div>
+           <!-- Paciente -->
+            <div class="form-group">
+              <label for="eventPatient">Paciente:</label>
+              <select id="eventPatient" name="eventPatient" required>
+                <option value="">Seleccionar paciente</option>
+                <option>Ana Martínez</option><option>Luis García</option>
+                <option>Carmen Robles</option><option>José Romero</option>
+                <option>María Torres</option><option>Diego Fuentes</option>
+                <option>Sofía Paredes</option><option>Ricardo Vargas</option>
+                <option>Elena Castillo</option><option>Pedro Rivas</option>
+              </select>
+            </div>
+           <!-- Terapeuta -->
+            <div class="form-group" id="therapistGroup">
+              <label for="eventTherapist">Terapeuta:</label>
+              <select id="eventTherapist" name="eventTherapist"></select>
+            </div>
+             <!-- Sala -->
+           <div class="form-group">
+             <label for="eventRoom">Sala:</label>
+             <select id="eventRoom" name="eventRoom" required>
+               <option value="">Seleccionar sala</option>
+               <option>Sala 101</option><option>Sala 102</option><option>Sala 103</option>
+             </select>
+           </div>
+          </section>
+
+          <section>
+            <!-- Fecha -->
+            <div class="form-group">
+              <label for="eventDate">Fecha:</label>
+              <input type="date" id="eventDate" name="eventDate" required />
+            </div>
+
+            <!-- Hora -->
+            <div class="time-selection">
+              <div class="form-group">
+                <label for="eventStartTime">Hora Inicio:</label>
+                <input type="time" id="eventStartTime" name="eventStartTime" required />
+              </div>
+            </div>
+
+            <!-- Duración (informativa) -->
+            <div class="form-group duration-info">
+              <strong>Duración:</strong>
+              <span id="eventDurationLabel">--</span>
+              <input type="hidden" id="eventDuration" name="eventDuration" />
+            </div>
+            <!-- Folio (readonly) -->
+            <div class="form-group">
+              <label for="eventFolio">Folio:</label>
+              <input type="text" id="eventFolio" name="eventFolio" readonly />
+            </div>
+
+          </section>
+         <section>
+
+           <!-- Comprobante de Pago -->
+           <div class="form-group" id="payProofGroup">
+             <label for="payProof">Comprobante de pago (PDF, PNG, JPG – máx&nbsp;5&nbsp;MB):</label>
+             <input type="file" id="payProof" name="payProof" accept=".pdf,image/png,image/jpeg" />
+           </div>
+
+           <!-- Cuota (solo para Cita de terapia) -->
+           <div class="form-group hidden" id="feeGroup">
+             <label for="eventFee">Cuota a pagar (MXN):</label>
+             <input type="number" id="eventFee" name="eventFee" min="0" step="0.01" />
+           </div>
+         </section>
+
+        <!-- Panel de disponibilidad en tiempo real -->
+        <div id="availabilityPanel" class="availability-panel hidden">
+          <h3>
+            <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Disponibilidad en tiempo real
+          </h3>
+          <div id="availabilityContent" class="availability-content"></div>
+        </div>
+
+        <!-- Sugerencias de alternativas -->
+        <div id="suggestionsArea" class="suggestions-area hidden">
+          <h3>
+            <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+            Horarios alternativos disponibles
+          </h3>
+          <div id="suggestionsList" class="suggestions-list"></div>
+        </div>
+
+        <button type="submit" id="saveBtn" class="btn-action btn-primary btn-save">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Guardar
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL CONFIRMACIÓN ================= -->
+  <div id="confirmModal" class="modal">
+    <div class="modal-content modal-confirm">
+      <h2>
+        <svg class="panel-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Confirmar cambios
+      </h2>
+      <hr>
+      <p class="confirm-subtitle">Revise los detalles antes de aplicar los cambios:</p>
+      <div id="confirmSummary" class="confirm-summary"></div>
+      <div class="confirm-actions">
+        <button id="confirmCancelBtn" class="btn-action btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Cancelar
+        </button>
+        <button id="confirmSaveBtn" class="btn-action btn-primary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirmar y guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= NOTIFICACIÓN TOAST ================= -->
+  <div id="toastNotification" class="toast-notification" aria-live="polite">
+    <span id="toastMessage"></span>
+  </div>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script src="js/agenda.js"></script>
+</body>
+</html>

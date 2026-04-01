@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Administración de Salas</title>
+  <link rel="stylesheet" href="../agenda/css/styles.css">
+  <link rel="stylesheet" href="css/salas.css">
+</head>
+<body>
+  <header>
+    <h1>Clínica de Atención Psicológica</h1>
+    <nav>
+      <ul>
+        <li><a href="../agenda/agenda.html">Agenda</a></li>
+        <li><a href="../pacientes/pacientes.html">Pacientes</a></li>
+        <li><a href="../terapeuta/terapeuta.html">Terapeutas</a></li>
+        <li><a href="salas.html" class="active">Salas</a></li>
+        <li><a href="../reportes/reportes.html">Reportes</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section id="salas-section">
+      <h2>Listado de Salas</h2>
+      <table id="salasTable">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Nombre</th>
+            <th>Servicios</th>
+            <th>Horario</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody><!-- filas dinámicas --></tbody>
+      </table>
+      <button id="btnAgregarSala">Agregar Sala</button>
+    </section>
+
+    <!-- Modal alta / edición -->
+    <div id="modalSala" class="modal">
+      <div class="modal-content">
+        <span class="close-button" id="cerrarModalSala">&times;</span>
+        <h2 id="formTitle">Agregar Sala</h2>
+        <hr/>
+
+        <form id="salaForm">
+          <input type="hidden" id="salaId">
+
+          <!-- Sección 1: Datos de la sala -->
+          <section class="form-section">
+            <div class="form-group">
+              <label for="nombre">Nombre:</label>
+              <input type="text" id="nombre" required>
+            </div>
+
+            <div class="form-group">
+              <label>Servicios que atiende:</label>
+              <div class="servicios-opciones">
+                <label><input type="checkbox" name="servicios" value="Evaluación inicial integral"> Evaluación inicial integral</label>
+                <label><input type="checkbox" name="servicios" value="Cita de terapia"> Cita de terapia</label>
+              </div>
+            </div>
+          </section>
+
+          <!-- Sección 2: Horario -->
+          <h3 class="section-subtitle">Horario</h3>
+          <section class="form-section">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="horaInicio">Hora de Inicio:</label>
+                <input type="time" id="horaInicio" min="09:00" max="18:00" required>
+              </div>
+              <div class="form-group">
+                <label for="horaFin">Hora de Fin:</label>
+                <input type="time" id="horaFin" min="09:00" max="18:00" required>
+              </div>
+            </div>
+          </section>
+
+          <button type="submit" id="guardarSala">Guardar</button>
+        </form>
+      </div>
+    </div>
+  </main>
+
+  <script src="js/salas.js"></script>
+</body>
+</html>
+
