@@ -1,5 +1,6 @@
 /* ============================================================
-   agenda.js  – v2.1 (reprogramaciones robustas + autofoco día)
+   agenda.js  – v3 (rediseño Teams: mini-calendario, solo semana,
+                     filtro por tipo, sidebar colapsable)
    ============================================================ */
 document.addEventListener('DOMContentLoaded', () => {
 
@@ -26,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---------- ERRORES ------------------------------------ */
   const ERR={
     weekend   :'No se pueden programar eventos en fin de semana.',
-    hours     :'El evento excede el horario (09 : 00 – 17 : 30).',
+    hours     :'El evento excede el horario (09:00 – 17:30).',
     slotStep  :'Solo minutos :00 o :30.',
     patientBusy:'El paciente ya tiene un evento que se traslapa.',
     salaBusy  :'La sala está ocupada en ese rango.',
@@ -39,10 +40,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------- DOM refs ----------------------------------- */
   const grid          = document.getElementById('calendarContainer');
-  const filtroPeriodo = document.getElementById('filterPeriod');
   const filtroFecha   = document.getElementById('filterDate');
+  const filtroTipo    = document.getElementById('filterType');
   const btnNuevo      = document.getElementById('newEventBtn');
   const btnPrint      = document.getElementById('printView');
+  const btnToggle     = document.getElementById('sidebarToggle');
+  const btnShowSidebar= document.getElementById('sidebarShowBtn');
+  const sidebar       = document.getElementById('sidebar');
+
+  /* --- mini calendario --- */
+  const miniCalGrid   = document.getElementById('miniCalendar');
+  const miniCalTitle  = document.getElementById('miniCalTitle');
+  const btnPrevMonth  = document.getElementById('prevMonth');
+  const btnNextMonth  = document.getElementById('nextMonth');
 
   /* --- modal NUEVO/EDIT --- */
   const modal      = document.getElementById('newEventModal');
@@ -70,8 +80,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const detClose   = document.getElementById('closeModal');
 
   /* ---------- DATA --------------------------------------- */
-  const eventos=[];          // memoria local
-  const folios ={};          // paciente → folio
+  const eventos=[];
+  const folios ={};
+  let miniCalDate = new Date(); // mes que muestra el mini calendario
 
   /* ---------- HELPERS FOLIO ------------------------------ */
   const getFolio = pac => {
@@ -94,17 +105,141 @@ document.addEventListener('DOMContentLoaded', () => {
     window[EJ]=true;
   };
 
-  /* ---------- RENDER GRID ------------------------------- */
+  /* ========================================================
+     MINI CALENDARIO (panel izquierdo)
+     ======================================================== */
+  const DIAS_SEM = ['D','L','M','M','J','V','S'];
+  const MESES = ['enero','febrero','marzo','abril','mayo','junio',
+                 'julio','agosto','septiembre','octubre','noviembre','diciembre'];
+
+  const buildMiniCalendar = () => {
+    miniCalGrid.innerHTML = '';
+    const year = miniCalDate.getFullYear();
+    const month = miniCalDate.getMonth();
+
+    miniCalTitle.textContent = `${MESES[month]} ${year}`;
+
+    // Encabezados de día
+    DIAS_SEM.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'mini-cal-day-name';
+      el.textContent = d;
+      miniCalGrid.appendChild(el);
+    });
+
+    // Primer día del mes y offset
+    const firstDay = new Date(year, month, 1);
+    const startOffset = firstDay.getDay(); // 0=Dom
+    const daysInMonth = new Date(year, month+1, 0).getDate();
+    const daysInPrev = new Date(year, month, 0).getDate();
+
+    const today = new Date();
+    const todayISO = iso(today);
+    const selectedISO = filtroFecha.value;
+    const selectedDate = selectedISO ? pISO(selectedISO) : today;
+    const weekStart = mon(selectedDate);
+    const weekEnd = addD(weekStart, 4);
+    const weekStartISO = iso(weekStart);
+    const weekEndISO = iso(weekEnd);
+
+    // Días del mes anterior (relleno)
+    for(let i = startOffset - 1; i >= 0; i--){
+      const dayNum = daysInPrev - i;
+      const d = new Date(year, month-1, dayNum);
+      miniCalGrid.appendChild(createMiniDay(dayNum, d, true));
+    }
+
+    // Días del mes actual
+    for(let i = 1; i <= daysInMonth; i++){
+      const d = new Date(year, month, i);
+      miniCalGrid.appendChild(createMiniDay(i, d, false));
+    }
+
+    // Días del mes siguiente (relleno hasta completar 6 filas = 42 celdas)
+    const totalCells = miniCalGrid.children.length;
+    const remaining = 42 - totalCells;
+    for(let i = 1; i <= remaining; i++){
+      const d = new Date(year, month+1, i);
+      miniCalGrid.appendChild(createMiniDay(i, d, true));
+    }
+  };
+
+  const createMiniDay = (num, date, isOtherMonth) => {
+    const el = document.createElement('div');
+    el.className = 'mini-cal-day';
+    el.textContent = num;
+
+    const dISO = iso(date);
+    const today = new Date();
+    const todayISO = iso(today);
+
+    if(isOtherMonth) el.classList.add('other-month');
+    if([0,6].includes(date.getDay())) el.classList.add('weekend');
+    if(dISO === todayISO) el.classList.add('today');
+
+    // Semana actualmente mostrada
+    const selectedDate = filtroFecha.value ? pISO(filtroFecha.value) : today;
+    const weekStart = mon(selectedDate);
+    const weekStartISO = iso(weekStart);
+    const weekEndISO = iso(addD(weekStart, 4));
+    if(dISO >= weekStartISO && dISO <= weekEndISO) el.classList.add('current-week');
+
+    if(dISO === filtroFecha.value) el.classList.add('selected');
+
+    // Click → navegar a esa semana
+    el.addEventListener('click', () => {
+      filtroFecha.value = dISO;
+      render();
+      buildMiniCalendar();
+    });
+
+    return el;
+  };
+
+  btnPrevMonth.addEventListener('click', () => {
+    miniCalDate.setMonth(miniCalDate.getMonth() - 1);
+    buildMiniCalendar();
+  });
+
+  btnNextMonth.addEventListener('click', () => {
+    miniCalDate.setMonth(miniCalDate.getMonth() + 1);
+    buildMiniCalendar();
+  });
+
+  /* ---------- SIDEBAR TOGGLE ------------------------------ */
+  btnToggle.addEventListener('click', () => {
+    sidebar.classList.add('collapsed');
+    btnShowSidebar.classList.remove('hidden');
+  });
+  btnShowSidebar.addEventListener('click', () => {
+    sidebar.classList.remove('collapsed');
+    btnShowSidebar.classList.add('hidden');
+  });
+
+  /* ========================================================
+     RENDER GRID SEMANAL
+     ======================================================== */
   let headerMap={};
 
-  const buildHeader = (start,cols) => {
+  const buildHeader = (start, cols) => {
     headerMap={};
-    grid.appendChild(Object.assign(document.createElement('div'),{className:'day-header'})); // columna horas
+    // Esquina vacía (col horas)
+    const corner = document.createElement('div');
+    corner.className = 'day-header';
+    grid.appendChild(corner);
+
     for(let c=0;c<cols;c++){
-      const d=addD(start,c);
-      const h=document.createElement('div');
-      h.className='day-header';
-      h.textContent=d.toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short'});
+      const d = addD(start,c);
+      const h = document.createElement('div');
+      h.className = 'day-header';
+      const dayName = document.createElement('span');
+      dayName.className = 'day-name';
+      dayName.textContent = d.toLocaleDateString('es-ES',{weekday:'short'});
+      const dayNum = document.createElement('span');
+      dayNum.className = 'day-number';
+      dayNum.textContent = d.getDate();
+      h.appendChild(dayName);
+      h.appendChild(dayNum);
       grid.appendChild(h);
       headerMap[iso(d)]=h;
     }
@@ -129,16 +264,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const placeEvents = (start,cols) => {
     const end=iso(addD(start,cols-1));
+    const typeFilter = filtroTipo.value ? Number(filtroTipo.value) : null;
+
     eventos.forEach(ev=>{
-      if(ev.fecha<iso(start)||ev.fecha>end)return;
+      if(ev.fecha<iso(start)||ev.fecha>end) return;
+      if(typeFilter && ev.tipo !== typeFilter) return;
+
       const slots=ev.dur/SLOT;
       for(let i=0;i<slots;i++){
         const t=addM(ev.hora,i*SLOT);
         const cont=grid.querySelector(`.cell-container[data-fecha="${ev.fecha}"][data-hora="${t}"]`);
-        if(!cont)continue;
+        if(!cont) continue;
         const div=document.createElement('div');
         div.className=`appointment tipo-${ev.tipo}`;
-        if(i===0)div.textContent=`${TIPOS[ev.tipo].nombre} – ${ev.paciente}`;
+        if(i===0) div.textContent=`${TIPOS[ev.tipo].nombre} – ${ev.paciente}`;
         div.onclick=e=>{e.stopPropagation();showDetails(ev);};
         cont.appendChild(div);
       }
@@ -146,7 +285,9 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const colorHeaders = () => {
-    Object.values(headerMap).forEach(el=>el.className='day-header');
+    Object.values(headerMap).forEach(el=>{
+      el.classList.remove('day-low','day-mid','day-high');
+    });
     Object.entries(headerMap).forEach(([f,el])=>{
       const pct=eventos.filter(e=>e.fecha===f).length/ROWS*100;
       if(pct<25)      el.classList.add('day-low');
@@ -157,13 +298,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const render = () => {
     grid.innerHTML='';
-    let ref=filtroFecha.value?pISO(filtroFecha.value):new Date();
-    if(isWE(ref)) ref=mon(ref);
+    let ref = filtroFecha.value ? pISO(filtroFecha.value) : new Date();
+    if(isWE(ref)) ref = mon(ref);
     genEj(mon(ref));
-    filtroFecha.value=iso(ref);
-    const cols=filtroPeriodo.value==='day'?1:5;
-    const start=cols===1?ref:mon(ref);
-    grid.style.gridTemplateColumns=cols===1?'60px 1fr':`60px repeat(${cols},1fr)`;
+    filtroFecha.value = iso(ref);
+
+    // Siempre vista semanal (5 columnas, Lun-Vie)
+    const cols = 5;
+    const start = mon(ref);
+    grid.style.gridTemplateColumns = `60px repeat(${cols},1fr)`;
+
     buildHeader(start,cols);
     buildRows(start,cols);
     placeEvents(start,cols);
@@ -200,7 +344,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if(ev.tipo===1 && eventos.some(e=>e.id!==editId && e.tipo===1 && e.paciente===ev.paciente && e.fecha===ev.fecha))
       return ERR.oneEvalDay;
 
-    /* archivo (solo se revisa en tipo 2) */
     if(ev.tipo===2){
       const f=payProof.files[0];
       if(f){
@@ -249,7 +392,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   btnNuevo.onclick = () => {
     let d=new Date(); if(isWE(d)) d=mon(d);
-    window.lastManagedId=null;
     openModal(iso(d),`${pad(OPEN)}:00`);
   };
   closeModal.onclick = () => modal.style.display='none';
@@ -281,14 +423,10 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     eventos.push(ev);
 
-    // notificar Bandeja con el id gestionado
-    window.dispatchEvent(new CustomEvent('eventCreated',{detail:{requestId:window.lastManagedId||null}}));
-
-    /* --- enfocar día de la cita recién guardada ----------- */
     filtroFecha.value = ev.fecha;
-
     modal.style.display='none';
     render();
+    buildMiniCalendar();
   };
 
   /* ---------- DETALLES ------------------------------------ */
@@ -315,37 +453,16 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   detClose.onclick=()=>detModal.style.display='none';
 
-  /* ---------- REQUESTS DESDE BANDEJA ---------------------- */
-  window.addEventListener('openRequest',e=>{
-    const r=e.detail;
-    window.lastManagedId=r.id;
-
-    if(r.tipoPet==='requests'){
-      openModal(r.fecha,r.hora);
-      selTipo.value=r.tipoEv;
-      selPaciente.value=r.paciente;
-      inFolio.value=getFolio(r.paciente);
-      refreshTher();
-    }else{   // reprogramación
-      const orig=eventos.find(x=>x.tipo===r.tipoEv && x.paciente===r.paciente);
-      if(orig){
-        openModal(r.fecha,r.hora,orig);
-      }else{
-        alert('No se encontró el evento original para reprogramar.');
-      }
-    }
-  });
-
   /* ---------- PRINT --------------------------------------- */
   btnPrint.onclick=()=>{
     const head=document.querySelector('head').innerHTML;
     const calendarHTML=document.getElementById('calendarContainer').outerHTML;
-    const w=window.open('','','width=800,height=600');
+    const w=window.open('','','width=900,height=600');
     w.document.write(`
       <html><head>${head}
         <style>
           @media print{
-            body{margin:0;font-family:Arial,sans-serif;}
+            body{margin:0;font-family:'Segoe UI',Arial,sans-serif;}
             #calendarContainer{border:none;}
             .time-cell,.day-header{font-size:11px}
             .appointment{font-size:10px}
@@ -355,10 +472,13 @@ document.addEventListener('DOMContentLoaded', () => {
     w.document.close(); w.focus(); w.print(); w.close();
   };
 
-  /* ---------- FILTROS & INICIO ---------------------------- */
-  filtroPeriodo.value='day';
+  /* ---------- FILTRO TIPO & INICIO ----------------------- */
   filtroFecha.value = iso(new Date());
-  filtroFecha.onchange = render;
-  filtroPeriodo.onchange = render;
+  filtroFecha.onchange = () => { render(); buildMiniCalendar(); };
+  filtroTipo.onchange = render;
+
+  // Sincronizar mini calendario con la fecha actual
+  miniCalDate = new Date();
+  buildMiniCalendar();
   render();
 });
