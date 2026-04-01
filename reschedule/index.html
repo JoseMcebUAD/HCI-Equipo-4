@@ -4,82 +4,85 @@
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Gestión de Recalendarización | Aeon Clinical</title>
-
-<link rel="stylesheet" href="styles.css"/>
-
 <!-- Font Preloads -->
-<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
 <!-- Material Symbols -->
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
 <!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-
 <script id="tailwind-config">
-tailwind.config = {
-  darkMode: "class",
-  theme: {
-    extend: {
-      colors: {
-        "background": "#f7f9fb",
-        "surface-container-highest": "#e0e3e5",
-        "surface-tint": "#2f6388",
-        "on-error-container": "#93000a",
-        "on-secondary-fixed-variant": "#304a55",
-        "on-tertiary-fixed": "#281900",
-        "on-tertiary-fixed-variant": "#5f4100",
-        "on-primary-fixed-variant": "#0e4b6e",
-        "tertiary-container": "#7a5504",
-        "outline": "#727780",
-        "secondary-container": "#cbe7f5",
-        "inverse-on-surface": "#eff1f3",
-        "surface-dim": "#d8dadc",
-        "surface-container": "#eceef0",
-        "outline-variant": "#c2c7d0",
-        "tertiary-fixed-dim": "#f1be69",
-        "surface-variant": "#e0e3e5",
-        "on-background": "#191c1e",
-        "surface-container-lowest": "#ffffff",
-        "tertiary-fixed": "#ffdeab",
-        "on-tertiary": "#ffffff",
-        "on-primary": "#ffffff",
-        "surface-container-low": "#f2f4f6",
-        "surface-bright": "#f7f9fb",
-        "primary-fixed-dim": "#9bccf6",
-        "on-tertiary-container": "#ffcd79",
-        "secondary": "#48626e",
-        "on-surface-variant": "#42474f",
-        "primary-fixed": "#cbe6ff",
-        "on-secondary-container": "#4e6874",
-        "error-container": "#ffdad6",
-        "primary-container": "#2c6085",
-        "primary": "#09486c",
-        "on-secondary-fixed": "#021f29",
-        "error": "#ba1a1a",
-        "surface": "#f7f9fb",
-        "on-surface": "#191c1e",
-        "on-primary-container": "#aed9ff",
-        "on-secondary": "#ffffff",
-        "secondary-fixed": "#cbe7f5",
-        "on-error": "#ffffff",
-        "secondary-fixed-dim": "#afcbd8",
-        "inverse-primary": "#9bccf6",
-        "surface-container-high": "#e6e8ea",
-        "inverse-surface": "#2d3133",
-        "tertiary": "#5c3f00",
-        "on-primary-fixed": "#001e30"
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f7f9fb",
+            "surface-container-highest": "#e0e3e5",
+            "surface-tint": "#2f6388",
+            "on-error-container": "#93000a",
+            "on-secondary-fixed-variant": "#304a55",
+            "on-tertiary-fixed": "#281900",
+            "on-tertiary-fixed-variant": "#5f4100",
+            "on-primary-fixed-variant": "#0e4b6e",
+            "tertiary-container": "#7a5504",
+            "outline": "#727780",
+            "secondary-container": "#cbe7f5",
+            "inverse-on-surface": "#eff1f3",
+            "surface-dim": "#d8dadc",
+            "surface-container": "#eceef0",
+            "outline-variant": "#c2c7d0",
+            "tertiary-fixed-dim": "#f1be69",
+            "surface-variant": "#e0e3e5",
+            "on-background": "#191c1e",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-fixed": "#ffdeab",
+            "on-tertiary": "#ffffff",
+            "on-primary": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "surface-bright": "#f7f9fb",
+            "primary-fixed-dim": "#9bccf6",
+            "on-tertiary-container": "#ffcd79",
+            "secondary": "#48626e",
+            "on-surface-variant": "#42474f",
+            "primary-fixed": "#cbe6ff",
+            "on-secondary-container": "#4e6874",
+            "error-container": "#ffdad6",
+            "primary-container": "#2c6085",
+            "primary": "#09486c",
+            "on-secondary-fixed": "#021f29",
+            "error": "#ba1a1a",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e",
+            "on-primary-container": "#aed9ff",
+            "on-secondary": "#ffffff",
+            "secondary-fixed": "#cbe7f5",
+            "on-error": "#ffffff",
+            "secondary-fixed-dim": "#afcbd8",
+            "inverse-primary": "#9bccf6",
+            "surface-container-high": "#e6e8ea",
+            "inverse-surface": "#2d3133",
+            "tertiary": "#5c3f00",
+            "on-primary-fixed": "#001e30"
+          },
+          fontFamily: {
+            "headline": ["Public Sans"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
       },
-      fontFamily: {
-        "headline": ["Public Sans"],
-        "body": ["Inter"],
-        "label": ["Inter"]
-      },
-      borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
-    },
-  },
-}
-</script>
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3 { font-family: 'Public Sans', sans-serif; }
+  </style>
 </head>
-
 <body class="bg-background text-on-background antialiased flex">
 <!-- Main Stage -->
 <main class="flex-1 flex flex-col min-h-screen">
