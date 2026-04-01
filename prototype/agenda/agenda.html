@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -25,51 +25,46 @@
   <!-- ================= CONTENIDO ================= -->
   <main>
     <div class="main-container">
-      <!-- -------- BANDEJA DE ENTRADA -------- -->
-      <aside class="inbox">
-        <div class="inbox-header"><h2>Bandeja de Entrada</h2></div>
-
-        <div class="inbox-tabs">
-          <button class="tab-btn active" data-tab="requests">
-            Solicitudes <span id="requests-count">(0)</span>
-          </button>
-          <button class="tab-btn" data-tab="reschedules">
-            Reprogramaciones <span id="reschedules-count">(0)</span>
-          </button>
+      <!-- -------- SIDEBAR: Mini Calendario -------- -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-top">
+          <button id="sidebarToggle" title="Ocultar calendario">&#9776;</button>
         </div>
-
-        <div class="inbox-content">
-          <div id="requests-tab"    class="tab-content active"></div>
-          <div id="reschedules-tab" class="tab-content"></div>
+        <div class="mini-cal-header">
+          <button id="prevMonth" title="Mes anterior">&#8249;</button>
+          <span id="miniCalTitle"></span>
+          <button id="nextMonth" title="Mes siguiente">&#8250;</button>
+        </div>
+        <div class="mini-calendar" id="miniCalendar">
+          <!-- generado por JS -->
         </div>
       </aside>
 
       <!-- -------- ÁREA DE AGENDA -------- -->
       <div class="content-area">
-        <!-- Filtros -->
+        <!-- Barra de filtros estilo Teams -->
         <section id="filters">
-          <h2>Filtros de Agenda</h2>
+          <input type="hidden" id="filterDate" />
+          <div class="filter-bar">
+            <button id="sidebarShowBtn" class="sidebar-show-btn hidden" title="Mostrar calendario">&#9776;</button>
 
-          <div class="filter-group">
-            <label for="filterPeriod">Periodo:</label>
-            <select id="filterPeriod">
-              <option value="day" selected>Día</option>
-              <option value="week">Semana</option>
-            </select>
-          </div>
+            <div class="filter-group">
+              <label for="filterType">Tipo de evento:</label>
+              <select id="filterType">
+                <option value="">Todos</option>
+                <option value="1">Evaluación inicial integral</option>
+                <option value="2">Cita de terapia</option>
+              </select>
+            </div>
 
-          <div class="filter-group">
-            <label for="filterDate">Fecha:</label>
-            <input type="date" id="filterDate" />
-          </div>
-
-          <div class="filter-group">
-            <button id="printView">Imprimir</button>
-            <button id="newEventBtn">Nuevo Evento</button>
+            <div class="filter-group">
+              <button id="printView">Imprimir</button>
+              <button id="newEventBtn">Nuevo Evento</button>
+            </div>
           </div>
         </section>
 
-        <!-- Calendario -->
+        <!-- Calendario semanal -->
         <section id="calendarContainer"><!-- grid dinámico --></section>
       </div>
     </div>
@@ -128,14 +123,14 @@
              </select>
            </div>
           </section>
-          
+
           <section>
             <!-- Fecha -->
             <div class="form-group">
               <label for="eventDate">Fecha:</label>
               <input type="date" id="eventDate" name="eventDate" required />
             </div>
-            
+
             <!-- Hora -->
             <div class="time-selection">
               <div class="form-group">
@@ -143,7 +138,7 @@
                 <input type="time" id="eventStartTime" name="eventStartTime" required />
               </div>
             </div>
-            
+
             <!-- Duración (informativa) -->
             <div class="form-group duration-info">
               <strong>Duración:</strong>
@@ -155,16 +150,16 @@
               <label for="eventFolio">Folio:</label>
               <input type="text" id="eventFolio" name="eventFolio" readonly />
             </div>
-            
+
           </section>
          <section>
-   
+
            <!-- Comprobante de Pago -->
            <div class="form-group" id="payProofGroup">
              <label for="payProof">Comprobante de pago (PDF, PNG, JPG – máx&nbsp;5&nbsp;MB):</label>
              <input type="file" id="payProof" name="payProof" accept=".pdf,image/png,image/jpeg" />
            </div>
-   
+
            <!-- Cuota (solo para Cita de terapia) -->
            <div class="form-group hidden" id="feeGroup">
              <label for="eventFee">Cuota a pagar (MXN):</label>
@@ -179,8 +174,6 @@
   </div>
 
   <!-- ================= SCRIPTS ================= -->
-  <script src="js/bandeja-entrada.js"></script>
   <script src="js/agenda.js"></script>
 </body>
 </html>
-
