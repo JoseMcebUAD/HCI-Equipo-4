@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Recalendarización | Aeon Clinical</title>
+<!-- Font Preloads -->
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "background": "#f7f9fb",
+            "surface-container-highest": "#e0e3e5",
+            "surface-tint": "#2f6388",
+            "on-error-container": "#93000a",
+            "on-secondary-fixed-variant": "#304a55",
+            "on-tertiary-fixed": "#281900",
+            "on-tertiary-fixed-variant": "#5f4100",
+            "on-primary-fixed-variant": "#0e4b6e",
+            "tertiary-container": "#7a5504",
+            "outline": "#727780",
+            "secondary-container": "#cbe7f5",
+            "inverse-on-surface": "#eff1f3",
+            "surface-dim": "#d8dadc",
+            "surface-container": "#eceef0",
+            "outline-variant": "#c2c7d0",
+            "tertiary-fixed-dim": "#f1be69",
+            "surface-variant": "#e0e3e5",
+            "on-background": "#191c1e",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-fixed": "#ffdeab",
+            "on-tertiary": "#ffffff",
+            "on-primary": "#ffffff",
+            "surface-container-low": "#f2f4f6",
+            "surface-bright": "#f7f9fb",
+            "primary-fixed-dim": "#9bccf6",
+            "on-tertiary-container": "#ffcd79",
+            "secondary": "#48626e",
+            "on-surface-variant": "#42474f",
+            "primary-fixed": "#cbe6ff",
+            "on-secondary-container": "#4e6874",
+            "error-container": "#ffdad6",
+            "primary-container": "#2c6085",
+            "primary": "#09486c",
+            "on-secondary-fixed": "#021f29",
+            "error": "#ba1a1a",
+            "surface": "#f7f9fb",
+            "on-surface": "#191c1e",
+            "on-primary-container": "#aed9ff",
+            "on-secondary": "#ffffff",
+            "secondary-fixed": "#cbe7f5",
+            "on-error": "#ffffff",
+            "secondary-fixed-dim": "#afcbd8",
+            "inverse-primary": "#9bccf6",
+            "surface-container-high": "#e6e8ea",
+            "inverse-surface": "#2d3133",
+            "tertiary": "#5c3f00",
+            "on-primary-fixed": "#001e30"
+          },
+          fontFamily: {
+            "headline": ["Public Sans"],
+            "body": ["Inter"],
+            "label": ["Inter"]
+          },
+          borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+    }
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3 { font-family: 'Public Sans', sans-serif; }
+  </style>
+</head>
+<body class="bg-background text-on-background antialiased flex">
+<!-- Main Stage -->
+<main class="flex-1 flex flex-col min-h-screen">
+<!-- TopNavBar Anchor -->
+<header class="flex justify-between items-center h-16 px-8 w-full sticky top-0 z-40 bg-[#f7f9fb] border-b border-slate-200/50 font-['Public_Sans'] antialiased">
+<div class="flex items-center space-x-8">
+<h1 class="text-xl font-bold tracking-tight text-primary">Aeon Clinical</h1>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-slate-400">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-2 text-sm w-80 focus:ring-2 focus:ring-primary/20" placeholder="Buscar pacientes, registros..." type="text"/>
+</div>
+</div>
+<div class="flex items-center space-x-6">
+<nav class="hidden md:flex space-x-6">
+<a class="text-slate-500 hover:text-primary transition-colors text-sm font-medium" href="#">Panel</a>
+<a class="text-slate-500 hover:text-primary transition-colors text-sm font-medium" href="#">Horario</a>
+<a class="text-slate-500 hover:text-primary transition-colors text-sm font-medium" href="#">Pacientes</a>
+<a class="text-slate-500 hover:text-primary transition-colors text-sm font-medium" href="#">Informes</a>
+</nav>
+<div class="h-6 w-px bg-slate-200"></div>
+<div class="flex items-center space-x-3">
+<button class="p-2 text-slate-500 hover:bg-slate-100 rounded-md transition-all">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="bg-primary px-4 py-2 rounded-lg text-white text-sm font-semibold hover:bg-primary-container transition-all">
+            Nueva Cita
+          </button>
+<img class="w-8 h-8 rounded-full object-cover border border-slate-200" data-alt="Close up portrait of a professional female medical administrator with glasses in a bright office" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkuPjG8dM_0ovhnlpWODnIPjaXsFLvvavUc0E-qt5TrXw5EzdO6pLgxetqijw4Frcz741d0vICSrqDRNxgo6H6VZlI7OzWRiHcelhqLmjSRuwY9wwlwiz77ssRFeJlEeBcr0aE5uiSA6yQv2q0uG-g3qoKo89AKQZIbtQzXR1E0pMAPkeVNUqwaqKdFet73GDyiLQ0IW7em0pf5I_aD6hgvIPVO-Ilgbo6dqTYo5Emh02dUB1olaZIEu5NQuQZ3TqR6M3kyYO_UCjG"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="flex flex-1 overflow-hidden">
+<!-- Center Column: Management Interface -->
+<section class="flex-1 p-8 overflow-y-auto">
+<header class="mb-8">
+<div class="flex items-center space-x-2 text-sm text-secondary mb-2">
+<span>Citas</span>
+<span class="material-symbols-outlined text-xs">chevron_right</span>
+<span>Gestión de Recalendarización</span>
+</div>
+<h2 class="text-3xl font-extrabold text-on-surface tracking-tight">Modificar Sesión</h2>
+</header>
+<!-- Therapist Selection Section -->
+<div class="mb-10">
+<div class="flex items-center justify-between mb-4">
+<h3 class="text-lg font-bold text-on-surface">1. Seleccionar Terapeuta</h3>
+<button class="text-sm font-semibold text-primary flex items-center space-x-1">
+<span>Ver Todo el Personal</span>
+<span class="material-symbols-outlined text-sm">open_in_new</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<!-- Selected Therapist Card -->
+<div class="bg-surface-container-highest p-5 rounded-xl border-2 border-primary flex items-center space-x-4 relative overflow-hidden">
+<div class="absolute top-0 right-0 bg-primary text-white text-[10px] px-3 py-1 font-bold rounded-bl-lg">SELECCIONADO</div>
+<img class="w-16 h-16 rounded-lg object-cover shadow-sm" data-alt="Portrait of Dr. Sarah Jenkins, a professional female therapist smiling in a clinical environment" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAMJQ17GDtlJlum4MVEfOHyhQkgfIPX2IUHls0SG1ygblaj08c4K_XL29GgMNudTUhH2piIcytJl6k5CpVAcnNVOBsAnbSLBLBv-MTFDd2hlWwEdVWRyJqe1XGqbC_H6poMQOTu4cHRdZuu0gw8xEDgDi9ui2WjXi5qend6ZJESI1K0d5OhtFtyJOU9bbIBwXFkm-mkVCMRZ1tvuykSYQLNRKmQ7su-Ea-YWoLXPxFStk4qOofWDr-INx9jlk11Vd5b4uN-PS7LNSVo"/>
+<div class="flex-1">
+<h4 class="font-bold text-primary">Dra. Sarah Jenkins</h4>
+<p class="text-sm text-secondary">Especialista en Terapia Cognitivo-Conductual</p>
+<div class="mt-2 flex items-center space-x-2">
+<span class="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+<span class="text-xs font-semibold text-on-primary-fixed-variant">Disponible Hoy</span>
+</div>
+</div>
+</div>
+<!-- Alternative Therapist Card -->
+<div class="bg-surface-container-low p-5 rounded-xl flex items-center space-x-4 hover:bg-surface-container-high cursor-pointer transition-colors">
+<img class="w-16 h-16 rounded-lg object-cover grayscale opacity-80" data-alt="Portrait of Dr. Marcus Thorne, male clinical psychologist with a warm and approachable look" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD95QMlDRu0jKiUPtk25r02KzrI8CAZhzMLMkog4miPA3bAnywBOoa-A4Ar1X96dLTxUyM_oer_BHri5-ShUyQZpDVou5SrqhXs7rX1udrwif4ISW2oGbvyPg0xzBjnYTg8iVY1i3gA8-fcF4O68a096NqGG32C_sAMIX4hIgHGledf2-2S9Qy6rKn8EtWb60YEtE1rONISep_IAKE2NmjBSQx7yW_nuz3QbD9SZuZXOGNjJIyxYbbA9LHFTtCP-wponhilbH4Dac-c"/>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface">Dr. Marcus Thorne</h4>
+<p class="text-sm text-secondary">Terapia Familiar e Infantil</p>
+<div class="mt-2 flex items-center space-x-2">
+<span class="flex h-2 w-2 rounded-full bg-tertiary"></span>
+<span class="text-xs font-semibold text-on-tertiary-fixed-variant">Disponible desde el 14 de Oct</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Date & Time Selection -->
+<div class="mb-10">
+<h3 class="text-lg font-bold text-on-surface mb-4">2. Selección de Fecha y Hora</h3>
+<div class="bg-surface-container-lowest p-6 rounded-2xl shadow-sm">
+<div class="flex items-center justify-between mb-6">
+<div class="flex items-center space-x-4">
+<button class="p-2 hover:bg-surface-container rounded-lg"><span class="material-symbols-outlined">chevron_left</span></button>
+<span class="font-bold text-xl">Octubre 2023</span>
+<button class="p-2 hover:bg-surface-container rounded-lg"><span class="material-symbols-outlined">chevron_right</span></button>
+</div>
+<div class="flex items-center space-x-3 text-xs font-semibold uppercase tracking-wider text-secondary">
+<div class="flex items-center space-x-1">
+<div class="w-3 h-3 rounded-sm bg-primary-container"></div>
+<span>Recomendado</span>
+</div>
+<div class="flex items-center space-x-1">
+<div class="w-3 h-3 rounded-sm bg-surface-container-highest"></div>
+<span>Bloqueado</span>
+</div>
+<div class="flex items-center space-x-1">
+<div class="w-3 h-3 rounded-sm bg-error-container"></div>
+<span>Conflicto</span>
+</div>
+</div>
+</div>
+<!-- Calendar Grid -->
+<div class="grid grid-cols-7 gap-2 mb-6 text-center text-xs font-bold text-secondary">
+<div>LUN</div><div>MAR</div><div>MIÉ</div><div>JUE</div><div>VIE</div><div>SÁB</div><div>DOM</div>
+</div>
+<div class="grid grid-cols-7 gap-2">
+<!-- Calendar Days (Mocked for October 12-14 emphasis) -->
+<div class="h-20 bg-surface-container-low rounded-lg p-2 flex flex-col justify-between text-slate-400"><span>9</span></div>
+<div class="h-20 bg-surface-container-low rounded-lg p-2 flex flex-col justify-between text-slate-400"><span>10</span></div>
+<div class="h-20 bg-surface-container-low rounded-lg p-2 flex flex-col justify-between text-slate-400"><span>11</span></div>
+<div class="h-20 bg-primary-container/20 border-2 border-primary rounded-lg p-2 flex flex-col justify-between cursor-pointer">
+<span class="font-bold text-primary">12</span>
+<span class="text-[10px] bg-primary text-white px-1.5 py-0.5 rounded-sm self-start uppercase">RECOMENDADO</span>
+</div>
+<div class="h-20 bg-surface-container-low rounded-lg p-2 flex flex-col justify-between"><span>13</span></div>
+<div class="h-20 bg-surface-container-highest rounded-lg p-2 flex flex-col justify-between opacity-50"><span>14</span><span class="text-[9px] uppercase">BLOQUEADO</span></div>
+<div class="h-20 bg-surface-container-low rounded-lg p-2 flex flex-col justify-between opacity-50"><span>15</span></div>
+</div>
+<!-- Time Slots -->
+<div class="mt-8">
+<p class="text-sm font-bold text-on-surface-variant mb-3">Horarios disponibles para el Jueves, 12 de Oct</p>
+<div class="grid grid-cols-4 gap-3">
+<button class="py-3 px-4 rounded-xl border border-outline-variant text-sm font-bold text-center hover:bg-surface-container transition-all">09:00 AM</button>
+<button class="py-3 px-4 rounded-xl border border-outline-variant text-sm font-bold text-center hover:bg-surface-container transition-all">10:30 AM</button>
+<button class="py-3 px-4 rounded-xl bg-primary text-white text-sm font-bold text-center shadow-lg shadow-primary/20">02:15 PM</button>
+<button class="py-3 px-4 rounded-xl bg-error-container text-on-error-container text-sm font-bold text-center cursor-not-allowed flex items-center justify-center space-x-1">
+<span class="material-symbols-outlined text-sm">warning</span>
+<span>04:00 PM</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Right Sidebar: Patient & Summary -->
+<aside class="w-96 bg-surface-container-low border-l border-slate-200/50 p-6 overflow-y-auto">
+<!-- Patient Profile Summary -->
+<div class="bg-surface-container-lowest p-6 rounded-2xl mb-6 shadow-sm">
+<h3 class="text-xs font-bold text-secondary uppercase tracking-widest mb-4">Perfil del Paciente</h3>
+<div class="flex items-center space-x-4 mb-4">
+<div class="w-14 h-14 bg-secondary-container rounded-full flex items-center justify-center text-primary font-bold text-xl">
+              BT
+            </div>
+<div>
+<h3 class="font-bold text-lg text-on-surface">Benjamin S. Thompson</h3>
+<p class="text-xs text-secondary">ID: #AEA-29402</p>
+</div>
+</div>
+<div class="space-y-3">
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Última Sesión</span>
+<span class="font-semibold">28 de Sept, 2023</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Diagnóstico</span>
+<span class="font-semibold text-right">Trastorno de Adaptación con Ansiedad</span>
+</div>
+<div class="flex justify-between text-sm">
+<span class="text-secondary">Atención Primaria</span>
+<span class="font-semibold">Dra. Jenkins</span>
+</div>
+</div>
+<div class="mt-4 pt-4 border-t border-slate-100">
+<p class="text-xs font-bold text-secondary uppercase tracking-widest mb-2">Notas Internas</p>
+<p class="text-xs text-on-surface-variant leading-relaxed">El paciente prefiere horarios por la tarde. Alta sensibilidad a la temperatura de la sala y a la iluminación. Asegurar que la Sala 4C esté calibrada.</p>
+</div>
+</div>
+<!-- Reschedule Summary Section -->
+<div class="bg-surface-container-highest p-6 rounded-2xl shadow-sm border border-primary/10">
+<h3 class="font-bold text-lg text-primary mb-6 flex items-center">
+<span class="material-symbols-outlined mr-2">receipt_long</span>
+            Resumen de Recalendarización
+          </h3>
+<div class="space-y-6">
+<div class="flex items-start space-x-3">
+<div class="mt-1 p-2 bg-white rounded-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">calendar_month</span>
+</div>
+<div>
+<p class="text-xs text-secondary font-medium">Nueva Fecha y Hora</p>
+<p class="font-bold text-on-surface">Jueves, 12 de Oct, 2023</p>
+<p class="text-sm font-semibold text-primary">02:15 PM — 03:15 PM</p>
+</div>
+</div>
+<div class="flex items-start space-x-3">
+<div class="mt-1 p-2 bg-white rounded-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">meeting_room</span>
+</div>
+<div>
+<p class="text-xs text-secondary font-medium">Asignación de Sala</p>
+<p class="font-bold text-on-surface">Suite de Terapia 4C</p>
+<div class="flex items-center text-xs text-error font-bold mt-1">
+<span class="material-symbols-outlined text-sm mr-1">warning</span>
+<span>Conflicto de Sala: Riesgo de Doble Reserva</span>
+</div>
+</div>
+</div>
+<div class="flex items-start space-x-3">
+<div class="mt-1 p-2 bg-white rounded-lg">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">person</span>
+</div>
+<div>
+<p class="text-xs text-secondary font-medium">Especialista Asignado</p>
+<p class="font-bold text-on-surface">Dra. Sarah Jenkins</p>
+</div>
+</div>
+</div>
+<!-- Actions -->
+<div class="mt-10 space-y-3">
+<button class="w-full bg-primary py-4 rounded-xl text-white font-extrabold text-base shadow-lg shadow-primary/25 hover:brightness-110 active:scale-95 transition-all">
+              Confirmar Cambio
+            </button>
+<button class="w-full bg-surface-container-low border border-outline-variant py-4 rounded-xl text-secondary font-bold text-sm hover:bg-white transition-all">
+              Cancelar y Revertir
+            </button>
+</div>
+<p class="mt-4 text-[11px] text-center text-secondary leading-tight px-4">
+            La confirmación enviará una notificación automática a Benjamin Thompson y a la Dra. Jenkins.
+          </p>
+</div>
+</aside>
+</div>
+</main>
+<!-- Notification Toast (Ambient Detail) -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-6 py-3 rounded-full flex items-center space-x-3 shadow-2xl z-50">
+<span class="material-symbols-outlined text-primary-fixed">info</span>
+<span class="text-sm font-medium">Benjamin S. Thompson tiene 2 cancelaciones previas.</span>
+<button class="text-primary-fixed font-bold text-sm ml-2">Revisar Historial</button>
+</div>
+</body></html>
