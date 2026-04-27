@@ -110,6 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventos=[];
   const folios ={};
 
+  /* Restore persisted state when returning from reprogramar.html */
+  (function(){
+    const _evts = localStorage.getItem('agenda_events');
+    const _fols = localStorage.getItem('agenda_folios');
+    if(_evts){ try{ JSON.parse(_evts).forEach(e=>eventos.push(e)); window['__ejemplo__']=true; }catch(e){} localStorage.removeItem('agenda_events'); }
+    if(_fols){ try{ Object.assign(folios,JSON.parse(_fols)); }catch(e){} localStorage.removeItem('agenda_folios'); }
+  })();
+
   /* ---------- HELPERS FOLIO ------------------------------ */
   const getFolio = pac => {
     if(!folios[pac]){
@@ -813,7 +821,10 @@ document.addEventListener('DOMContentLoaded', () => {
     detModal.style.display='block';
     document.getElementById('repBtn').onclick=()=>{
       detModal.style.display='none';
-      openModal(ev.fecha,ev.hora,ev);
+      localStorage.setItem('agenda_events', JSON.stringify(eventos));
+      localStorage.setItem('agenda_folios', JSON.stringify(folios));
+      localStorage.setItem('reprogramar_event', JSON.stringify(ev));
+      window.location.href='reprogramar.html';
     };
     document.getElementById('cancelEventBtn').onclick=()=>{
       if(confirm('¿Está seguro de que desea cancelar esta cita?')){
