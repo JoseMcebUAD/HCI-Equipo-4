@@ -50,11 +50,9 @@ An administrative user who first used the prototype 15 days ago to schedule an a
 
 ### Type of data collected and how it could be analyzed
 
-| Data type | Description |
-|-----------|-------------|
-| **Task time (seconds)** | Measured from when the user starts the task until completion |
-| **Number of errors** | Wrong clicks, wrong paths, unnecessary use of help |
-| **Successful completion** | Yes/No per task |
+ **Task time (seconds)** -> Measured from when the user starts the task until completion |
+ **Number of errors** -> Wrong clicks, wrong paths, unnecessary use of help |
+ **Successful completion** -> Yes/No per task |
 
 **Analysis:**  
 Calculate the ORI for each user and average across participants. You can also complement this with qualitative observations (e.g., "the user hesitated at step 2").
