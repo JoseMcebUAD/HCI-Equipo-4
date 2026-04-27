@@ -892,8 +892,61 @@ input[type="file"]{
 /* -------------- UTILITARIOS ---------------------------------------- */
 .hidden{display:none !important;}
 
+/* -------------- MODAL DETALLES — estilo "Perfil" ------------------- */
+#modalInfo .md-eyebrow{
+  margin:0 0 .55rem;
+  font-size:.72rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#6b7280;
+}
+#modalInfo .md-eyebrow-sm{font-size:.68rem;margin:1rem 0 .55rem;}
+
+#modalInfo .md-hero{
+  display:flex;align-items:center;gap:.9rem;margin:.2rem 0 .4rem;flex-wrap:wrap;
+}
+#modalInfo .md-avatar{
+  width:44px;height:44px;border-radius:10px;
+  background:#e3f0fc;color:#1565c0;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+#modalInfo .md-hero-info{
+  flex:1 1 auto;min-width:0;
+}
+#modalInfo .md-title{
+  margin:0;font-size:1.05rem;font-weight:600;color:#1f2937;
+}
+#modalInfo .md-subtitle{
+  margin:.15rem 0 0;font-size:.82rem;color:#6b7280;
+}
+#modalInfo .md-hero-actions{
+  display:flex;flex-direction:row;gap:.5rem;flex-shrink:0;flex-wrap:nowrap;
+}
+#modalInfo .md-hero-actions .approve-btn,
+#modalInfo .md-hero-actions .cancel-event-btn{
+  padding:.45rem .7rem;font-size:.82rem;white-space:nowrap;
+}
+@media (max-width:520px){
+  #modalInfo .md-hero-actions{width:100%;}
+  #modalInfo .md-hero-actions .approve-btn,
+  #modalInfo .md-hero-actions .cancel-event-btn{flex:1;justify-content:center;}
+}
+
+#modalInfo .md-divider{
+  border:0;border-top:1px solid #eef0f3;margin:.9rem 0 .2rem;
+}
+
+#modalInfo .md-row{
+  display:grid;grid-template-columns:minmax(120px, 32%) 1fr;
+  align-items:center;gap:.75rem 1rem;padding:.5rem 0;
+}
+#modalInfo .md-row + .md-row{border-top:1px solid #f3f4f6;}
+#modalInfo .md-row-label{font-weight:500;font-size:.88rem;color:#4b5563;}
+#modalInfo .md-row-value{color:#1f2937;font-size:.92rem;}
+
+@media (max-width:520px){
+  #modalInfo .md-row{grid-template-columns:1fr;gap:.2rem;}
+}
+
 /* -------------- REQUEST ACTIONS (modal detalles) ------------------- */
-.request-actions{margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap;}
+.request-actions{margin-top:1rem;display:flex;gap:.5rem;flex-wrap:wrap;}
 .approve-btn{
   display:inline-flex;
   align-items:center;

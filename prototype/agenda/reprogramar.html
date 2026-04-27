@@ -97,23 +97,53 @@
       </section>
 
       <!-- ===== FILA 4: Detalles del evento ===== -->
-      <section class="rep-card">
-        <h3 class="rep-section-title">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-          Detalles del evento
-        </h3>
+      <section class="rep-card rep-details">
+        <p class="rep-eyebrow">DETALLES DEL EVENTO</p>
+
+        <div class="rep-details-hero">
+          <div class="rep-event-avatar">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div>
+            <h3 class="rep-details-title">Información de la cita</h3>
+            <p class="rep-details-folio">Verifica los datos antes de confirmar la reprogramación.</p>
+          </div>
+        </div>
+
         <div id="repValidationMessages" class="validation-messages" aria-live="polite"></div>
-        <div class="rep-fields-grid">
-          <div class="form-group">
-            <label for="repType">Tipo de Evento:</label>
+
+        <hr class="rep-divider">
+        <p class="rep-eyebrow rep-eyebrow-sm">INFORMACIÓN</p>
+
+        <div class="rep-row">
+          <label for="repType" class="rep-row-label">Tipo de Evento</label>
+          <div class="rep-row-control">
             <select id="repType" required>
               <option value="">Seleccionar tipo</option>
               <option value="1">Evaluación inicial integral</option>
               <option value="2">Cita de Terapia</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="repPatient">Paciente:</label>
+        </div>
+        <div class="rep-row">
+          <label class="rep-row-label">Duración</label>
+          <div class="rep-row-control">
+            <p class="rep-dur-label" id="repDurLabel">— min</p>
+          </div>
+        </div>
+        <div class="rep-row">
+          <label for="repFolio" class="rep-row-label">Folio</label>
+          <div class="rep-row-control">
+            <input type="text" id="repFolio" readonly />
+          </div>
+        </div>
+
+        <hr class="rep-divider">
+        <p class="rep-eyebrow rep-eyebrow-sm">PARTICIPANTES Y LUGAR</p>
+
+        <div class="rep-row">
+          <label for="repPatient" class="rep-row-label">Paciente</label>
+          <div class="rep-row-control">
             <select id="repPatient" required>
               <option value="">Seleccionar paciente</option>
               <option>Ana Martínez</option><option>Luis García</option>
@@ -123,41 +153,49 @@
               <option>Elena Castillo</option><option>Pedro Rivas</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="repTherapist">Terapeuta:</label>
+        </div>
+        <div class="rep-row">
+          <label for="repTherapist" class="rep-row-label">Terapeuta</label>
+          <div class="rep-row-control">
             <select id="repTherapist"></select>
           </div>
-          <div class="form-group">
-            <label for="repRoom">Sala:</label>
+        </div>
+        <div class="rep-row">
+          <label for="repRoom" class="rep-row-label">Sala</label>
+          <div class="rep-row-control">
             <select id="repRoom" required>
               <option value="">Seleccionar sala</option>
               <option>Sala 101</option><option>Sala 102</option><option>Sala 103</option>
             </select>
           </div>
-          <div class="form-group">
-            <label for="repFolio">Folio:</label>
-            <input type="text" id="repFolio" readonly />
-          </div>
-          <div class="form-group">
-            <label>Duración:</label>
-            <p class="rep-dur-label" id="repDurLabel">— min</p>
-          </div>
         </div>
       </section>
 
       <!-- ===== FILA 5: Pago ===== -->
-      <section id="repPaySection" class="rep-card hidden">
-        <h3 class="rep-section-title">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-          Pago
-        </h3>
-        <div class="rep-fields-grid">
-          <div class="form-group">
-            <label for="repProof">Comprobante de pago (PDF, PNG, JPG – máx&nbsp;5&nbsp;MB):</label>
+      <section id="repPaySection" class="rep-card rep-details hidden">
+        <p class="rep-eyebrow">PAGO</p>
+
+        <div class="rep-details-hero">
+          <div class="rep-event-avatar">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div>
+            <h3 class="rep-details-title">Comprobante y cuota</h3>
+            <p class="rep-details-folio">Adjunte el comprobante y registre el monto en MXN.</p>
+          </div>
+        </div>
+
+        <hr class="rep-divider">
+
+        <div class="rep-row">
+          <label for="repProof" class="rep-row-label">Comprobante de pago<br><span class="rep-row-hint">PDF, PNG, JPG – máx 5 MB</span></label>
+          <div class="rep-row-control">
             <input type="file" id="repProof" accept=".pdf,image/png,image/jpeg" />
           </div>
-          <div class="form-group">
-            <label for="repFee">Cuota a pagar (MXN):</label>
+        </div>
+        <div class="rep-row">
+          <label for="repFee" class="rep-row-label">Cuota a pagar (MXN)</label>
+          <div class="rep-row-control">
             <input type="number" id="repFee" min="0" step="0.01" />
           </div>
         </div>

@@ -323,11 +323,86 @@
 .rep-suggest-item.suggest-best .rep-suggest-badge { color: #2e7d32; }
 .rep-suggest-time { font-weight: 600; color: var(--clr-text, #242424); }
 
-/* ---- FILA 4: Campos ------------------------------------ */
-.rep-fields-grid {
+/* ---- FILA 4: Detalles (rediseño tipo "Perfil") --------- */
+.rep-details { padding: 1.4rem 1.5rem; }
+
+.rep-eyebrow {
+  margin: 0 0 0.6rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #6b7280;
+}
+.rep-eyebrow-sm {
+  font-size: 0.68rem;
+  margin: 1rem 0 0.55rem;
+}
+
+.rep-details-hero {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+.rep-event-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: #e3f0fc;
+  color: #1565c0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.rep-details-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #1f2937;
+  border: none;
+  padding: 0;
+}
+.rep-details-folio {
+  margin: 0.15rem 0 0;
+  font-size: 0.82rem;
+  color: #6b7280;
+}
+
+.rep-divider {
+  border: 0;
+  border-top: 1px solid #eef0f3;
+  margin: 0.9rem 0 0.2rem;
+}
+
+.rep-row {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 0.75rem 1.25rem;
+  grid-template-columns: minmax(140px, 32%) 1fr;
+  align-items: center;
+  gap: 0.75rem 1rem;
+  padding: 0.6rem 0;
+}
+.rep-row + .rep-row {
+  border-top: 1px solid #f3f4f6;
+}
+.rep-row-label {
+  margin: 0;
+  font-weight: 500;
+  font-size: 0.88rem;
+  color: #4b5563;
+}
+.rep-row-hint {
+  display: block;
+  font-weight: 400;
+  font-size: 0.74rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+.rep-row-control { min-width: 0; }
+.rep-row-control select,
+.rep-row-control input {
+  width: 100%;
 }
 
 .rep-dur-label {
@@ -355,4 +430,11 @@
   .rep-slots-grid { grid-template-columns: repeat(3, 1fr); }
   .rep-actions { flex-direction: column-reverse; }
   .rep-actions .btn-action { width: 100%; justify-content: center; }
+
+  .rep-row {
+    grid-template-columns: 1fr;
+    gap: 0.3rem;
+    padding: 0.5rem 0;
+  }
+  .rep-row + .rep-row { border-top: 1px solid #f3f4f6; }
 }
