@@ -110,6 +110,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const eventos=[];
   const folios ={};
 
+  /* Restore persisted state when returning from reprogramar.html */
+  (function(){
+    const _evts = localStorage.getItem('agenda_events');
+    const _fols = localStorage.getItem('agenda_folios');
+    if(_evts){ try{ JSON.parse(_evts).forEach(e=>eventos.push(e)); window['__ejemplo__']=true; }catch(e){} localStorage.removeItem('agenda_events'); }
+    if(_fols){ try{ Object.assign(folios,JSON.parse(_fols)); }catch(e){} localStorage.removeItem('agenda_folios'); }
+  })();
+
   /* ---------- HELPERS FOLIO ------------------------------ */
   const getFolio = pac => {
     if(!folios[pac]){
@@ -789,31 +797,55 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---------- DETALLES ------------------------------------ */
   const showDetails = ev => {
     const editId = editing ? editing.id : null;
+    const fechaFmt = pISO(ev.fecha).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    const horaFmt  = `${fmtH(ev.hora)} – ${fmtH(addM(ev.hora, ev.dur))}`;
+    const hasPay   = (ev.fee != null) || ev.proof;
     detInfo.innerHTML=`
-      <p><strong>Tipo:</strong> ${TIPOS[ev.tipo].nombre}</p>
-      <p><strong>Paciente:</strong> ${ev.paciente}</p>
-      <p><strong>Folio:</strong> ${ev.folio}</p>
-      <p><strong>Fecha:</strong> ${ev.fecha}</p>
-      <p><strong>Hora inicio:</strong> ${fmtH(ev.hora)} – ${fmtH(addM(ev.hora, ev.dur))}</p>
-      <p><strong>Duración:</strong> ${ev.dur} min</p>
-      <p><strong>Sala:</strong> ${ev.sala}</p>
-      <p><strong>Terapeuta:</strong> ${ev.ther}</p>
-      ${ev.fee!=null?`<p><strong>Cuota:</strong> $${ev.fee.toFixed(2)} MXN</p>`:''}
-      <p><strong>Comprobante:</strong> ${ev.proof||'—'}</p>
-      <div class="request-actions">
-        <button class="approve-btn" id="repBtn">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
-          Reprogramar
-        </button>
-        <button class="cancel-event-btn" id="cancelEventBtn">
-          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
-          Cancelar cita
-        </button>
-      </div>`;
+      <div class="md-hero">
+        <div class="md-avatar">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="md-hero-info">
+          <h3 class="md-title">${TIPOS[ev.tipo].nombre}</h3>
+          <p class="md-subtitle">Folio: ${ev.folio}</p>
+        </div>
+        <div class="md-hero-actions">
+          <button class="approve-btn" id="repBtn">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Reprogramar
+          </button>
+          <button class="cancel-event-btn" id="cancelEventBtn">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/></svg>
+            Cancelar cita
+          </button>
+        </div>
+      </div>
+
+      <hr class="md-divider">
+      <p class="md-eyebrow md-eyebrow-sm">FECHA Y HORA</p>
+      <div class="md-row"><span class="md-row-label">Fecha</span><span class="md-row-value">${fechaFmt}</span></div>
+      <div class="md-row"><span class="md-row-label">Horario</span><span class="md-row-value">${horaFmt}</span></div>
+      <div class="md-row"><span class="md-row-label">Duración</span><span class="md-row-value">${ev.dur} min</span></div>
+
+      <hr class="md-divider">
+      <p class="md-eyebrow md-eyebrow-sm">PARTICIPANTES Y LUGAR</p>
+      <div class="md-row"><span class="md-row-label">Paciente</span><span class="md-row-value">${ev.paciente}</span></div>
+      <div class="md-row"><span class="md-row-label">Terapeuta</span><span class="md-row-value">${ev.ther}</span></div>
+      <div class="md-row"><span class="md-row-label">Sala</span><span class="md-row-value">${ev.sala}</span></div>
+
+      ${hasPay ? `
+      <hr class="md-divider">
+      <p class="md-eyebrow md-eyebrow-sm">PAGO</p>
+      ${ev.fee!=null ? `<div class="md-row"><span class="md-row-label">Cuota</span><span class="md-row-value">$${ev.fee.toFixed(2)} MXN</span></div>` : ''}
+      <div class="md-row"><span class="md-row-label">Comprobante</span><span class="md-row-value">${ev.proof || '—'}</span></div>
+      ` : ''}`;
     detModal.style.display='block';
     document.getElementById('repBtn').onclick=()=>{
       detModal.style.display='none';
-      openModal(ev.fecha,ev.hora,ev);
+      localStorage.setItem('agenda_events', JSON.stringify(eventos));
+      localStorage.setItem('agenda_folios', JSON.stringify(folios));
+      localStorage.setItem('reprogramar_event', JSON.stringify(ev));
+      window.location.href='reprogramar.html';
     };
     document.getElementById('cancelEventBtn').onclick=()=>{
       if(confirm('¿Está seguro de que desea cancelar esta cita?')){
@@ -852,6 +884,18 @@ document.addEventListener('DOMContentLoaded', () => {
   filtroFecha.value = iso(new Date());
   filtroFecha.onchange = () => { render(); buildMiniCalendar(); };
   filtroTipo.onchange = render;
+
+  /* ---------- BOTÓN REPROGRAMACIÓN MASIVA ---------------- */
+  const btnBulk = document.getElementById('bulkReschedBtn');
+  if(btnBulk){
+    btnBulk.addEventListener('click', e => {
+      e.preventDefault();
+      localStorage.setItem('agenda_events', JSON.stringify(eventos));
+      localStorage.setItem('agenda_folios', JSON.stringify(folios));
+      const dateParam = filtroFecha.value ? `?date=${filtroFecha.value}` : '';
+      window.location.href = `reprogramacion-masiva.html${dateParam}`;
+    });
+  }
 
   miniCalDate = new Date();
   buildMiniCalendar();

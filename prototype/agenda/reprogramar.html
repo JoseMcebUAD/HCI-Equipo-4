@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clínica – Reprogramar Evento</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/reprogramar.css" />
+</head>
+<body>
+  <!-- ================= CABECERA ================= -->
+  <header>
+    <h1>Clínica de Atención Psicológica</h1>
+    <nav>
+      <ul>
+        <li><a href="agenda.html" class="active">Agenda</a></li>
+        <li><a href="../pacientes/pacientes.html">Pacientes</a></li>
+        <li><a href="../terapeuta/terapeuta.html">Terapeutas</a></li>
+        <li><a href="../salas/salas.html">Salas</a></li>
+        <li><a href="../reportes/reportes.html">Reportes</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ================= CONTENIDO ================= -->
+  <main class="rep-main">
+    <div class="rep-page">
+
+      <!-- Encabezado de la página -->
+      <div class="rep-header">
+        <div class="rep-header-left">
+          <a href="agenda.html" class="rep-back-link">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            Volver a Agenda
+          </a>
+          <h2 class="rep-title">Reprogramar evento</h2>
+          <p id="repCurrentSlot" class="rep-current-slot">Horario actual: —</p>
+        </div>
+        <div id="repNewSlot" class="rep-new-slot hidden">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="5 12 12 12 19 12"/><polyline points="12 5 19 12 12 19"/></svg>
+          <span id="repNewSlotText">—</span>
+        </div>
+      </div>
+
+      <!-- ===== FILA 1: HERO – Fecha y hora ===== -->
+      <section class="rep-card rep-hero">
+        <h3 class="rep-section-title">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          Selecciona nueva fecha y hora
+        </h3>
+        <div class="rep-datetime-grid">
+
+          <!-- Calendario -->
+          <div class="rep-cal-panel">
+            <div class="rep-cal-nav">
+              <button id="repPrevMonth" class="rep-nav-btn" title="Mes anterior">&#8249;</button>
+              <span id="repCalTitle" class="rep-cal-title">—</span>
+              <button id="repNextMonth" class="rep-nav-btn" title="Mes siguiente">&#8250;</button>
+            </div>
+            <div class="rep-cal-weekdays">
+              <span>Do</span><span>Lu</span><span>Ma</span>
+              <span>Mi</span><span>Ju</span><span>Vi</span><span>Sá</span>
+            </div>
+            <div id="repCalGrid" class="rep-cal-grid">
+              <!-- generado por JS -->
+            </div>
+          </div>
+
+          <!-- Slots de hora -->
+          <div class="rep-slots-panel">
+            <p class="rep-slots-label">Selecciona hora</p>
+            <div id="repSlotsGrid" class="rep-slots-grid">
+              <!-- generado por JS al seleccionar fecha -->
+              <p class="rep-slots-placeholder">Selecciona primero una fecha</p>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ===== FILA 2: Disponibilidad ===== -->
+      <section id="repAvailSection" class="rep-card rep-avail hidden">
+        <h3 class="rep-section-title">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Disponibilidad en tiempo real
+        </h3>
+        <div id="repAvailContent" class="rep-avail-grid"></div>
+      </section>
+
+      <!-- ===== FILA 3: Sugerencias ===== -->
+      <section id="repSuggestSection" class="rep-card rep-suggest hidden">
+        <h3 class="rep-section-title">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+          Horarios alternativos disponibles
+        </h3>
+        <div id="repSuggestList" class="rep-suggest-list"></div>
+      </section>
+
+      <!-- ===== FILA 4: Detalles del evento ===== -->
+      <section class="rep-card rep-details">
+        <p class="rep-eyebrow">DETALLES DEL EVENTO</p>
+
+        <div class="rep-details-hero">
+          <div class="rep-event-avatar">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          </div>
+          <div>
+            <h3 class="rep-details-title">Información de la cita</h3>
+            <p class="rep-details-folio">Verifica los datos antes de confirmar la reprogramación.</p>
+          </div>
+        </div>
+
+        <div id="repValidationMessages" class="validation-messages" aria-live="polite"></div>
+
+        <hr class="rep-divider">
+        <p class="rep-eyebrow rep-eyebrow-sm">INFORMACIÓN</p>
+
+        <div class="rep-row">
+          <label for="repType" class="rep-row-label">Tipo de Evento</label>
+          <div class="rep-row-control">
+            <select id="repType" required>
+              <option value="">Seleccionar tipo</option>
+              <option value="1">Evaluación inicial integral</option>
+              <option value="2">Cita de Terapia</option>
+            </select>
+          </div>
+        </div>
+        <div class="rep-row">
+          <label class="rep-row-label">Duración</label>
+          <div class="rep-row-control">
+            <p class="rep-dur-label" id="repDurLabel">— min</p>
+          </div>
+        </div>
+        <div class="rep-row">
+          <label for="repFolio" class="rep-row-label">Folio</label>
+          <div class="rep-row-control">
+            <input type="text" id="repFolio" readonly />
+          </div>
+        </div>
+
+        <hr class="rep-divider">
+        <p class="rep-eyebrow rep-eyebrow-sm">PARTICIPANTES Y LUGAR</p>
+
+        <div class="rep-row">
+          <label for="repPatient" class="rep-row-label">Paciente</label>
+          <div class="rep-row-control">
+            <select id="repPatient" required>
+              <option value="">Seleccionar paciente</option>
+              <option>Ana Martínez</option><option>Luis García</option>
+              <option>Carmen Robles</option><option>José Romero</option>
+              <option>María Torres</option><option>Diego Fuentes</option>
+              <option>Sofía Paredes</option><option>Ricardo Vargas</option>
+              <option>Elena Castillo</option><option>Pedro Rivas</option>
+            </select>
+          </div>
+        </div>
+        <div class="rep-row">
+          <label for="repTherapist" class="rep-row-label">Terapeuta</label>
+          <div class="rep-row-control">
+            <select id="repTherapist"></select>
+          </div>
+        </div>
+        <div class="rep-row">
+          <label for="repRoom" class="rep-row-label">Sala</label>
+          <div class="rep-row-control">
+            <select id="repRoom" required>
+              <option value="">Seleccionar sala</option>
+              <option>Sala 101</option><option>Sala 102</option><option>Sala 103</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== FILA 5: Pago ===== -->
+      <section id="repPaySection" class="rep-card rep-details hidden">
+        <p class="rep-eyebrow">PAGO</p>
+
+        <div class="rep-details-hero">
+          <div class="rep-event-avatar">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          </div>
+          <div>
+            <h3 class="rep-details-title">Comprobante y cuota</h3>
+            <p class="rep-details-folio">Adjunte el comprobante y registre el monto en MXN.</p>
+          </div>
+        </div>
+
+        <hr class="rep-divider">
+
+        <div class="rep-row">
+          <label for="repProof" class="rep-row-label">Comprobante de pago<br><span class="rep-row-hint">PDF, PNG, JPG – máx 5 MB</span></label>
+          <div class="rep-row-control">
+            <input type="file" id="repProof" accept=".pdf,image/png,image/jpeg" />
+          </div>
+        </div>
+        <div class="rep-row">
+          <label for="repFee" class="rep-row-label">Cuota a pagar (MXN)</label>
+          <div class="rep-row-control">
+            <input type="number" id="repFee" min="0" step="0.01" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== BOTONES ===== -->
+      <div class="rep-actions">
+        <button id="repCancelBtn" class="btn-action btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Cancelar
+        </button>
+        <button id="repConfirmBtn" class="btn-action btn-primary" disabled>
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+          Confirmar reprogramación
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ================= MODAL CONFIRMACIÓN ================= -->
+  <div id="repConfirmModal" class="modal">
+    <div class="modal-content modal-confirm">
+      <h2>
+        <svg class="panel-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Confirmar cambios
+      </h2>
+      <hr>
+      <p class="confirm-subtitle">Revise los detalles antes de aplicar los cambios:</p>
+      <div id="repConfirmSummary" class="confirm-summary"></div>
+      <div class="confirm-actions">
+        <button id="repConfirmCancelBtn" class="btn-action btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Cancelar
+        </button>
+        <button id="repConfirmSaveBtn" class="btn-action btn-primary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirmar y guardar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TOAST ================= -->
+  <div id="repToast" class="toast-notification" aria-live="polite">
+    <span id="repToastMsg"></span>
+  </div>
+
+  <script src="js/reprogramar.js"></script>
+</body>
+</html>

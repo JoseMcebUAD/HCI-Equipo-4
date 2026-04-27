@@ -1,0 +1,651 @@
+/* =================================================================
+   reprogramacion-masiva.css
+   Estilos específicos para la vista de reprogramación masiva.
+   Reusa variables y clases de styles.css.
+   ================================================================= */
+
+/* -------------- TOOLBAR SUPERIOR ----------------------------------- */
+.rm-toolbar{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  padding:.75rem 1rem;
+  background:var(--clr-bg);
+  border-bottom:1px solid var(--clr-border);
+  flex-wrap:wrap;
+}
+
+.rm-back{
+  display:inline-flex;
+  align-items:center;
+  gap:.3rem;
+  color:var(--clr-text-secondary);
+  text-decoration:none;
+  font-size:.85rem;
+  padding:.35rem .6rem;
+  border-radius:var(--radius);
+  transition:background var(--transition-normal);
+}
+.rm-back:hover{
+  background:var(--clr-bg-light);
+  color:var(--clr-primary);
+}
+
+.rm-toolbar-group{
+  display:inline-flex;
+  align-items:center;
+  gap:.5rem;
+  flex-wrap:wrap;
+  flex:1 1 auto;
+}
+
+.rm-toolbar-group label{
+  font-weight:500;
+  font-size:.85rem;
+  color:var(--clr-text-secondary);
+}
+
+.rm-toolbar-group input[type="date"]{
+  padding:.35rem .5rem;
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius);
+  font-size:.85rem;
+  font-family:inherit;
+}
+
+.rm-toolbar-group input[type="date"]:focus{
+  outline:none;
+  border-color:var(--clr-primary);
+  box-shadow:0 0 0 2px rgba(0,64,128,.2);
+}
+
+.rm-count{
+  font-size:.8rem;
+  color:var(--clr-text-secondary);
+  background:var(--clr-bg-light);
+  padding:.25rem .6rem;
+  border-radius:999px;
+  font-weight:500;
+}
+
+/* -------------- BOTÓN AMARILLO (CTA principal) -------------------- */
+.btn-reprog-masiva{
+  background:#f1c40f !important;
+  color:#242424 !important;
+  border:1px solid #d4ac0d !important;
+  border-radius:8px !important;
+  font-weight:600 !important;
+}
+
+.btn-reprog-masiva:hover{
+  background:#f4d03f !important;
+  border-color:#b7950b !important;
+}
+
+.btn-reprog-masiva:active{
+  background:#d4ac0d !important;
+}
+
+.btn-reprog-masiva:disabled{
+  background:#fdf2c4 !important;
+  border-color:#e8d674 !important;
+  color:#9b8c2e !important;
+  cursor:not-allowed;
+}
+
+#rmAutoAll{
+  width:auto;
+  flex:0 0 auto;
+  margin-right:auto;
+  order:-1;
+}
+
+/* -------------- LAYOUT (sidebar + main) ---------------------------- */
+.rm-layout{
+  display:grid;
+  grid-template-columns:280px 1fr;
+  height:calc(100vh - 90px - 65px);
+  overflow:hidden;
+}
+
+.rm-sidebar{
+  background:var(--clr-bg);
+  border-right:1px solid var(--clr-border);
+  padding:1rem;
+  overflow-y:auto;
+}
+
+.rm-sidebar-title{
+  font-size:.95rem;
+  font-weight:600;
+  color:var(--clr-primary);
+  margin-bottom:.75rem;
+  text-transform:uppercase;
+  letter-spacing:.04em;
+}
+
+.rm-patient-list{
+  list-style:none;
+  display:flex;
+  flex-direction:column;
+  gap:.4rem;
+}
+
+.rm-patient-list li{
+  padding:.55rem .7rem;
+  background:var(--clr-bg-light);
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius-lg);
+  cursor:pointer;
+  font-size:.88rem;
+  transition:background var(--transition-fast), border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.rm-patient-list li:hover{
+  background:#eaf2f8;
+  border-color:var(--clr-primary-light);
+}
+
+.rm-patient-list li.active{
+  background:var(--clr-primary);
+  color:#fff;
+  border-color:var(--clr-primary-dark);
+  box-shadow:var(--shadow-sm);
+}
+
+.rm-patient-list li.active .rm-patient-meta{
+  color:rgba(255,255,255,.85);
+}
+
+.rm-patient-list li.assigned::after{
+  content:'✓';
+  float:right;
+  color:var(--clr-success);
+  font-weight:700;
+}
+
+.rm-patient-list li.active.assigned::after{
+  color:#fff;
+}
+
+.rm-patient-list li.rm-empty{
+  background:transparent;
+  border:1px dashed var(--clr-border);
+  color:var(--clr-text-secondary);
+  text-align:center;
+  cursor:default;
+}
+
+.rm-patient-name{
+  font-weight:600;
+  display:block;
+}
+
+.rm-patient-meta{
+  font-size:.75rem;
+  color:var(--clr-text-secondary);
+  margin-top:.15rem;
+  display:block;
+}
+
+/* -------------- ÁREA PRINCIPAL ------------------------------------ */
+.rm-main{
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  padding:1rem;
+  gap:.75rem;
+}
+
+.rm-patient-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1rem;
+  background:var(--clr-bg);
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius-lg);
+  padding:.75rem 1rem;
+  flex-wrap:wrap;
+}
+
+.rm-patient-info{
+  display:flex;
+  flex-direction:column;
+  gap:.15rem;
+}
+
+.rm-patient-info strong{
+  font-size:1rem;
+  color:var(--clr-text);
+}
+
+.rm-patient-folio{
+  font-size:.78rem;
+  color:var(--clr-text-secondary);
+}
+
+.rm-patient-original{
+  font-size:.78rem;
+  color:var(--clr-primary);
+  font-weight:500;
+}
+
+.rm-therapist-group{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+}
+
+.rm-therapist-group label{
+  font-size:.85rem;
+  color:var(--clr-text-secondary);
+  font-weight:500;
+}
+
+.rm-therapist-group select{
+  padding:.4rem .6rem;
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius);
+  font-size:.88rem;
+  font-family:inherit;
+  min-width:180px;
+}
+
+.rm-therapist-group select:focus{
+  outline:none;
+  border-color:var(--clr-primary);
+  box-shadow:0 0 0 2px rgba(0,64,128,.2);
+}
+
+/* -------------- BARRA SEMANA + LEYENDA ----------------------------- */
+.rm-week-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+  padding:.5rem .75rem;
+  background:var(--clr-bg);
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius-lg);
+  flex-wrap:wrap;
+}
+
+.rm-week-nav{
+  display:inline-flex;
+  align-items:center;
+  gap:.4rem;
+}
+
+.rm-week-btn{
+  background:none;
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius);
+  width:30px;
+  height:30px;
+  font-size:1.2rem;
+  cursor:pointer;
+  color:var(--clr-text-secondary);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:background var(--transition-normal), color var(--transition-normal);
+}
+
+.rm-week-btn:hover{
+  background:var(--clr-bg-light);
+  color:var(--clr-primary);
+  border-color:var(--clr-primary-light);
+}
+
+.rm-week-label{
+  font-weight:600;
+  font-size:.92rem;
+  color:var(--clr-text);
+  min-width:200px;
+  text-align:center;
+  text-transform:capitalize;
+}
+
+.rm-week-jump{
+  background:var(--clr-bg-light);
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius);
+  padding:.3rem .6rem;
+  font-size:.78rem;
+  color:var(--clr-primary);
+  cursor:pointer;
+  font-weight:500;
+  margin-left:.5rem;
+  transition:background var(--transition-normal);
+}
+
+.rm-week-jump:hover{
+  background:#eaf2f8;
+}
+
+/* -------------- LEYENDA (3 estados) ------------------------------- */
+.rm-legend{
+  display:inline-flex;
+  align-items:center;
+  gap:1rem;
+  font-size:.78rem;
+  font-weight:600;
+  letter-spacing:.04em;
+  color:var(--clr-text-secondary);
+  flex-wrap:wrap;
+}
+
+.rm-legend .legend-item{
+  display:inline-flex;
+  align-items:center;
+  gap:.35rem;
+}
+
+/* Nuevo estado: BLOQUEADO (gris) */
+.legend-blocked{
+  background:#e0e0e0;
+  border:1px solid #9e9e9e;
+}
+
+/* -------------- CALENDARIO ---------------------------------------- */
+.rm-calendar{
+  flex:1;
+  display:grid;
+  grid-template-columns:60px repeat(5,1fr);
+  grid-auto-rows:48px;
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius-lg);
+  overflow:auto;
+  background:var(--clr-bg);
+  min-height:0;
+}
+
+/* Reusa estilos .day-header, .time-cell, .empty-cell de styles.css */
+.rm-calendar .day-header{
+  border:1px solid rgba(255,255,255,.15);
+  position:sticky;
+  top:0;
+  z-index:2;
+}
+
+.rm-calendar .time-cell{
+  position:sticky;
+  left:0;
+  z-index:1;
+}
+
+/* Estado BLOQUEADO específico para esta vista */
+.rm-calendar .empty-cell.cell-blocked{
+  background:#e0e0e0;
+  border-color:#9e9e9e;
+  cursor:not-allowed;
+  opacity:.7;
+}
+
+/* Asegurar que el estado disponible se vea como neutro (no verde fuerte) */
+.rm-calendar .empty-cell.cell-available{
+  background:var(--clr-bg);
+}
+
+.rm-calendar .empty-cell.cell-available:hover{
+  background:#eaf2f8;
+  border-color:var(--clr-primary-light);
+}
+
+.rm-hint{
+  font-size:.82rem;
+  color:var(--clr-text-secondary);
+  text-align:center;
+  font-style:italic;
+}
+
+.rm-hint.hidden{display:none;}
+
+/* -------------- APPOINTMENTS VISIBLES EN EL GRID ------------------- */
+.rm-appt{
+  position:relative;
+  height:100%;
+  width:100%;
+  border-radius:var(--radius);
+  padding:2px 6px;
+  font-size:.72rem;
+  color:#fff;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  overflow:hidden;
+  box-shadow:var(--shadow-sm);
+  border-left:3px solid rgba(0,0,0,.25);
+  cursor:default;
+}
+
+.rm-appt.tipo-1{ background:var(--clr-integral); }
+.rm-appt.tipo-2{ background:var(--clr-info); }
+
+/* Slots de continuación (segunda mitad de citas de 60+ min): sin
+   texto, mismo color, sin borde superior para verse como un bloque. */
+.rm-appt.rm-appt-cont{
+  border-top-left-radius:0;
+  border-top-right-radius:0;
+  border-top:none;
+  margin-top:-1px;
+  box-shadow:none;
+}
+
+.rm-appt.rm-appt-rescheduled{
+  outline:2px solid #f1c40f;
+  outline-offset:-2px;
+  box-shadow:0 0 0 2px rgba(241,196,15,.4), var(--shadow-sm);
+}
+
+.rm-appt.rm-appt-rescheduled::after{
+  content:'★';
+  position:absolute;
+  top:1px;
+  right:3px;
+  font-size:.7rem;
+  color:#f1c40f;
+  text-shadow:0 0 2px rgba(0,0,0,.6);
+}
+
+.rm-appt.rm-appt-active{
+  outline:2px solid #fff;
+  outline-offset:-3px;
+  box-shadow:0 0 0 2px var(--clr-primary), var(--shadow-md);
+}
+
+.rm-appt-name{
+  font-weight:600;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+.rm-appt-meta{
+  font-size:.65rem;
+  opacity:.9;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Marcador de cita "origen" (la del paciente activo, en su fecha original
+   antes de reasignar) — para que el usuario localice qué se está moviendo. */
+.rm-calendar .empty-cell.cell-source{
+  outline:2px dashed #f39c12;
+  outline-offset:-3px;
+  background:#fff8e1;
+}
+
+.rm-calendar .empty-cell.cell-source::before{
+  content:'origen';
+  position:absolute;
+  top:2px;
+  left:3px;
+  font-size:.6rem;
+  font-weight:700;
+  color:#b9770e;
+  letter-spacing:.05em;
+}
+
+/* -------------- MODAL LOTE ---------------------------------------- */
+.rm-batch-modal{
+  max-width:880px;
+}
+
+.rm-batch-table-wrapper{
+  max-height:380px;
+  overflow:auto;
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius-lg);
+  margin-bottom:.75rem;
+}
+
+.rm-batch-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:.85rem;
+}
+
+.rm-batch-table thead th{
+  background:var(--clr-primary);
+  color:#fff;
+  text-align:left;
+  padding:.55rem .75rem;
+  position:sticky;
+  top:0;
+  font-weight:600;
+  font-size:.8rem;
+}
+
+.rm-batch-table tbody td{
+  padding:.55rem .75rem;
+  border-bottom:1px solid var(--clr-border);
+}
+
+.rm-batch-table tbody tr:nth-child(even){
+  background:var(--clr-bg-light);
+}
+
+.rm-batch-table tbody tr.rm-row-failed{
+  background:var(--clr-danger-light) !important;
+  color:#922b21;
+}
+
+.rm-batch-table tbody tr.rm-row-failed td:nth-child(4){
+  font-weight:600;
+}
+
+.rm-batch-table .rm-arrow{
+  text-align:center;
+  color:var(--clr-primary);
+  font-weight:700;
+}
+
+.rm-batch-summary{
+  font-size:.85rem;
+  color:var(--clr-text-secondary);
+  margin-bottom:.75rem;
+  padding:.5rem .75rem;
+  background:var(--clr-bg-light);
+  border-radius:var(--radius);
+}
+
+.rm-batch-summary.has-failures{
+  background:var(--clr-warning-light);
+  color:#7d5a29;
+  border:1px solid var(--clr-warning);
+}
+
+/* -------------- RESPONSIVE ---------------------------------------- */
+@media (max-width: 768px){
+  .rm-layout{
+    grid-template-columns:1fr;
+    height:auto;
+    overflow:visible;
+  }
+
+  .rm-sidebar{
+    border-right:none;
+    border-bottom:1px solid var(--clr-border);
+    max-height:200px;
+  }
+
+  .rm-patient-list{
+    flex-direction:row;
+    overflow-x:auto;
+    gap:.5rem;
+    padding-bottom:.4rem;
+  }
+
+  .rm-patient-list li{
+    flex:0 0 auto;
+    min-width:160px;
+  }
+
+  .rm-main{
+    padding:.75rem;
+  }
+
+  .rm-patient-header{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .rm-therapist-group{
+    width:100%;
+  }
+
+  .rm-therapist-group select{
+    flex:1;
+    min-width:0;
+  }
+
+  .rm-toolbar{
+    gap:.5rem;
+  }
+
+  .rm-toolbar-group{
+    flex:1 1 100%;
+    order:1;
+  }
+
+  #rmAutoAll{
+    flex:0 0 auto;
+    width:auto;
+    order:-1;
+    margin-right:auto;
+    padding:.65rem 1rem;
+  }
+
+  .rm-calendar{
+    grid-template-columns:50px repeat(5,1fr);
+    grid-auto-rows:42px;
+  }
+
+  .rm-batch-table{
+    font-size:.78rem;
+  }
+
+  .rm-batch-table thead th,
+  .rm-batch-table tbody td{
+    padding:.4rem .5rem;
+  }
+}
+
+@media (max-width: 500px){
+  .rm-calendar{
+    grid-template-columns:50px 1fr;
+  }
+  .rm-calendar .day-header:nth-child(n+3){display:none;}
+  .rm-calendar .empty-cell:nth-child(7n+4),
+  .rm-calendar .empty-cell:nth-child(7n+5),
+  .rm-calendar .empty-cell:nth-child(7n+6),
+  .rm-calendar .empty-cell:nth-child(7n){display:none;}
+
+  .rm-legend{
+    font-size:.7rem;
+    gap:.5rem;
+  }
+}
