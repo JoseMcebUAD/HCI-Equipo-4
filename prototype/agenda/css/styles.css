@@ -389,6 +389,34 @@ main{
   font-size:.9rem !important;
 }
 
+/* --- Botón amarillo: Reprogramación Masiva (CTA) --- */
+.btn-reprog-masiva{
+  background:#f1c40f !important;
+  color:#242424 !important;
+  border:1px solid #d4ac0d !important;
+  border-radius:8px !important;
+  font-weight:600 !important;
+  text-decoration:none;
+  margin: 1.2rem auto;
+  height: 2rem;
+  width: 100%;
+
+}
+.btn-reprog-masiva:hover{
+  background:#f4d03f !important;
+  border-color:#b7950b !important;
+}
+.btn-reprog-masiva:active{
+  background:#d4ac0d !important;
+}
+.btn-reprog-masiva:disabled,
+.btn-reprog-masiva[disabled]{
+  background:#fdf2c4 !important;
+  border-color:#e8d674 !important;
+  color:#9b8c2e !important;
+  cursor:not-allowed;
+}
+
 /* -------------- CALENDARIO GRID (semanal) ----------------------------- */
 #calendarContainer{
   flex:1;
@@ -1067,6 +1095,19 @@ input[type="file"]{
   .sidebar.collapsed{flex-basis:0;padding:0;opacity:0;height:0;}
   #calendarContainer{grid-template-columns:50px repeat(5,1fr);grid-auto-rows:50px;}
 
+  /* Reprogramación Masiva: ocultar hamburguesa y CTA full-width al final */
+  #sidebarToggle,
+  .sidebar-show-btn{display:none !important;}
+  .filter-bar #bulkReschedBtn{
+    order:99;
+    flex:1 1 100%;
+    margin-top:.5rem;
+    padding:.7rem 1rem;
+    justify-content:center;
+    width: 50%;
+    font-size:.95rem;
+  }
+
   .status-legend{
     flex-wrap:wrap;
     gap:.4rem .75rem;
@@ -1083,6 +1124,13 @@ input[type="file"]{
   .confirm-actions .btn-action{
     width:100%;
     justify-content:center;
+  }
+  #bulkReschedBtn.btn-reprog-masiva{
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
 }
 

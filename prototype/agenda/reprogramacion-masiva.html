@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Clínica – Reprogramación Masiva</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/reprogramacion-masiva.css" />
+</head>
+<body>
+  <!-- ================= CABECERA ================= -->
+  <header>
+    <h1>Clínica de Atención Psicológica</h1>
+    <nav>
+      <ul>
+        <li><a href="agenda.html" class="active">Agenda</a></li>
+        <li><a href="../pacientes/pacientes.html">Pacientes</a></li>
+        <li><a href="../terapeuta/terapeuta.html">Terapeutas</a></li>
+        <li><a href="../salas/salas.html">Salas</a></li>
+        <li><a href="../reportes/reportes.html">Reportes</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- ================= CONTENIDO ================= -->
+  <main>
+    <!-- -------- TOOLBAR SUPERIOR -------- -->
+    <section class="rm-toolbar">
+      <a href="agenda.html" class="rm-back" title="Volver a la agenda">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Volver
+      </a>
+
+      <div class="rm-toolbar-group">
+        <label for="rmSourceDate">Fecha origen:</label>
+        <input type="date" id="rmSourceDate" />
+        <span id="rmCount" class="rm-count">0 citas a reprogramar</span>
+      </div>
+
+      <button id="rmAutoAll" class="btn-action btn-reprog-masiva" disabled>
+        <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/><circle cx="12" cy="12" r="2"/></svg>
+        Reprogramación Aleatoria Inteligente
+      </button>
+    </section>
+
+    <!-- -------- LAYOUT PRINCIPAL -------- -->
+    <div class="rm-layout">
+      <!-- Sidebar de pacientes afectados -->
+      <aside class="rm-sidebar">
+        <h3 class="rm-sidebar-title">Pacientes afectados</h3>
+        <ul id="rmPatientList" class="rm-patient-list">
+          <li class="rm-empty">Selecciona una fecha con citas.</li>
+        </ul>
+      </aside>
+
+      <!-- Área principal -->
+      <section class="rm-main">
+        <div class="rm-patient-header" id="rmPatientHeader">
+          <div class="rm-patient-info">
+            <strong id="rmPatientName">—</strong>
+            <span id="rmPatientFolio" class="rm-patient-folio"></span>
+            <span id="rmPatientOriginal" class="rm-patient-original"></span>
+          </div>
+          <div class="rm-therapist-group">
+            <label for="rmTherapist">Terapeuta:</label>
+            <select id="rmTherapist" disabled>
+              <option value="">Seleccionar terapeuta</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Navegación de semana + Leyenda de 3 estados -->
+        <div class="rm-week-bar">
+          <div class="rm-week-nav">
+            <button id="rmPrevWeek" class="rm-week-btn" title="Semana anterior">&#8249;</button>
+            <span id="rmWeekLabel" class="rm-week-label">—</span>
+            <button id="rmNextWeek" class="rm-week-btn" title="Semana siguiente">&#8250;</button>
+            <button id="rmGoToSource" class="rm-week-jump" title="Ir a la fecha origen">Ir a fecha origen</button>
+          </div>
+          <div class="rm-legend">
+            <span class="legend-item"><span class="legend-dot legend-recommended"></span> RECOMENDADO</span>
+            <span class="legend-item"><span class="legend-dot legend-blocked"></span> BLOQUEADO</span>
+            <span class="legend-item"><span class="legend-dot legend-conflict"></span> CONFLICTO</span>
+          </div>
+        </div>
+
+        <!-- Calendario semanal -->
+        <section id="rmCalendar" class="rm-calendar"></section>
+
+        <p id="rmHint" class="rm-hint">Selecciona un paciente del panel para ver horarios disponibles.</p>
+      </section>
+    </div>
+  </main>
+
+  <!-- ================= MODAL POR-SLOT ================= -->
+  <div id="rmSlotModal" class="modal">
+    <div class="modal-content modal-confirm">
+      <span class="close-button" id="rmSlotClose">&times;</span>
+      <h2>
+        <svg class="panel-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Confirmar reprogramación
+      </h2>
+      <hr>
+      <p class="confirm-subtitle">Revisa el horario antes de aplicar el cambio:</p>
+      <div id="rmSlotSummary" class="confirm-summary"></div>
+      <div class="confirm-actions">
+        <button id="rmSlotCancel" class="btn-action btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Cancelar
+        </button>
+        <button id="rmSlotConfirm" class="btn-action btn-primary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Confirmar este horario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL LOTE ================= -->
+  <div id="rmBatchModal" class="modal">
+    <div class="modal-content rm-batch-modal">
+      <span class="close-button" id="rmBatchClose">&times;</span>
+      <h2>
+        <svg class="panel-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Re-acomodo automático propuesto
+      </h2>
+      <hr>
+      <p class="confirm-subtitle">Revisa la propuesta para todas las citas. Las filas en rojo no pudieron reasignarse.</p>
+      <div class="rm-batch-table-wrapper">
+        <table id="rmBatchTable" class="rm-batch-table">
+          <thead>
+            <tr>
+              <th>Paciente</th>
+              <th>Original</th>
+              <th>→</th>
+              <th>Propuesto</th>
+              <th>Terapeuta</th>
+              <th>Sala</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div id="rmBatchSummary" class="rm-batch-summary"></div>
+      <div class="confirm-actions">
+        <button id="rmBatchCancel" class="btn-action btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          Cancelar
+        </button>
+        <button id="rmBatchConfirm" class="btn-action btn-primary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Aplicar todos los cambios
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TOAST ================= -->
+  <div id="toastNotification" class="toast-notification" aria-live="polite">
+    <span id="toastMessage"></span>
+  </div>
+
+  <!-- ================= SCRIPTS ================= -->
+  <script src="js/reprogramacion-masiva.js"></script>
+</body>
+</html>

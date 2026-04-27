@@ -885,6 +885,18 @@ document.addEventListener('DOMContentLoaded', () => {
   filtroFecha.onchange = () => { render(); buildMiniCalendar(); };
   filtroTipo.onchange = render;
 
+  /* ---------- BOTÓN REPROGRAMACIÓN MASIVA ---------------- */
+  const btnBulk = document.getElementById('bulkReschedBtn');
+  if(btnBulk){
+    btnBulk.addEventListener('click', e => {
+      e.preventDefault();
+      localStorage.setItem('agenda_events', JSON.stringify(eventos));
+      localStorage.setItem('agenda_folios', JSON.stringify(folios));
+      const dateParam = filtroFecha.value ? `?date=${filtroFecha.value}` : '';
+      window.location.href = `reprogramacion-masiva.html${dateParam}`;
+    });
+  }
+
   miniCalDate = new Date();
   buildMiniCalendar();
   render();
