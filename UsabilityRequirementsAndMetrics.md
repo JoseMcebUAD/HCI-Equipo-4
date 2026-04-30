@@ -2,75 +2,75 @@
 
 ## 1. Non-Functional Requirements (NFR) - Usability
 
-### NFR-01: Error prevention and recovery
-* **Description:** The system must minimize the occurrence of errors during user interaction and provide efficient mechanisms for their detection, correction, and recovery without affecting the continuity of the task.
-* **Acceptance criteria:**
-    * **Restriction of invalid combinations:** The system must prevent the selection of invalid combinations (time - therapist - room).
-    * **Confirmation of critical actions:** Critical actions must require explicit confirmation.
-    * **Reduction of manual inputs:** The system should prioritize guided selection over manual inputs.
-    * **Preventive warnings:** The system must show warnings with the result of the action (e.g., "The appointment will be scheduled for June 4 at 17:00").
-    * **Action reversibility:** The system must allow actions to be reversed for a period of time after their execution.
-    * **Solution-oriented error handling:** Error messages must be specific and solution-oriented.
-    * **Correction without flow restart:** The system must allow correcting errors without restarting the entire task.
+### NFR-01: Error Prevention and Recovery
+* **Description:** The system shall proactively mitigate user errors through guided workflows and provide intuitive, non-destructive recovery mechanisms to maintain task continuity.
+* **Acceptance Criteria:**
+    * **Constraint Validation:** Prevent the selection of incompatible scheduling parameters (e.g., conflicting time, therapist, or room allocations).
+    * **Explicit Confirmation:** Require deliberate user confirmation prior to executing destructive or critical actions.
+    * **Input Optimization:** Favor constrained choices (e.g., dropdowns, date pickers) over free-text input to minimize data entry errors.
+    * **Predictive Warnings:** Display contextual warnings detailing the consequences of an action prior to its final execution (e.g., "The appointment will be scheduled for June 4 at 17:00").
+    * **Action Reversibility:** Provide a grace period allowing users to seamlessly undo actions immediately following their execution.
+    * **Actionable Feedback:** Ensure error messages are specific, non-technical, and clearly state the required resolution steps.
+    * **Graceful Recovery:** Allow users to rectify localized errors without losing previously entered valid data or restarting the entire workflow.
 
-### NFR-02: Visibility of system status
-* **Description:** The system must communicate clearly, immediately, and continuously the status of the information and user actions, allowing comprehension without additional cognitive effort.
-* **Acceptance criteria:**
-    * **Permanent status visibility:** The system must show the current status of the schedule at all times.
-    * **Immediate feedback:** Every action must generate immediate feedback.
-    * **Visual consistency of states:** The system must present a consistent color code.
+### NFR-02: System Status Visibility
+* **Description:** The system must provide continuous, low-effort visibility into its current operational state and data, ensuring users remain informed without relying on memory.
+* **Acceptance Criteria:**
+    * **Persistent Status Display:** Maintain constant visibility of the schedule's availability and current booking status.
+    * **Real-time Feedback:** Deliver immediate, perceivable interface feedback in response to every user interaction.
+    * **Visual Consistency:** Enforce a standardized, system-wide color-coding paradigm to represent different appointment states clearly.
 
-### NFR-03: Cognitive load reduction
-* **Description:** The system must minimize the mental effort required to complete tasks, reducing the amount of information, decisions, and memory needed during interaction.
-* **Acceptance criteria:**
-    * **Contextually relevant information:** The system must show only the information necessary for the current task.
-    * **Sequential task flow:** Tasks must be structured in clear and ordered steps.
-    * **Input minimization:** The system must reduce the amount of manual data to the essential minimum.
-    * **Interactive density control:** The system must limit the number of simultaneous interactive elements.
+### NFR-03: Cognitive Load Reduction
+* **Description:** The interface shall minimize cognitive friction by streamlining workflows, reducing visual clutter, and avoiding reliance on the user's short-term memory.
+* **Acceptance Criteria:**
+    * **Contextual Relevance:** Display exclusively the information and interactive controls relevant to the active context or step.
+    * **Sequential Workflows:** Organize complex procedures into logical, sequential, and predictable steps.
+    * **Data Entry Minimization:** Reduce mandatory manual data entry to the absolute minimum required for task completion.
+    * **Interactive Density Control:** Limit the density of simultaneous interactive elements to prevent choice overload and visual fatigue.
 
 ---
 
 ## 2. Usability Evaluation Metrics
 
 ### M1 - Error Rate in Critical Tasks
-* **Description:** A quantitative metric measuring the frequency of user errors during the execution of core system workflows (e.g., creating, rescheduling, or canceling appointments).
-* **Objective:** To evaluate the system's effectiveness in error prevention during user interaction.
-* **Formula:** `Error Rate (%) = (Number of errors made / Total number of tasks performed) * 100`
-* **Measurement Method:** Define a set of critical tasks. Observe users during task execution and log every error (e.g., attempting to select an invalid time slot, navigation confusion, incorrect actions). Calculate the error proportion relative to the total tasks executed.
-* **Justification:** A highly usable system proactively prevents errors. This metric identifies whether the interface properly guides the user or causes cognitive friction. A high error rate highlights deficiencies in validation, layout, or cognitive load management.
+* **Description:** Quantifies the frequency of user-generated errors during core system workflows, such as booking, rescheduling, or canceling appointments.
+* **Objective:** Evaluate the interface's effectiveness in guiding users and proactively preventing missteps.
+* **Formula:** `Error Rate (%) = (Total Errors Committed / Total Tasks Executed) * 100`
+* **Measurement Method:** Define critical workflows. Observe external users executing these tasks and log every instance of error (e.g., selecting invalid constraints, navigating incorrectly). Calculate the overall error proportion.
+* **Justification:** High usability relies on proactive error prevention. Elevated error rates pinpoint specific UI bottlenecks, inadequate validations, or excessive cognitive load.
 
 ### M2 - Error Recovery Rate
-* **Description:** Evaluates the user's capacity to recognize and resolve errors autonomously without abandoning the current workflow.
-* **Objective:** To assess the effectiveness and clarity of the system's error-handling and recovery mechanisms.
-* **Formula:** `Recovery Rate (%) = (Errors autonomously corrected / Total errors triggered) * 100`
-* **Measurement Method:** Track all errors made during the evaluation sessions. Observe if the user can overcome the error without external assistance. Classify outcomes as: autonomously corrected, corrected with assistance, or uncorrected. Calculate the percentage of autonomous recoveries.
-* **Justification:** Since it is impossible to prevent all user errors, robust recovery mechanisms are critical to minimize user frustration and task abandonment.
+* **Description:** Measures the proportion of errors that users successfully resolve autonomously, without requiring external intervention or abandoning the process.
+* **Objective:** Assess the resilience and clarity of the system's error-handling and recovery mechanisms.
+* **Formula:** `Recovery Rate (%) = (Autonomously Resolved Errors / Total Errors Encountered) * 100`
+* **Measurement Method:** Track all user errors during testing sessions. Categorize resolutions as autonomous, assisted, or unresolved. Calculate the percentage of autonomous recoveries.
+* **Justification:** System robustness is defined not just by preventing errors, but by facilitating seamless recovery, which directly reduces user frustration and task abandonment.
 
 ### M3 - Average Task Completion Time
-* **Description:** Measures the time required for a user to successfully complete specific predefined tasks within the module.
-* **Objective:** To determine the operational efficiency and cognitive load associated with the system's interactions.
-* **Formula:** `Average Time = (Sum of individual task completion times) / Total number of evaluated tasks`
-* **Measurement Method:** Define specific workflows (e.g., booking a new appointment). Time the execution from the initial interaction to successful completion. Log the times across multiple users and compute the average duration per task type.
-* **Justification:** Systems with optimized cognitive loads enable faster task completion. High average times suggest excessive steps, unclear navigation, or poor information architecture.
+* **Description:** Tracks the total time expended by a user to successfully complete a predefined system task.
+* **Objective:** Benchmark operational efficiency and the cognitive friction associated with the system's workflows.
+* **Formula:** `Average Task Time = (Sum of Individual Completion Times) / Total Number of Tasks Evaluated`
+* **Measurement Method:** Establish targeted workflows (e.g., creating an appointment). Record the elapsed time from initial engagement to successful completion. Aggregate data across the user sample to determine the average duration.
+* **Justification:** Prolonged completion times strongly correlate with usability flaws such as excessive steps, confusing layouts, or poor information architecture.
 
 ### M4 - Task Success Rate
-* **Description:** Represents the percentage of tasks that users complete accurately without encountering critical, workflow-breaking errors.
-* **Objective:** To measure the overall functional effectiveness of the system in enabling users to reach their goals.
-* **Formula:** `Success Rate (%) = (Tasks successfully completed / Total attempted tasks) * 100`
-* **Measurement Method:** Establish clear, measurable task parameters. Observe user performance to determine if the task is completed successfully, failed, or abandoned. Consolidate results across the user sample to calculate the overall success percentage.
-* **Justification:** This is the most direct usability indicator. If users are unable to complete their intended tasks, the system fails its primary objective regardless of performance in other metrics.
+* **Description:** Calculates the percentage of tasks that users complete accurately without encountering fatal errors or abandoning the workflow.
+* **Objective:** Determine the overall functional viability of the system in enabling users to accomplish their goals.
+* **Formula:** `Success Rate (%) = (Successfully Completed Tasks / Total Attempted Tasks) * 100`
+* **Measurement Method:** Define clear completion criteria. Observe users and log outcomes as successful, failed, or abandoned. Calculate the aggregate success percentage.
+* **Justification:** This is the baseline indicator of usability. If the success rate is low, the system fundamentally fails its primary objective, overriding other positive metrics.
 
 ### M5 - Key Information Identification Time
-* **Description:** Measures the time elapsed before a user successfully locates and interprets essential system status data (e.g., schedule availability).
-* **Objective:** To evaluate the clarity and visibility of the system's current state.
-* **Formula:** `Average Time = (Sum of correct response times) / Number of queries asked`
-* **Measurement Method:** Present the interface to the user. Ask specific state-related queries (e.g., "Which time slots are available today?"). Measure the time taken from the end of the question to the user's correct response. Calculate the average.
-* **Justification:** Users must be able to understand the system state with minimal effort. Excessive identification times indicate poor visual hierarchy or inadequate data presentation.
+* **Description:** Measures the time required for a user to locate, comprehend, and articulate essential system data, specifically schedule availability.
+* **Objective:** Evaluate the effectiveness of the system's data presentation and status visibility.
+* **Formula:** `Average Identification Time = (Sum of Correct Response Times) / Total Queries Issued`
+* **Measurement Method:** Expose the user to the interface and ask specific state-related questions (e.g., "Which schedules are available?"). Time the interval until a correct answer is provided and calculate the mean.
+* **Justification:** Users should decipher the system's state instantaneously. Extended identification times highlight poor visual hierarchy or suboptimal data presentation.
 
 ### M6 - Perceived Satisfaction Level
-* **Description:** A subjective assessment measuring the user's overall perception of the system's usability and ease of use.
-* **Objective:** To quantify the general user experience and perceived cognitive load.
-* **Formula:** `Average Satisfaction = (Sum of Likert scale ratings) / Number of evaluated users`
-*(Note: Evaluated using a 5-point Likert Scale where 1 = Very difficult and 5 = Very easy).*
-* **Measurement Method:** Post-evaluation, ask the user to rate their experience: "How easy was it to use the system?". Log the ratings and calculate the mean score.
-* **Justification:** Objective data does not encompass the full user experience. Subjective perception is a key driver for system adoption, user trust, and long-term acceptance.
+* **Description:** A subjective assessment capturing the user's perceived ease of use and overall interaction experience.
+* **Objective:** Quantify user satisfaction and perceived cognitive effort.
+* **Formula:** `Average Satisfaction Score = (Sum of Likert Ratings) / Total Number of Users` 
+*(Measured via a 5-point Likert scale where 1 = Very difficult and 5 = Very easy)*.
+* **Measurement Method:** Administer a post-task question asking users: "How easy was it to use the system?". Aggregate the scores to find the mean satisfaction level.
+* **Justification:** Quantitative metrics cannot capture user sentiment. High perceived satisfaction is crucial for long-term system adoption, user trust, and overall acceptance.
