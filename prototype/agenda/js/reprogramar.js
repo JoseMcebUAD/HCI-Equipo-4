@@ -1,193 +1,209 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- UTILIDADES ---
+    const pad = n => String(n).padStart(2, '0');
+    const formatHour = h => {
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const h12 = h > 12 ? h - 12 : (h === 0 ? 12 : h);
+        return `${h12.toString().padStart(2, '0')}:00 ${ampm}`;
+    };
+    const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+    const dayNames = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
 
-  // Utilidades
-  const pad  = n => String(n).padStart(2,'0');
-  const iso  = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-  const pISO = s => { const [Y,M,D]=s.split('-').map(Number); return new Date(Y,M-1,D); };
-  const addM = (t,m) => { let [h,min]=t.split(':').map(Number); min+=m; while(min>=60){h++;min-=60;} return `${pad(h)}:${pad(min)}`; };
-  const toMin= h => { const [hh,mm]=h.split(':').map(Number); return hh*60+mm; };
-  const fmtH = t => { const [h,m]=t.split(':').map(Number); const p=h>=12?'PM':'AM'; return `${h%12||12}:${pad(m)} ${p}`; };
-  const fmtDate = s => pISO(s).toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-
-  const OPEN=9, CLOSE=17, SLOT=30;
-  const TIPOS={
-    1:{nombre:'Evaluación inicial integral', dur:60},
-    2:{nombre:'Cita de terapia', dur:60}
-  };
-
-  let originalEvent = null;
-  let eventos = [];
-
-  try { originalEvent = JSON.parse(localStorage.getItem('reprogramar_event')); } catch(e) {}
-  try { eventos = JSON.parse(localStorage.getItem('agenda_events')) || []; } catch(e) {}
-
-  if(!originalEvent) {
-    window.location.href = 'agenda.html';
-    return;
-  }
-
-  let selectedDate = null;
-  let selectedTime = null;
-  let calViewDate  = new Date();
-
-  // DOM Refs
-  const elCurrentSlot  = document.getElementById('repCurrentSlot');
-  const elNewSlotText  = document.getElementById('repNewSlotText');
-  const elPrevMonth    = document.getElementById('repPrevMonth');
-  const elNextMonth    = document.getElementById('repNextMonth');
-  const elCalTitle     = document.getElementById('repCalTitle');
-  const elCalGrid      = document.getElementById('repCalGrid');
-  const elSlotsGrid    = document.getElementById('repSlotsGrid');
-  const elAvailSection = document.getElementById('repAvailSection');
-  const elAvailContent = document.getElementById('repAvailContent');
-  const elPatientName  = document.getElementById('repPatientName');
-  const elFolio        = document.getElementById('repFolio');
-  const elTherapist    = document.getElementById('repTherapist');
-  const elConfirmBtn   = document.getElementById('repConfirmBtn');
-  const elCancelBtn    = document.getElementById('repCancelBtn');
-  const elConfirmModal = document.getElementById('repConfirmModal');
-  const elConfirmSum   = document.getElementById('repConfirmSummary');
-
-  // Fill initial data
-  elPatientName.textContent = originalEvent.paciente;
-  elFolio.value = originalEvent.folio;
-  elCurrentSlot.textContent = `Horario actual: ${fmtDate(originalEvent.fecha)} ${fmtH(originalEvent.hora)}`;
-  
-  // Fill therapists (mock)
-  const therapists = ["Dra. Ana Rodríguez", "Dr. Carlos Sánchez", "Dra. Laura Pérez"];
-  elTherapist.innerHTML = therapists.map(t => `<option${t === originalEvent.ther ? ' selected' : ''}>${t}</option>`).join('');
-
-  const isBusyFor = (prop, val, fecha, hora, dur) => {
-    for(let m=0; m<dur; m+=SLOT) {
-      const slot = addM(hora, m);
-      if(eventos.some(e => e.id !== originalEvent.id && e.fecha === fecha && e.hora === slot && e[prop] === val))
-        return true;
+    // --- ESTADO ---
+    let originalEvent = null;
+    let selectedDate = null;
+    let selectedHour = null;
+    let calViewDate = new Date();
+    
+    // Cargar evento a reprogramar
+    const stored = localStorage.getItem('reprogramarEvent');
+    if (!stored) {
+        window.location.href = 'agenda.html';
+        return;
     }
-    return false;
-  };
+    originalEvent = JSON.parse(stored);
+    originalEvent.date = new Date(originalEvent.date);
 
-  const updateAvailability = () => {
-    if(!selectedDate || !selectedTime) return;
-    const dur = 60;
-    const ther = elTherapist.value;
-    const busy = isBusyFor('ther', ther, selectedDate, selectedTime, dur);
+    // --- DOM REFS ---
+    const elCurrentSlot = document.getElementById('repCurrentSlot');
+    const elPatientName = document.getElementById('repPatientName');
+    const elFolio = document.getElementById('repFolio');
+    const elTherapist = document.getElementById('repTherapist');
+    const elCalTitle = document.getElementById('repCalTitle');
+    const elCalGrid = document.getElementById('repCalGrid');
+    const elSlotsGrid = document.getElementById('repSlotsGrid');
+    const elNewSlotText = document.getElementById('repNewSlotText');
+    const elConfirmBtn = document.getElementById('repConfirmBtn');
+    const elAvailSection = document.getElementById('repAvailSection');
+    const elAvailContent = document.getElementById('repAvailContent');
+    const elConfirmModal = document.getElementById('repConfirmModal');
+    const elConfirmSum = document.getElementById('repConfirmSummary');
 
-    if(busy) {
-        elAvailSection.classList.remove('hidden');
-        elAvailContent.textContent = `El terapeuta ${ther} ya tiene una cita asignada en este bloque (${fmtH(selectedTime)}). Por favor, seleccione otro horario o terapeuta.`;
-        elConfirmBtn.disabled = true;
-    } else {
-        elAvailSection.classList.add('hidden');
-        elConfirmBtn.disabled = false;
-    }
-  };
-
-  const buildCalendar = () => {
-    const year  = calViewDate.getFullYear();
-    const month = calViewDate.getMonth();
-    const title = calViewDate.toLocaleDateString('es-ES',{month:'short',year:'numeric'});
-    elCalTitle.textContent = title.toUpperCase();
-
-    const first = new Date(year, month, 1);
-    const last  = new Date(year, month+1, 0);
-    let startWD = first.getDay(); 
-    if(startWD === 0) startWD = 6; else startWD--; // Ajuste lunes=0
-
-    elCalGrid.innerHTML = '';
-    for(let i=0; i<startWD; i++) elCalGrid.innerHTML += '<div></div>';
-
-    const today = new Date(); today.setHours(0,0,0,0);
-
-    for(let day=1; day<=last.getDate(); day++) {
-        const d = new Date(year, month, day);
-        const dISO = iso(d);
-        const btn = document.createElement('button');
-        btn.textContent = day;
-        btn.className = "w-8 h-8 text-[10px] font-bold rounded-lg transition-all ";
+    // --- INICIALIZACIÓN ---
+    function init() {
+        elPatientName.textContent = originalEvent.patient;
+        elFolio.value = originalEvent.id;
+        elCurrentSlot.textContent = `Horario actual: ${originalEvent.date.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })} @ ${formatHour(originalEvent.startHour)}`;
         
-        const isWE = [0,6].includes(d.getDay());
-        if(isWE || d < today) {
-            btn.className += "text-slate-200 cursor-not-allowed";
-            btn.disabled = true;
-        } else {
-            btn.className += (selectedDate === dISO) ? "bg-primary text-white shadow-md" : "text-slate-600 hover:bg-blue-50";
-            btn.onclick = () => {
-                selectedDate = dISO;
-                selectedTime = null;
-                elNewSlotText.textContent = "Fecha: " + fmtDate(dISO);
-                buildCalendar();
-                buildSlots(dISO);
-            };
-        }
-        elCalGrid.appendChild(btn);
+        // Cargar terapeutas de la DB filtrados por especialidad
+        const targetType = originalEvent.type || "Diagnóstico";
+        const therapists = DB.getTherapists().filter(t => t.specialties.includes(targetType));
+        elTherapist.innerHTML = therapists.map(t => `<option value="${t.name}" ${t.name === originalEvent.doctor ? 'selected' : ''}>${t.name}</option>`).join('');
+        
+        renderCalendar();
+        
+        // Eventos de navegación calendario
+        document.getElementById('repPrevMonth').onclick = () => { calViewDate.setMonth(calViewDate.getMonth() - 1); renderCalendar(); };
+        document.getElementById('repNextMonth').onclick = () => { calViewDate.setMonth(calViewDate.getMonth() + 1); renderCalendar(); };
+        
+        elTherapist.onchange = checkAvailability;
+        
+        document.getElementById('repCancelBtn').onclick = () => window.location.href = 'agenda.html';
+        elConfirmBtn.onclick = showConfirmation;
+        document.getElementById('repConfirmCancelBtn').onclick = () => elConfirmModal.classList.add('hidden');
+        document.getElementById('repConfirmSaveBtn').onclick = saveChanges;
     }
-  };
 
-  const buildSlots = (fecha) => {
-    elSlotsGrid.innerHTML = '';
-    const dur = 60;
-    const ther = elTherapist.value;
+    // --- CALENDARIO ---
+    function renderCalendar() {
+        const year = calViewDate.getFullYear();
+        const month = calViewDate.getMonth();
+        elCalTitle.textContent = `${monthNames[month]} ${year}`;
 
-    for(let h=OPEN; h<CLOSE; h++) {
-        for(let m=0; m<60; m+=SLOT) {
-            const hora = `${pad(h)}:${pad(m)}`;
-            const isBusy = isBusyFor('ther', ther, fecha, hora, dur);
-            
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        
+        elCalGrid.innerHTML = '';
+        // Espacios vacíos
+        for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+            elCalGrid.appendChild(document.createElement('div'));
+        }
+
+        const today = new Date();
+        today.setHours(0,0,0,0);
+
+        for (let d = 1; d <= daysInMonth; d++) {
+            const date = new Date(year, month, d);
             const btn = document.createElement('button');
-            btn.className = `p-3 rounded-xl text-[10px] font-bold border transition-all ${
-                isBusy ? 'bg-slate-50 text-slate-300 border-slate-100 cursor-not-allowed' : 
-                (selectedTime === hora ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 'bg-white text-slate-600 border-slate-100 hover:border-blue-200 hover:bg-blue-50')
+            btn.className = "h-8 w-8 text-[10px] font-bold rounded-lg transition-all flex items-center justify-center";
+            btn.textContent = d;
+
+            if (date < today) {
+                btn.classList.add('text-slate-200', 'cursor-not-allowed');
+            } else {
+                const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+                btn.className += isSelected ? " bg-primary text-white shadow-md" : " text-slate-600 hover:bg-slate-100";
+                btn.onclick = () => {
+                    selectedDate = date;
+                    selectedHour = null;
+                    renderCalendar();
+                    renderSlots();
+                    checkAvailability();
+                };
+            }
+            elCalGrid.appendChild(btn);
+        }
+    }
+
+    // --- SLOTS ---
+    function renderSlots() {
+        elSlotsGrid.innerHTML = '';
+        if (!selectedDate) return;
+
+        const hours = [8, 9, 10, 11, 12, 13, 14, 15, 16, 17];
+        hours.forEach(h => {
+            const btn = document.createElement('button');
+            const isSelected = selectedHour === h;
+            btn.className = `py-2 text-[10px] font-bold border-2 rounded-xl transition-all ${
+                isSelected ? 'border-primary bg-primary text-white' : 'border-slate-100 text-slate-500 hover:border-primary/20'
             }`;
-            btn.innerHTML = `<span class="block text-[12px]">${fmtH(hora)}</span>${isBusy ? 'Ocupado' : 'Disponible'}`;
-            btn.disabled = isBusy;
+            btn.textContent = formatHour(h);
             btn.onclick = () => {
-                selectedTime = hora;
-                elNewSlotText.textContent = `${fmtDate(fecha)} a las ${fmtH(hora)}`;
-                buildSlots(fecha);
-                updateAvailability();
+                selectedHour = h;
+                elNewSlotText.textContent = `${selectedDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} @ ${formatHour(h)}`;
+                renderSlots();
+                checkAvailability();
             };
             elSlotsGrid.appendChild(btn);
+        });
+    }
+
+    // --- DISPONIBILIDAD ---
+    function checkAvailability() {
+        if (!selectedDate || !selectedHour) {
+            elConfirmBtn.disabled = true;
+            return;
+        }
+
+        const events = DB.getEvents();
+        const doctor = elTherapist.value;
+        
+        const conflict = events.find(ev => 
+            ev.id !== originalEvent.id &&
+            ev.doctor === doctor &&
+            new Date(ev.date).toDateString() === selectedDate.toDateString() &&
+            ev.startHour === selectedHour
+        );
+
+        if (conflict) {
+            elAvailSection.classList.remove('hidden');
+            elAvailContent.textContent = `El terapeuta ${doctor} ya tiene una cita asignada en este bloque (${formatHour(selectedHour)}).`;
+            elConfirmBtn.disabled = true;
+        } else {
+            elAvailSection.classList.add('hidden');
+            elConfirmBtn.disabled = false;
         }
     }
-  };
 
-  elPrevMonth.onclick = () => { calViewDate.setMonth(calViewDate.getMonth()-1); buildCalendar(); };
-  elNextMonth.onclick = () => { calViewDate.setMonth(calViewDate.getMonth()+1); buildCalendar(); };
-
-  elConfirmBtn.onclick = () => {
-    elConfirmSum.innerHTML = `
-        <div class="flex justify-between text-xs font-medium"><span class="text-slate-400">Paciente:</span><span class="text-slate-900">${originalEvent.paciente}</span></div>
-        <div class="flex justify-between text-xs font-medium"><span class="text-slate-400">Folio:</span><span class="text-slate-900">${originalEvent.folio}</span></div>
-        <div class="flex justify-between text-xs font-medium"><span class="text-slate-400">Nueva Fecha:</span><span class="text-blue-600 font-bold">${fmtDate(selectedDate)}</span></div>
-        <div class="flex justify-between text-xs font-medium"><span class="text-slate-400">Nueva Hora:</span><span class="text-blue-600 font-bold">${fmtH(selectedTime)}</span></div>
-        <div class="flex justify-between text-xs font-medium"><span class="text-slate-400">Terapeuta:</span><span class="text-slate-900">${elTherapist.value}</span></div>
-    `;
-    elConfirmModal.classList.remove('hidden');
-  };
-
-  document.getElementById('repConfirmCancelBtn').onclick = () => elConfirmModal.classList.add('hidden');
-
-  document.getElementById('repConfirmSaveBtn').onclick = () => {
-    const idx = eventos.findIndex(e => e.id === originalEvent.id);
-    if(idx >= 0) {
-        eventos[idx].fecha = selectedDate;
-        eventos[idx].hora = selectedTime;
-        eventos[idx].ther = elTherapist.value;
-        localStorage.setItem('agenda_events', JSON.stringify(eventos));
+    // --- CONFIRMACIÓN ---
+    function showConfirmation() {
+        elConfirmSum.innerHTML = `
+            <div class="space-y-2">
+                <p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Paciente</p>
+                <p class="text-sm font-bold text-slate-800">${originalEvent.patient}</p>
+            </div>
+            <div class="grid grid-cols-2 gap-4 mt-4">
+                <div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Terapeuta Anterior</p>
+                    <p class="text-xs font-bold text-slate-600">${originalEvent.doctor}</p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Nuevo Terapeuta</p>
+                    <p class="text-xs font-black text-blue-600">${elTherapist.value}</p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Horario Anterior</p>
+                    <p class="text-xs font-bold text-slate-600">${originalEvent.date.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} @ ${formatHour(originalEvent.startHour)}</p>
+                </div>
+                <div>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase">Nuevo Horario</p>
+                    <p class="text-xs font-black text-emerald-600">${selectedDate.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} @ ${formatHour(selectedHour)}</p>
+                </div>
+            </div>
+        `;
+        elConfirmModal.classList.remove('hidden');
     }
-    localStorage.removeItem('reprogramar_event');
-    window.location.href = 'agenda.html';
-  };
 
-  elCancelBtn.onclick = () => {
-    localStorage.removeItem('reprogramar_event');
-    window.location.href = 'agenda.html';
-  };
+    // --- GUARDAR ---
+    function saveChanges() {
+        const events = DB.getEvents();
+        const index = events.findIndex(e => e.id === originalEvent.id);
+        
+        if (index !== -1) {
+            events[index].doctor = elTherapist.value;
+            events[index].date = selectedDate;
+            events[index].startHour = selectedHour;
+            
+            DB.saveEvents(events);
+            localStorage.removeItem('reprogramarEvent');
+            
+            // Efecto visual y salida
+            document.getElementById('repConfirmSaveBtn').innerHTML = '<span class="material-symbols-outlined animate-spin">sync</span>';
+            setTimeout(() => {
+                window.location.href = 'agenda.html';
+            }, 1000);
+        }
+    }
 
-  elTherapist.onchange = () => {
-    if(selectedDate) buildSlots(selectedDate);
-    updateAvailability();
-  };
-
-  buildCalendar();
+    init();
 });

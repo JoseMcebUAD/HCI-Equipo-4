@@ -479,13 +479,14 @@
             // RNF-US-04: Mensajes de error claros y accionables
             const name = document.getElementById('patientName').value.trim();
             const phone = document.getElementById('patientPhone').value.trim();
+            const email = document.getElementById('patientEmail').value.trim();
             const type = document.getElementById('consultType').value;
             const ther = document.getElementById('therapistSelect').value;
 
             errorMsg.classList.add('hidden');
 
-            if (!name) {
-                showError("Por favor, ingresa tu nombre completo para identificarte en el sistema.");
+            if (!name || !phone || !email || !type) {
+                showError("Por favor, completa todos tus datos personales (nombre, teléfono, correo y motivo).");
                 return;
             }
             if (phone.length < 10) {

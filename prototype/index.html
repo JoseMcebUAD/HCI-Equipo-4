@@ -89,13 +89,22 @@
                         </div>
                         <div>
                             <p class="text-xs font-black text-slate-900 uppercase">Especialistas Activos</p>
-                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Atención Inmediata</p>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest"><span id="therapistCount">0</span> Profesionales Disponibles</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </header>
+
+    <script src="js/db.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const stats = DB.getStats();
+            const countEl = document.getElementById('therapistCount');
+            if (countEl) countEl.textContent = stats.totalTherapists;
+        });
+    </script>
 
     <!-- Services Grid -->
     <section class="py-24 bg-white">

@@ -25,42 +25,47 @@
 </header>
 
 <div class="flex flex-1 overflow-hidden">
-    <!-- Sidebar -->
-    <aside class="w-[280px] bg-white border-r border-slate-200 p-4 flex flex-col hide-scrollbar overflow-y-auto">
-        <a href="../index.html" class="flex items-center gap-3 mb-6 px-2 hover:opacity-80 transition-opacity">
-            <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white">
+    <aside class="w-[280px] bg-white border-r border-slate-200 p-4 flex flex-col h-screen fixed left-0 top-0 z-[60]">
+        <a href="../index.html" class="flex items-center gap-3 mb-10 px-4 mt-4 hover:opacity-80 transition-opacity">
+            <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white shadow-lg shadow-primary/30">
                 <span class="material-symbols-outlined">psychology</span>
             </div>
             <div>
-                <h2 class="text-lg font-black text-blue-900 uppercase tracking-wider">Administración</h2>
-                <p class="text-[11px] text-slate-500 font-medium">Clínica Universitaria</p>
+                <h2 class="text-xl font-black text-blue-900 uppercase tracking-tight">PsicoCentro</h2>
+                <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Admin Portal</p>
             </div>
         </a>
 
-        <nav class="space-y-6">
-            <div class="space-y-1">
+        <button onclick="window.location.href='../agenda/nueva_cita.html'" class="mx-4 mb-8 bg-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:translate-y-[-2px] transition-all">
+            <span class="material-symbols-outlined">add</span> Nuevo Evento
+        </button>
 
-                <a href="../agenda/agenda.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
-                    <span class="material-symbols-outlined text-[20px]">calendar_month</span> Agenda
-                </a>
-                <a href="../solicitudes/solicitudes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
-                    <span class="material-symbols-outlined text-[20px]">move_to_inbox</span> Solicitudes
-                </a>
-                <a href="../pacientes/pacientes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
-                    <span class="material-symbols-outlined text-[20px]">groups</span> Pacientes
-                </a>
-                <a href="../terapeuta/terapeuta.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
-                    <span class="material-symbols-outlined text-[20px]">psychology</span> Terapeutas
-                </a>
-                <a href="../salas/salas.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
-                    <span class="material-symbols-outlined text-[20px]">meeting_room</span> Salas
-                </a>
-                <a href="reportes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 shadow-sm border-r-4 border-blue-600 transition-all text-sm font-bold">
-                    <span class="material-symbols-outlined text-[20px]">analytics</span> Reportes
-                </a>
-            </div>
+        <nav class="flex-1 px-4 space-y-1">
+            <a href="../agenda/agenda.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+                <span class="material-symbols-outlined text-[20px]">calendar_month</span> Agenda
+            </a>
+            <a href="../solicitudes/solicitudes.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+                <span class="material-symbols-outlined text-[20px]">move_to_inbox</span> Solicitudes
+            </a>
+            <a href="../pacientes/pacientes.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+                <span class="material-symbols-outlined text-[20px]">groups</span> Pacientes
+            </a>
+            <a href="../terapeuta/terapeuta.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+                <span class="material-symbols-outlined text-[20px]">psychology</span> Terapeutas
+            </a>
+            <a href="../salas/salas.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+                <span class="material-symbols-outlined text-[20px]">meeting_room</span> Salas
+            </a>
+            <a href="reportes.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-blue-700 shadow-sm border-r-4 border-blue-600 transition-all text-sm font-bold">
+                <span class="material-symbols-outlined text-[20px]">analytics</span> Reportes
+            </a>
         </nav>
     </aside>
+
+    <style>
+        main { margin-left: 280px; }
+        header { margin-left: 280px; }
+    </style>
 
     <!-- Main Content -->
     <main class="flex-1 overflow-y-auto bg-slate-50 p-8">
@@ -161,6 +166,7 @@
     </main>
 </div>
 
+<script src="../js/db.js"></script>
 <script src="js/reportes.js"></script>
 </body>
 </html>

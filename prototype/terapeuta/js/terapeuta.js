@@ -11,13 +11,38 @@ document.addEventListener("DOMContentLoaded", function () {
     const filterStatus = document.getElementById("filterStatus");
     const tableBody = document.getElementById("therapistTableBody");
 
-    // Datos de ejemplo
-    let terapeutas = [
-        { id: 1, nombre: "Ana García", email: "ana.g@clinica.com", telefono: "5551234567", rol: "Activo", tipo: "Psicodiagnóstico", pacientes: 12, horarios: [{dia: 'lunes', inicio: '09:00', fin: '14:00'}] },
-        { id: 2, nombre: "Carlos Méndez", email: "c.mendez@clinica.com", telefono: "5557654321", rol: "Activo", tipo: "Terapia Individual", pacientes: 8, horarios: [] },
-        { id: 3, nombre: "Luisa Fernández", email: "luisa.f@clinica.com", telefono: "5559876543", rol: "Pasante", tipo: "Psicodiagnóstico", pacientes: 5, horarios: [] },
-        { id: 4, nombre: "Roberto Gómez", email: "r.gomez@clinica.com", telefono: "5551112233", rol: "Externo", tipo: "Terapia Infantil", pacientes: 3, horarios: [] }
-    ];
+    // Cargar datos de la persistencia
+    let terapeutas = DB.getTherapists().map(t => ({
+        id: t.id,
+        nombre: t.name,
+        email: t.email || `${t.name.toLowerCase().replace(/ /g, '.')}@clinica.com`,
+        telefono: t.phone || "5550000000",
+        rol: t.role,
+        tipo: t.specialties[0] || "General",
+        pacientes: t.patientsCount || 0,
+        horarios: t.busy || []
+    }));
+
+    function updateStats() {
+        const stats = DB.getStats();
+        const totalTeamEl = document.querySelector('h3.text-3xl.font-black.text-slate-900');
+        if (totalTeamEl) totalTeamEl.textContent = stats.totalTherapists;
+    }
+
+    function syncDB() {
+        const dataToSave = terapeutas.map(t => ({
+            id: t.id,
+            name: t.nombre,
+            email: t.email,
+            phone: t.telefono,
+            role: t.rol,
+            specialties: [t.tipo],
+            patientsCount: t.pacientes,
+            busy: t.horarios
+        }));
+        DB.saveTherapists(dataToSave);
+        updateStats();
+    }
 
     function renderTable() {
         const searchTerm = searchInput.value.toLowerCase();
@@ -115,26 +140,47 @@ document.addEventListener("DOMContentLoaded", function () {
 
     formTerapeuta.addEventListener("submit", (e) => {
         e.preventDefault();
-        const t = {
-            id: Date.now(),
-            nombre: document.getElementById("nombre").value,
-            email: document.getElementById("email").value,
-            telefono: document.getElementById("telefono").value,
-            rol: document.getElementById("rol").value,
-            tipo: document.getElementById("tipo-servicio-modal").value,
+        const id = document.getElementById("modalTerapeuta").dataset.editingId;
+        const nombre = document.getElementById("nombre").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const telefono = document.getElementById("telefono").value.trim();
+        const rol = document.getElementById("rol").value;
+        const tipo = document.getElementById("tipo-servicio-modal").value;
+
+        if (!nombre || !email || !telefono || !rol || !tipo) {
+            showToast("Por favor complete todos los campos obligatorios.", true);
+            return;
+        }
+
+        const data = {
+            nombre: nombre,
+            email: email,
+            telefono: telefono,
+            rol: rol,
+            tipo: tipo,
             pacientes: 0,
             horarios: []
         };
-        terapeutas.push(t);
+
+        if (id) {
+            const index = terapeutas.findIndex(x => x.id == id);
+            if (index !== -1) terapeutas[index] = { ...terapeutas[index], ...data };
+            delete document.getElementById("modalTerapeuta").dataset.editingId;
+        } else {
+            terapeutas.push({ id: Date.now(), ...data });
+        }
+
+        syncDB();
         renderTable();
         modal.classList.add("hidden");
-        showToast("Terapeuta registrado correctamente");
+        showToast("Terapeuta guardado correctamente");
     });
 
     // Global actions
     window.editTerapeuta = (id) => {
         const t = terapeutas.find(x => x.id === id);
         if(!t) return;
+        document.getElementById("modalTerapeuta").dataset.editingId = id;
         document.getElementById("modalTitle").textContent = "Editar Terapeuta";
         document.getElementById("nombre").value = t.nombre;
         document.getElementById("email").value = t.email;
@@ -148,6 +194,7 @@ document.addEventListener("DOMContentLoaded", function () {
     window.deleteTerapeuta = (id) => {
         if(confirm("¿Estás seguro de eliminar a este terapeuta?")) {
             terapeutas = terapeutas.filter(t => t.id !== id);
+            syncDB();
             renderTable();
             showToast("Terapeuta eliminado");
         }

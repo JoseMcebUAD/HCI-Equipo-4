@@ -19,11 +19,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return d;
     };
 
-    let events = [];
-    const storedEvents = localStorage.getItem('agendaEvents');
+    let events = DB.getEvents();
     
-    if (storedEvents) {
-        events = JSON.parse(storedEvents);
+    if (events.length > 0) {
         events.forEach(ev => ev.date = new Date(ev.date));
     } else {
         events = [
@@ -38,25 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 date: getDateForOffset(1), startHour: 10, duration: 1,
                 bgClass: "bg-primary-fixed border-primary-container",
                 textClass: "text-primary-container", doctorClass: "text-primary-container"
-            },
-            {
-                id: 3, patient: "Mark Hollis", type: "Pareja", room: "Sala 04", doctor: "Dr. Miller",
-                date: getDateForOffset(2), startHour: 11, duration: 1,
-                bgClass: "bg-tertiary-fixed border-tertiary-container",
-                textClass: "text-tertiary-container", doctorClass: "text-tertiary-container"
-            },
-            {
-                id: 4, patient: "Sade Adu", type: "Urgencia", room: "Sala 01", doctor: "Lic. Connor",
-                date: getDateForOffset(3), startHour: 8, duration: 1,
-                bgClass: "bg-error-container border-error",
-                textClass: "text-on-error-container", doctorClass: "text-error"
             }
         ];
-        localStorage.setItem('agendaEvents', JSON.stringify(events));
+        DB.saveEvents(events);
     }
 
     function saveEvents() {
-        localStorage.setItem('agendaEvents', JSON.stringify(events));
+        DB.saveEvents(events);
     }
 
     const START_HOUR = 8;

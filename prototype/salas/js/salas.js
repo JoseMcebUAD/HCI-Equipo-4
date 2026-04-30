@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     /* ---------- refs DOM ---------- */
     const grid           = document.getElementById('salasGrid');
-    const btnAgregar     = document.getElementById('btnAgregarSala');
+    const btnNuevaSala   = document.getElementById('btnNuevaSala');
     const modal          = document.getElementById('modalSala');
     const closeButtons   = document.querySelectorAll('.close-button');
     const form           = document.getElementById('salaForm');
@@ -16,17 +16,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let salas = [];
 
     const load = () => {
-        salas = JSON.parse(localStorage.getItem('salas') || '[]');
-        if(salas.length === 0) {
-            salas = [
-                { id: 1, nombre: "Sala 01 - PB", servicios: ["Evaluación inicial integral", "Cita de terapia"], horaInicio: "09:00", horaFin: "18:00" },
-                { id: 2, nombre: "Sala 02 - PB", servicios: ["Cita de terapia"], horaInicio: "09:00", horaFin: "18:00" },
-                { id: 3, nombre: "Sala Grupal 01", servicios: ["Evaluación inicial integral"], horaInicio: "10:00", horaFin: "16:00" }
-            ];
-            save();
-        }
+        const dbRooms = DB.getRooms();
+        salas = dbRooms.map(r => ({
+            id: r.id,
+            nombre: r.name,
+            servicios: r.services || ["Cita de terapia"],
+            horaInicio: r.startHour || "09:00",
+            horaFin: r.endHour || "18:00"
+        }));
     };
-    const save = () => localStorage.setItem('salas', JSON.stringify(salas));
+
+    const save = () => {
+        const dataToSave = salas.map(s => ({
+            id: s.id,
+            name: s.nombre,
+            services: s.servicios,
+            startHour: s.horaInicio,
+            endHour: s.horaFin,
+            status: "Disponible"
+        }));
+        DB.saveRooms(dataToSave);
+    };
 
     /* ---------- UI helpers ---------- */
     const closeModal = () => {
@@ -124,12 +134,15 @@ document.addEventListener('DOMContentLoaded', () => {
         save(); render(); closeModal();
     };
 
-    btnAgregar.onclick = () => {
-        form.reset();
-        fId.value = '';
-        formTitle.textContent = 'Agregar Sala';
-        openModal();
-    };
+    const btnNuevaSala = document.getElementById('btnNuevaSala');
+    if (btnNuevaSala) {
+        btnNuevaSala.onclick = () => {
+            form.reset();
+            fId.value = '';
+            formTitle.textContent = 'Agregar Sala';
+            openModal();
+        };
+    }
 
     closeButtons.forEach(btn => btn.onclick = closeModal);
 

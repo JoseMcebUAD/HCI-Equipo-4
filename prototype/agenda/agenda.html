@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
     <link rel="stylesheet" href="css/agenda.css">
+    <script src="../js/db.js"></script>
     <script src="js/tailwind-config.js"></script>
 </head>
 <body class="bg-background text-on-surface antialiased overflow-hidden flex flex-col h-screen">
@@ -36,43 +37,39 @@
 
 <div class="flex flex-1 overflow-hidden">
     <!-- SideNavBar / Collapsible Filters Section -->
-    <aside class="fixed left-0 top-[57px] h-[calc(100vh-57px)] w-[280px] bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col p-4 overflow-y-auto hide-scrollbar z-40">
-        
-        <a href="../index.html" class="flex items-center gap-3 mb-6 px-2 hover:opacity-80 transition-opacity cursor-pointer">
-            <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white">
-                <span class="material-symbols-outlined" data-icon="medical_services" style="font-variation-settings: 'FILL' 1;">psychology</span>
+    <aside class="w-[280px] bg-white border-r border-slate-200 p-4 flex flex-col h-screen fixed left-0 top-0 z-[60]">
+        <a href="../index.html" class="flex items-center gap-3 mb-10 px-4 mt-4 hover:opacity-80 transition-opacity">
+            <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white shadow-lg shadow-primary/30">
+                <span class="material-symbols-outlined">psychology</span>
             </div>
             <div>
-                <h2 class="text-lg font-black text-blue-900 dark:text-white uppercase tracking-wider">Administración</h2>
-                <p class="text-[11px] text-slate-500 font-medium">Clínica Universitaria</p>
+                <h2 class="text-xl font-black text-blue-900 uppercase tracking-tight">PsicoCentro</h2>
+                <p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Admin Portal</p>
             </div>
         </a>
 
-        <button onclick="window.location.href='nueva_cita.html'" class="w-full bg-primary-container text-white py-3 rounded-xl font-semibold mb-6 flex items-center justify-center gap-2 shadow-sm hover:translate-y-[-2px] transition-all">
-            <span class="material-symbols-outlined" data-icon="add">add</span>
-            Nuevo Evento
+        <button onclick="window.location.href='nueva_cita.html'" class="mx-4 mb-8 bg-primary text-white py-3 rounded-xl font-bold flex items-center justify-center gap-2 shadow-lg shadow-primary/20 hover:translate-y-[-2px] transition-all">
+            <span class="material-symbols-outlined">add</span> Nuevo Evento
         </button>
 
-        <nav class="space-y-6">
-            <!-- Navigation Links -->
-            <div class="space-y-1">
-
-                <a href="agenda.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-white text-blue-700 shadow-sm border-r-4 border-blue-600 transition-all text-sm font-bold">
+        <nav class="flex-1 px-4 space-y-1 overflow-y-auto hide-scrollbar">
+            <div class="space-y-1 mb-8">
+                <a href="agenda.html" class="flex items-center gap-3 px-4 py-3 rounded-xl bg-blue-50 text-blue-700 shadow-sm border-r-4 border-blue-600 transition-all text-sm font-bold">
                     <span class="material-symbols-outlined text-[20px]">calendar_month</span> Agenda
                 </a>
-                <a href="../solicitudes/solicitudes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition-all text-sm font-medium">
+                <a href="../solicitudes/solicitudes.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
                     <span class="material-symbols-outlined text-[20px]">move_to_inbox</span> Solicitudes
                 </a>
-                <a href="../pacientes/pacientes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition-all text-sm font-medium">
+                <a href="../pacientes/pacientes.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
                     <span class="material-symbols-outlined text-[20px]">groups</span> Pacientes
                 </a>
-                <a href="../terapeuta/terapeuta.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition-all text-sm font-medium">
+                <a href="../terapeuta/terapeuta.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
                     <span class="material-symbols-outlined text-[20px]">psychology</span> Terapeutas
                 </a>
-                <a href="../salas/salas.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition-all text-sm font-medium">
+                <a href="../salas/salas.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
                     <span class="material-symbols-outlined text-[20px]">meeting_room</span> Salas
                 </a>
-                <a href="../reportes/reportes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition-all text-sm font-medium">
+                <a href="../reportes/reportes.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
                     <span class="material-symbols-outlined text-[20px]">analytics</span> Reportes
                 </a>
             </div>
@@ -113,10 +110,12 @@
             </div>
         </nav>
 
-        <div class="mt-auto pt-8 border-t border-slate-200 dark:border-slate-800">
-            <div class="flex items-center gap-3 p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 transition-all cursor-pointer">
-                <span class="material-symbols-outlined" data-icon="settings">settings</span>
-                <span class="text-[13px]">Configuración</span>
+        <div class="mt-auto pt-6 space-y-2 border-t border-slate-200">
+            <button onclick="DB.reset()" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 transition-all text-sm font-bold">
+                <span class="material-symbols-outlined text-[20px]">restart_alt</span> Restablecer Sistema
+            </button>
+            <div class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-all cursor-pointer text-sm font-medium">
+                <span class="material-symbols-outlined text-[20px]">settings</span> Configuración
             </div>
             <div class="flex items-center gap-3 p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 transition-all cursor-pointer">
                 <span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>

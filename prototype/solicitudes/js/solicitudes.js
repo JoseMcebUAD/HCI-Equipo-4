@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const monthNames = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
     
     const formatDate = (dateObj) => {
+        if (!dateObj || !(dateObj instanceof Date) || isNaN(dateObj)) return "Fecha no def.";
         return `${monthNames[dateObj.getMonth()]} ${dateObj.getDate()}, ${dateObj.getFullYear()}`;
     };
 
@@ -15,80 +16,37 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const getHourFormat = (hour) => {
+        if (hour === undefined || hour === null) return "Horario no def.";
         const ampm = hour >= 12 ? 'PM' : 'AM';
         const h12 = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
         return `${h12.toString().padStart(2, '0')}:00 ${ampm} — ${(h12 + 1).toString().padStart(2, '0')}:00 ${ampm}`;
     };
 
-    // --- ESTADO SIMULADO ---
-    let requests = [
-        {
-            id: 1,
-            patient: "Marcus Richardson",
-            patientId: "#PT-8821",
-            type: "Evaluación Inicial",
-            typeColor: "bg-sky-500",
-            dateObj: getDateOffset(1),
-            startHour: 10,
-            status: "Urgente", 
-            isToday: false,
-            category: "nueva",
-            createdAt: getDateOffset(0)
-        },
-        {
-            id: 2,
-            patient: "Elena Vasquez",
-            patientId: "#PT-7742",
-            type: "Sesión Seguimiento",
-            typeColor: "bg-emerald-500",
-            dateObj: getDateOffset(0),
-            startHour: 14,
-            status: "En Revisión",
-            isToday: true,
-            category: "nueva",
-            createdAt: getDateOffset(-2)
-        },
-        {
-            id: 3,
-            patient: "Julian Hayes",
-            patientId: "#PT-9102",
-            type: "Terapia de Pareja",
-            typeColor: "bg-purple-500",
-            dateObj: getDateOffset(0),
-            startHour: 11,
-            status: "Pendiente",
-            isToday: true,
-            category: "nueva",
-            createdAt: getDateOffset(-1)
-        },
-        {
-            id: 4,
-            patient: "Martha Stewart",
-            patientId: "#PT-1244",
-            type: "Revisión Diagnóstica",
-            typeColor: "bg-orange-500",
-            dateObj: getDateOffset(2),
-            startHour: 16,
-            status: "Urgente",
-            isToday: false,
-            category: "nueva",
-            createdAt: getDateOffset(-8) // FR-04: >7 días
-        },
-        {
-            id: 5,
-            patient: "Pedro Martínez",
-            patientId: "#PT-6655",
-            type: "Reprogramación",
-            typeColor: "bg-amber-500",
-            dateObj: getDateOffset(3),
-            startHour: 9,
-            status: "Pendiente",
-            isToday: false,
-            category: "reprogramacion",
-            originalDate: getDateOffset(-1),
-            createdAt: getDateOffset(-1)
+    // --- ESTADO SIMULADO CON PERSISTENCIA ---
+    let requests = DB.getRequests();
+    
+    // Parsear fechas de strings a objetos Date
+    requests.forEach(r => {
+        if (r.dateObj && typeof r.dateObj === 'string') r.dateObj = new Date(r.dateObj);
+        if (r.createdAt && typeof r.createdAt === 'string') r.createdAt = new Date(r.createdAt);
+        // Fallback for isToday if not present
+        if (r.dateObj && typeof r.isToday === 'undefined') {
+            r.isToday = r.dateObj.toDateString() === today.toDateString();
         }
-    ];
+    });
+
+    function updateStats() {
+        const stats = DB.getStats();
+        const pendingEl = document.querySelector('.font-semibold.text-primary');
+        if (pendingEl) {
+            pendingEl.textContent = `${stats.pendingRequests} pendientes`;
+        }
+    }
+
+    function syncDB() {
+        DB.saveRequests(requests);
+        updateStats();
+    }
 
     const tableBody = document.getElementById('requestsTableBody');
     const searchInput = document.getElementById('searchInput');
@@ -113,6 +71,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return { bg: 'bg-slate-100', text: 'text-slate-700', dot: 'bg-slate-500' }; // Pendiente
     }
 
+    function getTypeColor(type) {
+        if (type === 'Diagnóstico') return 'bg-blue-500';
+        if (type === 'Evaluación') return 'bg-emerald-500';
+        if (type === 'Seguimiento') return 'bg-amber-500';
+        return 'bg-slate-400';
+    }
+
     function renderTable() {
         tableBody.innerHTML = '';
         
@@ -129,57 +94,61 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         filtered.forEach(req => {
-            const badge = getBadgeConfig(req.status);
-            const displayDate = formatDate(req.dateObj);
-            const displayTime = getHourFormat(req.startHour);
-            // FR-04: Calcular días desde creación
-            const daysOld = req.createdAt ? Math.floor((today - req.createdAt) / (1000*60*60*24)) : 0;
-            
-            const tr = document.createElement('tr');
-            tr.className = 'hover:bg-slate-50/80 transition-colors group slide-up';
-            
-            tr.innerHTML = `
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
-                            <span class="material-symbols-outlined text-slate-400">person</span>
+            try {
+                const badge = getBadgeConfig(req.status);
+                const displayDate = formatDate(req.dateObj);
+                const displayTime = getHourFormat(req.startHour);
+                // FR-04: Calcular días desde creación
+                const daysOld = req.createdAt ? Math.floor((today - req.createdAt) / (1000*60*60*24)) : 0;
+                
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50/80 transition-colors group slide-up';
+                
+                tr.innerHTML = `
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
+                                <span class="material-symbols-outlined text-slate-400">person</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-slate-900">${req.patient}</p>
+                                <p class="text-xs text-slate-500">ID: ${req.patientId}</p>
+                            </div>
                         </div>
-                        <div>
-                            <p class="font-semibold text-slate-900">${req.patient}</p>
-                            <p class="text-xs text-slate-500">ID: ${req.patientId}</p>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="flex items-center gap-2">
+                            <div class="w-2 h-4 ${getTypeColor(req.type)} rounded-full"></div>
+                            <span class="text-slate-700 font-medium">${req.type}</span>
                         </div>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <div class="flex items-center gap-2">
-                        <div class="w-2 h-4 ${req.typeColor} rounded-full"></div>
-                        <span class="text-slate-700 font-medium">${req.type}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4 text-slate-600">
-                    <div class="flex flex-col">
-                        <span class="font-medium text-slate-900">${displayDate} ${req.isToday ? '<span class="text-[10px] bg-blue-100 text-blue-800 px-1.5 rounded ml-1">HOY</span>' : ''}${daysOld >= 7 ? '<span class="text-[10px] bg-red-100 text-red-700 px-1.5 rounded ml-1">⚠ +7 DÍAS</span>' : ''}</span>
-                        <span class="text-xs">${displayTime}</span>
-                    </div>
-                </td>
-                <td class="px-6 py-4">
-                    <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${badge.bg} ${badge.text}">
-                        <span class="w-1.5 h-1.5 rounded-full ${badge.dot}"></span>
-                        ${req.status}
-                    </span>
-                </td>
-                <td class="px-6 py-4 text-right">
-                    <div class="flex items-center justify-end gap-2">
-                        <button class="btn-approve px-3 py-1.5 text-xs font-bold text-white bg-primary rounded-lg hover:bg-primary-container transition-all" data-id="${req.id}">Aprobar</button>
-                        <button class="btn-reschedule px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all" data-id="${req.id}">Reprogramar</button>
-                        <button class="btn-reject p-1.5 text-slate-400 hover:text-error hover:bg-error-container/20 rounded-lg transition-all" title="Rechazar" data-id="${req.id}">
-                            <span class="material-symbols-outlined text-lg pointer-events-none" data-icon="close">close</span>
-                        </button>
-                    </div>
-                </td>
-            `;
-            
-            tableBody.appendChild(tr);
+                    </td>
+                    <td class="px-6 py-4 text-slate-600">
+                        <div class="flex flex-col">
+                            <span class="font-medium text-slate-900">${displayDate} ${req.isToday ? '<span class="text-[10px] bg-blue-100 text-blue-800 px-1.5 rounded ml-1">HOY</span>' : ''}${daysOld >= 7 ? '<span class="text-[10px] bg-red-100 text-red-700 px-1.5 rounded ml-1">⚠ +7 DÍAS</span>' : ''}</span>
+                            <span class="text-xs">${displayTime}</span>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${badge.bg} ${badge.text}">
+                            <span class="w-1.5 h-1.5 rounded-full ${badge.dot}"></span>
+                            ${req.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end gap-2">
+                            <button class="btn-approve px-3 py-1.5 text-xs font-bold text-white bg-primary rounded-lg hover:bg-primary-container transition-all" data-id="${req.id}">Aprobar</button>
+                            <button class="btn-reschedule px-3 py-1.5 text-xs font-bold text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-all" data-id="${req.id}">Reprogramar</button>
+                            <button class="btn-reject p-1.5 text-slate-400 hover:text-error hover:bg-error-container/20 rounded-lg transition-all" title="Rechazar" data-id="${req.id}">
+                                <span class="material-symbols-outlined text-lg pointer-events-none" data-icon="close">close</span>
+                            </button>
+                        </div>
+                    </td>
+                `;
+                
+                tableBody.appendChild(tr);
+            } catch (err) {
+                console.error("Error rendering request:", req, err);
+            }
         });
 
         if(filtered.length === 0) {
@@ -216,27 +185,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const req = requests.find(r => r.id === id);
         if(!req) return;
 
-        // Leer Agenda
-        let storedEvents = localStorage.getItem('agendaEvents');
-        let agenda = [];
-        if(storedEvents) {
-            agenda = JSON.parse(storedEvents);
-            agenda.forEach(ev => ev.date = new Date(ev.date));
-        }
+        let agenda = DB.getEvents();
+        agenda.forEach(ev => ev.date = new Date(ev.date));
 
-        // VALIDACIÓN DE CHOQUES: Verificar si ya hay alguna cita a esa hora y día exacto
+        // VALIDACIÓN DE CHOQUES
         const conflict = agenda.find(ev => 
             ev.date.toDateString() === req.dateObj.toDateString() &&
             ev.startHour === req.startHour
         );
 
         if (conflict) {
-            // RNF-US-04: Mensaje claro con acción concreta
             showToast(`Error: Ya existe una cita a las ${getHourFormat(req.startHour)} el ${formatDate(req.dateObj)} en la agenda. Use el botón "Reprogramar" para asignar un nuevo horario.`, true);
             return;
         }
 
-        // Si no hay choque, inyectar a la agenda
+        // Inyectar a la agenda
         let bgClass = "bg-primary-fixed border-primary-container";
         let textClass = "text-primary-container";
         let doctorClass = "text-primary-container";
@@ -248,8 +211,8 @@ document.addEventListener('DOMContentLoaded', () => {
             id: Date.now(),
             patient: req.patient,
             type: req.type,
-            room: "Sala 03", // Asignación automática por defecto
-            doctor: "Dr. Asignado", // Asignación automática
+            room: "Sala 03",
+            doctor: "Dr. Asignado",
             date: req.dateObj,
             startHour: req.startHour,
             duration: 1, 
@@ -258,10 +221,11 @@ document.addEventListener('DOMContentLoaded', () => {
             doctorClass: doctorClass
         });
 
-        localStorage.setItem('agendaEvents', JSON.stringify(agenda));
+        DB.saveEvents(agenda);
 
         // Eliminar de solicitudes
         requests = requests.filter(r => r.id !== id);
+        syncDB();
         renderTable();
         showToast("¡Solicitud aprobada y enlazada a la agenda con éxito!");
     }
@@ -415,5 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Init
+    updateStats();
     renderTable();
 });

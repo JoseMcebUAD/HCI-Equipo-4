@@ -3,28 +3,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const today = new Date();
     const currentYear = today.getFullYear();
 
-    let patients = [
-        {
-            id: 1, name: "María López", email: "maria.lopez@email.com", phone: "5551234567",
-            patientId: "#PT-5521", lastVisit: `20 Oct, ${currentYear}`, service: "Psicoterapia",
-            status: "Activo", initials: "ML", colorClass: "bg-primary/10 text-primary"
-        },
-        {
-            id: 2, name: "Carlos Ruiz", email: "c.ruiz@email.com", phone: "5559876543",
-            patientId: "#PT-3342", lastVisit: `15 Oct, ${currentYear}`, service: "Ninguno",
-            status: "En Espera", initials: "CR", colorClass: "bg-secondary/10 text-secondary"
-        },
-        {
-            id: 3, name: "Ana García", email: "agarcia88@email.com", phone: "5554567890",
-            patientId: "#PT-8890", lastVisit: `12 Sep, ${currentYear}`, service: "Psicodiagnóstico",
-            status: "Archivado", initials: "AG", colorClass: "bg-slate-100 text-slate-500"
-        },
-        {
-            id: 4, name: "Roberto Gómez", email: "rgomez@email.com", phone: "5551112233",
-            patientId: "#PT-1224", lastVisit: `05 Nov, ${currentYear}`, service: "Terapia de Pareja",
-            status: "Activo", initials: "RG", colorClass: "bg-primary/10 text-primary"
-        }
-    ];
+    let patients = DB.getPatients().map(p => ({
+        id: p.id,
+        name: p.name,
+        email: p.email,
+        phone: p.phone,
+        patientId: p.folio || `#PT-${Math.floor(1000 + Math.random() * 9000)}`,
+        lastVisit: p.lastVisit || `10 Oct, ${currentYear}`,
+        service: p.service,
+        status: p.status,
+        initials: p.name.split(' ').map(n => n[0]).join(''),
+        colorClass: p.status === 'Activo' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'
+    }));
+
+    function updateStats() {
+        const stats = DB.getStats();
+        if (statActive) statActive.textContent = stats.activePatients;
+        if (statSessions) statSessions.textContent = stats.sessionsThisWeek;
+    }
+
+    function syncDB() {
+        const dataToSave = patients.map(p => ({
+            id: p.id,
+            name: p.name,
+            email: p.email,
+            phone: p.phone,
+            folio: p.patientId,
+            lastVisit: p.lastVisit,
+            service: p.service,
+            status: p.status
+        }));
+        DB.savePatients(dataToSave);
+        updateStats();
+    }
 
     // --- ELEMENTOS DOM ---
     const tableBody = document.getElementById('patientsTableBody');
@@ -104,8 +115,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <button class="p-2 text-slate-400 hover:text-primary transition-colors action-view" title="Ver Perfil" data-id="${p.id}">
                             <span class="material-symbols-outlined">visibility</span>
                         </button>
-                        <button class="p-2 text-slate-400 hover:text-primary transition-colors action-edit" title="Editar" data-id="${p.id}">
-                            <span class="material-symbols-outlined">edit</span>
+                        <button class="p-2 text-slate-400 hover:text-red-500 transition-colors action-delete" title="Eliminar" data-id="${p.id}">
+                            <span class="material-symbols-outlined">delete</span>
                         </button>
                     </div>
                 </td>
@@ -147,9 +158,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             });
         });
-        document.querySelectorAll('.action-edit').forEach(btn => {
+        document.querySelectorAll('.action-delete').forEach(btn => {
             btn.addEventListener('click', () => {
-                showToast("Abriendo editor de información del paciente...");
+                const id = btn.getAttribute('data-id');
+                if (confirm('¿Estás seguro de eliminar a este paciente?')) {
+                    const allPatients = DB.getPatients().filter(p => p.id != id);
+                    DB.savePatients(allPatients);
+                    // Update local state
+                    patients = patients.filter(p => p.id != id);
+                    renderPatients();
+                    showToast("Paciente eliminado correctamente.");
+                }
             });
         });
     }
@@ -173,6 +192,71 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // --- REGISTRO DE PACIENTES ---
+    const btnNuevoPaciente = document.getElementById('btnNuevoPaciente');
+    const modalPaciente = document.getElementById('modalPaciente');
+    const closeModals = document.querySelectorAll('.close-modal');
+    const formPaciente = document.getElementById('formPaciente');
+
+    if (btnNuevoPaciente) {
+        btnNuevoPaciente.onclick = () => {
+            formPaciente.reset();
+            modalPaciente.classList.remove('hidden');
+            setTimeout(() => modalPaciente.querySelector('.scale-95')?.classList.remove('scale-95'), 10);
+        };
+    }
+
+    closeModals.forEach(btn => {
+        btn.onclick = () => {
+            modalPaciente.querySelector('div')?.classList.add('scale-95');
+            setTimeout(() => modalPaciente.classList.add('hidden'), 200);
+        };
+    });
+
+    if (formPaciente) {
+        formPaciente.onsubmit = (e) => {
+            e.preventDefault();
+            const name = document.getElementById('nombre').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const phone = document.getElementById('telefono').value.trim();
+            const status = document.getElementById('estado').value;
+            const service = document.getElementById('servicio').value;
+
+            if (!name || !email || !phone || !status || !service) {
+                showToast("Por favor complete todos los campos obligatorios.", true);
+                return;
+            }
+
+            const newPatient = {
+                id: Date.now(),
+                name: name,
+                email: email,
+                phone: phone,
+                folio: `#PT-${Math.floor(1000 + Math.random() * 9000)}`,
+                status: status,
+                service: service,
+                lastVisit: "Sin registros"
+            };
+
+            const allPatients = DB.getPatients();
+            allPatients.push(newPatient);
+            DB.savePatients(allPatients);
+
+            // Actualizar vista local
+            patients.push({
+                ...newPatient,
+                patientId: newPatient.folio,
+                initials: newPatient.name.split(' ').map(n => n[0]).join(''),
+                colorClass: newPatient.status === 'Activo' ? 'bg-primary/10 text-primary' : 'bg-secondary/10 text-secondary'
+            });
+
+            renderPatients();
+            showToast("Paciente registrado con éxito.");
+            modalPaciente.querySelector('div')?.classList.add('scale-95');
+            setTimeout(() => modalPaciente.classList.add('hidden'), 200);
+        };
+    }
+
     // --- NOTIFICACIONES (TOAST) ---
     function showToast(msg) {
         let toast = document.getElementById('globalToast');
@@ -189,5 +273,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --- INICIALIZACIÓN ---
+    updateStats();
     renderPatients();
 });
