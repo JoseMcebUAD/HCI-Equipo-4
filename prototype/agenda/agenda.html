@@ -17,6 +17,10 @@
         <li><a href="../terapeuta/terapeuta.html">Terapeutas</a></li>
         <li><a href="../salas/salas.html">Salas</a></li>
         <li><a href="../reportes/reportes.html">Reportes</a></li>
+        <li><a href="../index.html" class="nav-salir">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          Salir
+        </a></li>
       </ul>
     </nav>
   </header>
@@ -51,8 +55,15 @@
           <div class="filter-bar">
             <button id="sidebarShowBtn" class="sidebar-show-btn hidden" title="Mostrar calendario">&#9776;</button>
 
+            <button id="newEventBtn" class="btn-action btn-primary">
+              <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Nuevo Evento
+            </button>
+
+            <div class="filter-bar-divider"></div>
+
             <div class="filter-group">
-              <label for="filterType">Tipo de evento:</label>
+              <label for="filterType">Tipo:</label>
               <select id="filterType">
                 <option value="">Todos</option>
                 <option value="1">Evaluación inicial integral</option>
@@ -61,20 +72,115 @@
             </div>
 
             <div class="filter-group">
-              <button id="printView" class="btn-action">
-                <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Imprimir
-              </button>
-              <button id="newEventBtn" class="btn-action btn-primary">
-                <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Nuevo Evento
-              </button>
+              <label for="filterTherapist">Terapeuta:</label>
+              <select id="filterTherapist">
+                <option value="">Todos</option>
+                <option>Terapeuta A</option>
+                <option>Terapeuta B</option>
+                <option>Terap. 1</option>
+                <option>Terap. 2</option>
+                <option>Terap. 3</option>
+                <option>Terap. 4</option>
+              </select>
             </div>
+
+            <div class="filter-group">
+              <label for="filterRoom">Sala:</label>
+              <select id="filterRoom">
+                <option value="">Todas</option>
+                <option>Sala 101</option>
+                <option>Sala 102</option>
+                <option>Sala 103</option>
+              </select>
+            </div>
+
+            <div class="filter-group">
+              <label for="filterPatient">Paciente:</label>
+              <select id="filterPatient">
+                <option value="">Todos</option>
+                <option>Ana Martínez</option>
+                <option>Luis García</option>
+                <option>Carmen Robles</option>
+                <option>José Romero</option>
+                <option>María Torres</option>
+                <option>Diego Fuentes</option>
+                <option>Sofía Paredes</option>
+                <option>Ricardo Vargas</option>
+                <option>Elena Castillo</option>
+                <option>Pedro Rivas</option>
+              </select>
+            </div>
+
+            <button id="resetFilters" class="btn-reset-icon" title="Reiniciar todos los filtros">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 4-7.5"/><polyline points="3 4 3 9 8 9"/></svg>
+            </button>
           </div>
         </section>
 
+        <!-- ================= TAB SWITCHER ================= -->
+        <div class="view-tabs" id="viewTabs" role="tablist">
+          <button class="view-tab view-tab--active" id="tabAgenda"
+                  role="tab" aria-selected="true" aria-controls="calendarContainer">
+            <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16"
+                 fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+            Agenda
+          </button>
+          <button class="view-tab" id="tabBandeja"
+                  role="tab" aria-selected="false" aria-controls="inboxPanel">
+            <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16"
+                 fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+              <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+            </svg>
+            Bandeja de Entrada
+            <span class="inbox-badge hidden" id="inboxBadge">0</span>
+          </button>
+        </div>
+
+        <!-- Indicador de carga semanal -->
+        <div id="weeklyWorkloadBar" class="weekly-workload-bar"></div>
+
         <!-- Calendario semanal -->
         <section id="calendarContainer"><!-- grid dinámico --></section>
+
+        <!-- ================= BANDEJA DE ENTRADA ================= -->
+        <div id="inboxPanel" class="inbox-panel hidden"
+             role="tabpanel" aria-labelledby="tabBandeja">
+
+          <!-- Sub-tabs -->
+          <div class="inbox-subtabs" id="inboxSubtabs">
+            <button class="inbox-subtab inbox-subtab--active" data-subtab="nuevas">
+              Nuevas
+              <span class="inbox-badge-sm" id="badgeNuevas">0</span>
+            </button>
+            <button class="inbox-subtab" data-subtab="reprogramaciones">
+              Reprogramaciones
+              <span class="inbox-badge-sm" id="badgeReprog">0</span>
+            </button>
+            <button class="inbox-subtab" data-subtab="archivadas">
+              Archivadas
+              <span class="inbox-badge-sm inbox-badge-sm--muted" id="badgeArch">0</span>
+            </button>
+          </div>
+
+          <!-- Empty state -->
+          <div class="inbox-empty hidden" id="inboxEmpty">
+            <svg viewBox="0 0 24 24" width="48" height="48" fill="none"
+                 stroke="currentColor" stroke-width="1.5">
+              <polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/>
+              <path d="M5.45 5.11L2 12v6a2 2 0 002 2h16a2 2 0 002-2v-6l-3.45-6.89A2 2 0 0016.76 4H7.24a2 2 0 00-1.79 1.11z"/>
+            </svg>
+            <p>No hay solicitudes en esta sección</p>
+          </div>
+
+          <!-- Card list — generated by bandeja-entrada.js -->
+          <div class="inbox-list" id="inboxList"></div>
+        </div>
 
         <!-- Leyenda de estados -->
         <div class="status-legend" id="statusLegend">
@@ -107,117 +213,152 @@
 
   <!-- ================= MODAL NUEVO / REPROG. ================= -->
   <div id="newEventModal" class="modal">
-    <div class="modal-content">
+    <div class="modal-content modal-wizard">
       <span class="close-button" id="closeNewEventModal">&times;</span>
       <h2 id="newEventTitle">Nuevo Evento</h2>
       <hr>
+
+      <!-- Stepper -->
+      <div class="wz-stepper" id="wizardStepper">
+        <div class="wz-step wz-step--active" data-step="1">
+          <div class="wz-circle">1</div>
+          <span class="wz-label">Evento</span>
+        </div>
+        <div class="wz-line"></div>
+        <div class="wz-step" data-step="2">
+          <div class="wz-circle">2</div>
+          <span class="wz-label">Fecha</span>
+        </div>
+        <div class="wz-line"></div>
+        <div class="wz-step" data-step="3">
+          <div class="wz-circle">3</div>
+          <span class="wz-label">Horario</span>
+        </div>
+        <div class="wz-line"></div>
+        <div class="wz-step" data-step="4">
+          <div class="wz-circle">4</div>
+          <span class="wz-label">Pago</span>
+        </div>
+      </div>
 
       <!-- Mensajes de validación inline -->
       <div id="validationMessages" class="validation-messages" aria-live="polite"></div>
 
       <form id="newEventForm" novalidate>
-        <!-- Tipo -->
-         <section>
-           <div class="form-group">
-             <label for="eventType">Tipo de Evento:</label>
-             <select id="eventType" name="eventType" required>
-               <option value="">Seleccionar tipo</option>
-               <option value="1">Evaluación inicial integral</option>
-               <option value="2">Cita de Terapia</option>
-             </select>
-           </div>
-           <!-- Paciente -->
-            <div class="form-group">
-              <label for="eventPatient">Paciente:</label>
-              <select id="eventPatient" name="eventPatient" required>
-                <option value="">Seleccionar paciente</option>
-                <option>Ana Martínez</option><option>Luis García</option>
-                <option>Carmen Robles</option><option>José Romero</option>
-                <option>María Torres</option><option>Diego Fuentes</option>
-                <option>Sofía Paredes</option><option>Ricardo Vargas</option>
-                <option>Elena Castillo</option><option>Pedro Rivas</option>
-              </select>
-            </div>
-           <!-- Terapeuta -->
-            <div class="form-group" id="therapistGroup">
-              <label for="eventTherapist">Terapeuta:</label>
-              <select id="eventTherapist" name="eventTherapist"></select>
-            </div>
-             <!-- Sala -->
-           <div class="form-group">
-             <label for="eventRoom">Sala:</label>
-             <select id="eventRoom" name="eventRoom" required>
-               <option value="">Seleccionar sala</option>
-               <option>Sala 101</option><option>Sala 102</option><option>Sala 103</option>
-             </select>
-           </div>
-          </section>
+        <!-- Inputs ocultos compartidos entre pasos -->
+        <input type="hidden" id="eventDate"      name="eventDate" />
+        <input type="hidden" id="eventStartTime" name="eventStartTime" />
+        <input type="hidden" id="eventRoom"      name="eventRoom" />
+        <input type="hidden" id="eventDuration"  name="eventDuration" />
+        <input type="hidden" id="eventFolio"     name="eventFolio" />
 
-          <section>
-            <!-- Fecha -->
-            <div class="form-group">
-              <label for="eventDate">Fecha:</label>
-              <input type="date" id="eventDate" name="eventDate" required />
-            </div>
-
-            <!-- Hora -->
-            <div class="time-selection">
-              <div class="form-group">
-                <label for="eventStartTime">Hora Inicio:</label>
-                <input type="time" id="eventStartTime" name="eventStartTime" required />
-              </div>
-            </div>
-
-            <!-- Duración (informativa) -->
-            <div class="form-group duration-info">
-              <strong>Duración:</strong>
-              <span id="eventDurationLabel">--</span>
-              <input type="hidden" id="eventDuration" name="eventDuration" />
-            </div>
-            <!-- Folio (readonly) -->
-            <div class="form-group">
-              <label for="eventFolio">Folio:</label>
-              <input type="text" id="eventFolio" name="eventFolio" readonly />
-            </div>
-
-          </section>
-         <section>
-
-           <!-- Comprobante de Pago -->
-           <div class="form-group" id="payProofGroup">
-             <label for="payProof">Comprobante de pago (PDF, PNG, JPG – máx&nbsp;5&nbsp;MB):</label>
-             <input type="file" id="payProof" name="payProof" accept=".pdf,image/png,image/jpeg" />
-           </div>
-
-           <!-- Cuota (solo para Cita de terapia) -->
-           <div class="form-group hidden" id="feeGroup">
-             <label for="eventFee">Cuota a pagar (MXN):</label>
-             <input type="number" id="eventFee" name="eventFee" min="0" step="0.01" />
-           </div>
-         </section>
-
-        <!-- Panel de disponibilidad en tiempo real -->
-        <div id="availabilityPanel" class="availability-panel hidden">
-          <h3>
-            <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Disponibilidad en tiempo real
-          </h3>
-          <div id="availabilityContent" class="availability-content"></div>
+        <!-- ── PASO 1: Tipo · Terapeuta · Paciente ── -->
+        <div class="wz-panel wz-panel--active" id="wizardStep1">
+          <div class="form-group">
+            <label for="eventType">Tipo de Evento:</label>
+            <select id="eventType" name="eventType" required>
+              <option value="">Seleccionar tipo</option>
+              <option value="1">Evaluación inicial integral</option>
+              <option value="2">Cita de Terapia</option>
+            </select>
+          </div>
+          <div class="form-group" id="therapistGroup">
+            <label for="eventTherapist">Terapeuta:</label>
+            <select id="eventTherapist" name="eventTherapist">
+              <option value="">Seleccionar terapeuta</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="eventPatient">Paciente:</label>
+            <select id="eventPatient" name="eventPatient" required>
+              <option value="">Seleccionar paciente</option>
+              <option>Ana Martínez</option>
+              <option>Luis García</option>
+              <option>Carmen Robles</option>
+              <option>José Romero</option>
+              <option>María Torres</option>
+              <option>Diego Fuentes</option>
+              <option>Sofía Paredes</option>
+              <option>Ricardo Vargas</option>
+              <option>Elena Castillo</option>
+              <option>Pedro Rivas</option>
+            </select>
+          </div>
+          <div class="wz-nav">
+            <button type="button" class="btn-action btn-primary" id="step1Next">
+              Siguiente
+              <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
         </div>
 
-        <!-- Sugerencias de alternativas -->
-        <div id="suggestionsArea" class="suggestions-area hidden">
-          <h3>
-            <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            Horarios alternativos disponibles
-          </h3>
-          <div id="suggestionsList" class="suggestions-list"></div>
+        <!-- ── PASO 2: Calendario de disponibilidad ── -->
+        <div class="wz-panel" id="wizardStep2">
+          <div class="wz-cal-nav">
+            <button type="button" class="wz-cal-btn" id="wizardCalPrev">&#8249;</button>
+            <span class="wz-cal-title" id="wizardCalTitle"></span>
+            <button type="button" class="wz-cal-btn" id="wizardCalNext">&#8250;</button>
+          </div>
+          <div class="wz-cal-legend">
+            <span class="wz-legend-item"><span class="wz-dot wz-dot--avail"></span>Disponible</span>
+            <span class="wz-legend-item"><span class="wz-dot wz-dot--busy"></span>Sin disponibilidad</span>
+            <span class="wz-legend-item"><span class="wz-dot wz-dot--past"></span>No seleccionable</span>
+          </div>
+          <div class="wz-calendar" id="wizardCalendar"></div>
+          <div class="wz-nav">
+            <button type="button" class="btn-action btn-secondary" id="step2Back">
+              <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Atrás
+            </button>
+          </div>
         </div>
 
-        <button type="submit" id="saveBtn" class="btn-action btn-primary btn-save">
-          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Guardar
-        </button>
+        <!-- ── PASO 3: Horarios disponibles + Sala asignada ── -->
+        <div class="wz-panel" id="wizardStep3">
+          <div class="wz-date-heading" id="step3DateLabel"></div>
+          <p class="wz-hint">Selecciona un horario disponible:</p>
+          <div class="wz-time-grid" id="timeSlotsGrid"></div>
+          <div class="wz-room-badge hidden" id="assignedRoomDisplay">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Sala asignada: <strong id="assignedRoomName"></strong>
+          </div>
+          <div class="wz-nav">
+            <button type="button" class="btn-action btn-secondary" id="step3Back">
+              <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Atrás
+            </button>
+          </div>
+        </div>
+
+        <!-- ── PASO 4: Comprobante + Guardar ── -->
+        <div class="wz-panel" id="wizardStep4">
+          <div class="wz-summary" id="eventSummaryCard"></div>
+
+          <div class="form-group" id="payProofGroup">
+            <label for="payProof">Comprobante de pago (PDF, PNG, JPG – máx&nbsp;5&nbsp;MB):</label>
+            <input type="file" id="payProof" name="payProof" accept=".pdf,image/png,image/jpeg" />
+          </div>
+
+          <div class="form-group hidden" id="feeGroup">
+            <label for="eventFee">Cuota a pagar (MXN):</label>
+            <input type="number" id="eventFee" name="eventFee" min="0" step="0.01" />
+          </div>
+
+          <div class="wz-nav wz-nav--spread">
+            <button type="button" class="btn-action btn-secondary" id="step4Back">
+              <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              Atrás
+            </button>
+            <button type="submit" id="saveBtn" class="btn-action btn-primary btn-save">
+              <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+              Guardar
+            </button>
+          </div>
+        </div>
+
       </form>
     </div>
   </div>
@@ -245,6 +386,47 @@
     </div>
   </div>
 
+  <!-- ================= MODAL RECHAZO ================= -->
+  <div id="rejectModal" class="modal">
+    <div class="modal-content modal-confirm">
+      <h2>
+        <svg class="panel-icon" viewBox="0 0 24 24" width="20" height="20"
+             fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+        Rechazar solicitud
+      </h2>
+      <hr>
+      <p class="confirm-subtitle">¿Está seguro de que desea rechazar esta solicitud? Esta acción no se puede deshacer.</p>
+      <div id="rejectSummary" class="confirm-summary"></div>
+      <div class="form-group" style="margin-top:.75rem;">
+        <label for="rejectReason">Motivo del rechazo (opcional):</label>
+        <input type="text" id="rejectReason"
+               placeholder="Ej. Sin disponibilidad en las fechas solicitadas" />
+      </div>
+      <div class="confirm-actions">
+        <button id="rejectCancelBtn" class="btn-action btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16"
+               fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          Cancelar
+        </button>
+        <button id="rejectConfirmBtn" class="btn-action btn-danger">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16"
+               fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>
+          Rechazar solicitud
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- ================= NOTIFICACIÓN TOAST ================= -->
   <div id="toastNotification" class="toast-notification" aria-live="polite">
     <span id="toastMessage"></span>
@@ -252,5 +434,6 @@
 
   <!-- ================= SCRIPTS ================= -->
   <script src="js/agenda.js"></script>
+  <script src="js/bandeja-entrada.js"></script>
 </body>
 </html>

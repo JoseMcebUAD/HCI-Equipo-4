@@ -47,8 +47,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const grid          = document.getElementById('calendarContainer');
   const filtroFecha   = document.getElementById('filterDate');
   const filtroTipo    = document.getElementById('filterType');
+  const filtroTher    = document.getElementById('filterTherapist');
+  const filtroRoom    = document.getElementById('filterRoom');
+  const filtroPatient = document.getElementById('filterPatient');
+  const btnResetFilters = document.getElementById('resetFilters');
   const btnNuevo      = document.getElementById('newEventBtn');
-  const btnPrint      = document.getElementById('printView');
   const btnToggle     = document.getElementById('sidebarToggle');
   const btnShowSidebar= document.getElementById('sidebarShowBtn');
   const sidebar       = document.getElementById('sidebar');
@@ -326,11 +329,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const placeEvents = (start,cols) => {
     const end=iso(addD(start,cols-1));
-    const typeFilter = filtroTipo.value ? Number(filtroTipo.value) : null;
+    const typeFilter    = filtroTipo.value    ? Number(filtroTipo.value) : null;
+    const therFilter    = filtroTher.value    || null;
+    const roomFilter    = filtroRoom.value    || null;
+    const patientFilter = filtroPatient.value || null;
 
     eventos.forEach(ev=>{
       if(ev.fecha<iso(start)||ev.fecha>end) return;
-      if(typeFilter && ev.tipo !== typeFilter) return;
+      if(typeFilter    && ev.tipo     !== typeFilter)    return;
+      if(therFilter    && ev.ther     !== therFilter)    return;
+      if(roomFilter    && ev.sala     !== roomFilter)    return;
+      if(patientFilter && ev.paciente !== patientFilter) return;
 
       const slots=ev.dur/SLOT;
       for(let i=0;i<slots;i++){
@@ -367,16 +376,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   };
 
+  const updateWeeklyBar = (avgPct, highDays) => {
+    const bar = document.getElementById('weeklyWorkloadBar');
+    if(!bar) return;
+    const colorHex = avgPct<=40 ? '#27ae60' : avgPct<=74 ? '#f0c30f' : '#e74c3c';
+    const pctClass = avgPct<=40 ? 'ww-low' : avgPct<=74 ? 'ww-mid' : 'ww-high';
+    const statusLabel = avgPct<=40 ? 'Carga baja' : avgPct<=74 ? 'Carga media' : 'Carga alta';
+    const alertHTML = highDays.length>0
+      ? `<span class="ww-alert"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${highDays.length} día(s) con carga alta &ndash; redistribución recomendada</span>`
+      : '';
+    bar.innerHTML = `
+      <span class="ww-label">Carga semanal:</span>
+      <div class="ww-bar-wrap"><div class="ww-bar-fill" style="width:${Math.min(avgPct,100)}%;background:${colorHex}"></div></div>
+      <span class="ww-pct ${pctClass}">${avgPct}%</span>
+      <span class="ww-status">${statusLabel}</span>
+      ${alertHTML}
+    `;
+  };
+
   const colorHeaders = () => {
     Object.values(headerMap).forEach(el=>{
       el.classList.remove('day-low','day-mid','day-high');
+      el.querySelector('.day-load-pct')?.remove();
+      el.querySelector('.day-load-tooltip')?.remove();
     });
+
+    let totalPct=0, dayCount=0;
+    const highDays=[];
+
     Object.entries(headerMap).forEach(([f,el])=>{
-      const pct=eventos.filter(e=>e.fecha===f).length/ROWS*100;
-      if(pct<25)      el.classList.add('day-low');
-      else if(pct<75) el.classList.add('day-mid');
-      else            el.classList.add('day-high');
+      /* Contar slots de 30 min con al menos un evento */
+      let occupied=0;
+      for(let r=0;r<ROWS;r++){
+        const slotMin=OPEN*60+r*SLOT;
+        if(eventos.some(e=>e.fecha===f && toMin(e.hora)<=slotMin && slotMin<toMin(e.hora)+e.dur))
+          occupied++;
+      }
+      const pct=Math.round(occupied/ROWS*100);
+
+      if(pct<=40)      el.classList.add('day-low');
+      else if(pct<=74) el.classList.add('day-mid');
+      else            {el.classList.add('day-high'); highDays.push(f);}
+
+      /* Badge de porcentaje */
+      const badge=document.createElement('span');
+      badge.className='day-load-pct';
+      badge.textContent=`${pct}%`;
+      el.appendChild(badge);
+
+      /* Tooltip */
+      const fillColor=pct<=40?'#27ae60':pct<=74?'#f0c30f':'#e74c3c';
+      const tooltip=document.createElement('div');
+      tooltip.className='day-load-tooltip';
+      tooltip.innerHTML=`
+        <div class="dlt-title">Carga del día: <strong>${pct}%</strong></div>
+        <div class="dlt-bar"><div class="dlt-bar-fill" style="width:${Math.min(pct,100)}%;background:${fillColor}"></div></div>
+        <div class="dlt-legend">
+          <div class="dlt-leg-item"><span class="dlt-dot" style="background:#27ae60"></span>0–40% Carga baja</div>
+          <div class="dlt-leg-item"><span class="dlt-dot" style="background:#f0c30f"></span>41–74% Carga media</div>
+          <div class="dlt-leg-item"><span class="dlt-dot" style="background:#e74c3c"></span>75–100% Carga alta</div>
+        </div>`;
+      el.appendChild(tooltip);
+
+      totalPct+=pct; dayCount++;
     });
+
+    updateWeeklyBar(Math.round(totalPct/(dayCount||1)), highDays);
   };
 
   const render = () => {
@@ -503,6 +568,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const renderSuggestions = (alternatives) => {
+    if(!suggArea || !suggList) return;
     if(!alternatives || alternatives.length===0){
       suggArea.classList.add('hidden');
       suggList.innerHTML='';
@@ -546,6 +612,7 @@ document.addEventListener('DOMContentLoaded', () => {
      PANEL DE DISPONIBILIDAD EN TIEMPO REAL
      ======================================================== */
   const updateAvailabilityPanel = () => {
+    if(!availPanel) return;
     const tipo = selTipo.value;
     const ther = selTher.value;
     const sala = selSala.value;
@@ -604,8 +671,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const ev = getFormData();
     if(!ev.tipo || !ev.fecha || !ev.hora || !ev.ther || !ev.sala || !ev.paciente){
       clearValidation();
-      suggArea.classList.add('hidden');
-      availPanel.classList.add('hidden');
+      suggArea?.classList.add('hidden');
+      availPanel?.classList.add('hidden');
       clearFieldStates();
       return;
     }
@@ -618,17 +685,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if(errors.length > 0){
       showValidation(errors, 'error');
       setFieldStates(errors);
-      // Mostrar sugerencias si hay conflictos de agenda
       if(errors.some(e => e.includes('traslapa') || e.includes('ocupad'))){
         const alternatives = findAlternatives(ev);
         renderSuggestions(alternatives);
       } else {
-        suggArea.classList.add('hidden');
+        suggArea?.classList.add('hidden');
       }
     } else {
       showValidation([]);
       clearFieldStates();
-      suggArea.classList.add('hidden');
+      suggArea?.classList.add('hidden');
     }
   };
 
@@ -652,52 +718,298 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.form-group.has-error').forEach(g => g.classList.remove('has-error'));
   };
 
-  /* --- Escuchar cambios en campos para validación en tiempo real --- */
-  selTipo.addEventListener('change', () => { refreshTher(); setTimeout(runRealTimeChecks, 50); });
-  selPaciente.addEventListener('change', () => { inFolio.value=getFolio(selPaciente.value); setTimeout(runRealTimeChecks, 50); });
-  selTher.addEventListener('change', () => setTimeout(runRealTimeChecks, 50));
-  selSala.addEventListener('change', () => setTimeout(runRealTimeChecks, 50));
-  inFecha.addEventListener('change', () => setTimeout(runRealTimeChecks, 50));
-  inHora.addEventListener('change', () => setTimeout(runRealTimeChecks, 50));
+  /* --- Escuchar cambios en campos del wizard paso 1 --- */
+  selTipo.addEventListener('change', () => refreshTher());
+  selPaciente.addEventListener('change', () => { inFolio.value = getFolio(selPaciente.value); });
 
   /* ---------- FORM DINÁMICO ------------------------------- */
   const refreshTher = () => {
     const cfg=TIPOS[selTipo.value]||{terapeutas:[],dur:''};
     selTher.innerHTML='<option value="">Seleccionar terapeuta</option>' +
                       cfg.terapeutas.map(t=>`<option>${t}</option>`).join('');
-    lblDur.textContent=cfg.dur?`${cfg.dur} min`:'--';
+    if(lblDur) lblDur.textContent=cfg.dur?`${cfg.dur} min`:'--';
     hidDur.value=cfg.dur||'';
     feeGroup.classList.toggle('hidden', selTipo.value!=='2');
     payProofGrp.classList.toggle('hidden', selTipo.value==='1');
   };
 
+  /* ========================================================
+     WIZARD — Estado y funciones
+     ======================================================== */
+  let wizardCalDate = new Date();
+
+  /* Refs de los paneles y elementos del wizard */
+  const wizStep1          = document.getElementById('wizardStep1');
+  const wizStep2          = document.getElementById('wizardStep2');
+  const wizStep3          = document.getElementById('wizardStep3');
+  const wizStep4          = document.getElementById('wizardStep4');
+  const wizCalTitleEl     = document.getElementById('wizardCalTitle');
+  const wizCalGrid        = document.getElementById('wizardCalendar');
+  const wizCalPrevBtn     = document.getElementById('wizardCalPrev');
+  const wizCalNextBtn     = document.getElementById('wizardCalNext');
+  const step1NextBtn      = document.getElementById('step1Next');
+  const step2BackBtn      = document.getElementById('step2Back');
+  const step3BackBtn      = document.getElementById('step3Back');
+  const step4BackBtn      = document.getElementById('step4Back');
+  const timeSlotsGrid     = document.getElementById('timeSlotsGrid');
+  const assignedRoomDisp  = document.getElementById('assignedRoomDisplay');
+  const assignedRoomName  = document.getElementById('assignedRoomName');
+  const step3DateLabel    = document.getElementById('step3DateLabel');
+  const eventSummaryCard  = document.getElementById('eventSummaryCard');
+
+  /* Avanza o retrocede al paso n */
+  const goToStep = n => {
+    [wizStep1, wizStep2, wizStep3, wizStep4].forEach((panel, i) => {
+      panel.classList.toggle('wz-panel--active', i + 1 === n);
+    });
+    document.querySelectorAll('#wizardStepper .wz-step').forEach((el, i) => {
+      const circle = el.querySelector('.wz-circle');
+      const stepNum = i + 1;
+      el.classList.toggle('wz-step--active', stepNum === n);
+      el.classList.toggle('wz-step--done',   stepNum < n);
+      if(stepNum < n){
+        circle.innerHTML='<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+      } else {
+        circle.textContent = stepNum;
+      }
+    });
+    /* Colorear líneas conectoras */
+    document.querySelectorAll('#wizardStepper .wz-line').forEach((line, i) => {
+      line.classList.toggle('wz-line--done', i + 1 < n);
+    });
+  };
+
+  /* ── Paso 2: Calendario de disponibilidad ── */
+  const dayHasAvailability = dateISO => {
+    const tipo     = Number(selTipo.value);
+    const ther     = selTher.value;
+    const paciente = selPaciente.value;
+    const dur      = TIPOS[tipo]?.dur || 60;
+    const editId   = editing ? editing.id : null;
+    for(let m = 0; m <= (CLOSE - OPEN) * 60 - dur; m += SLOT){
+      const hora = addM(`${pad(OPEN)}:00`, m);
+      if(toMin(hora) + dur > CLOSE * 60 + 30) break;
+      const therFree = !eventos.some(e => e.id !== editId && e.ther === ther && e.fecha === dateISO &&
+        toMin(e.hora) < toMin(hora) + dur && toMin(hora) < toMin(e.hora) + e.dur);
+      const patFree  = !eventos.some(e => e.id !== editId && e.paciente === paciente && e.fecha === dateISO &&
+        toMin(e.hora) < toMin(hora) + dur && toMin(hora) < toMin(e.hora) + e.dur);
+      const anyRoom  = SALAS.some(sala => !eventos.some(e => e.id !== editId && e.sala === sala && e.fecha === dateISO &&
+        toMin(e.hora) < toMin(hora) + dur && toMin(hora) < toMin(e.hora) + e.dur));
+      if(therFree && patFree && anyRoom) return true;
+    }
+    return false;
+  };
+
+  const buildWizardCalendar = () => {
+    wizCalGrid.innerHTML = '';
+    const year  = wizardCalDate.getFullYear();
+    const month = wizardCalDate.getMonth();
+    wizCalTitleEl.textContent =
+      `${MESES[month].charAt(0).toUpperCase()}${MESES[month].slice(1)} ${year}`;
+
+    DIAS_SEM.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'wz-cal-day-name';
+      el.textContent = d;
+      wizCalGrid.appendChild(el);
+    });
+
+    const firstDay    = new Date(year, month, 1);
+    const startOffset = firstDay.getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrev  = new Date(year, month, 0).getDate();
+    const todayISO    = iso(new Date());
+
+    /* Días del mes anterior (relleno) */
+    for(let i = startOffset - 1; i >= 0; i--){
+      const el = document.createElement('div');
+      el.className = 'wz-cal-day wz-cal-day--other';
+      el.textContent = daysInPrev - i;
+      wizCalGrid.appendChild(el);
+    }
+
+    /* Días del mes actual */
+    for(let i = 1; i <= daysInMonth; i++){
+      const d    = new Date(year, month, i);
+      const dISO = iso(d);
+      const el   = document.createElement('div');
+      el.className = 'wz-cal-day';
+      el.textContent = i;
+
+      if(dISO === todayISO) el.classList.add('wz-cal-day--today');
+
+      if([0, 6].includes(d.getDay())){
+        el.classList.add('wz-cal-day--weekend');
+      } else if(dISO < todayISO){
+        el.classList.add('wz-cal-day--past');
+      } else {
+        if(dayHasAvailability(dISO)){
+          el.classList.add('wz-cal-day--avail');
+          el.addEventListener('click', () => selectWizardDate(dISO, d));
+        } else {
+          el.classList.add('wz-cal-day--busy');
+        }
+      }
+
+      if(dISO === inFecha.value) el.classList.add('wz-cal-day--selected');
+      wizCalGrid.appendChild(el);
+    }
+
+    /* Relleno días del mes siguiente */
+    const totalCells = startOffset + daysInMonth;
+    const remaining  = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+    for(let i = 1; i <= remaining; i++){
+      const el = document.createElement('div');
+      el.className = 'wz-cal-day wz-cal-day--other';
+      el.textContent = i;
+      wizCalGrid.appendChild(el);
+    }
+  };
+
+  const selectWizardDate = (dateISO, dateObj) => {
+    inFecha.value = dateISO;
+    assignedRoomDisp.classList.add('hidden');
+    inHora.value  = '';
+    selSala.value = '';
+    buildTimeSlots(dateISO);
+    const ds = dateObj.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    step3DateLabel.textContent = ds.charAt(0).toUpperCase() + ds.slice(1);
+    goToStep(3);
+  };
+
+  /* ── Paso 3: Slots horarios ── */
+  const buildTimeSlots = dateISO => {
+    timeSlotsGrid.innerHTML = '';
+    const tipo     = Number(selTipo.value);
+    const ther     = selTher.value;
+    const paciente = selPaciente.value;
+    const dur      = TIPOS[tipo]?.dur || 60;
+    const editId   = editing ? editing.id : null;
+    let hasAny     = false;
+
+    for(let m = 0; m <= (CLOSE - OPEN) * 60; m += SLOT){
+      const hora = addM(`${pad(OPEN)}:00`, m);
+      if(toMin(hora) + dur > CLOSE * 60 + 30) break;
+
+      const therFree = !eventos.some(e => e.id !== editId && e.ther === ther && e.fecha === dateISO &&
+        toMin(e.hora) < toMin(hora) + dur && toMin(hora) < toMin(e.hora) + e.dur);
+      const patFree  = !eventos.some(e => e.id !== editId && e.paciente === paciente && e.fecha === dateISO &&
+        toMin(e.hora) < toMin(hora) + dur && toMin(hora) < toMin(e.hora) + e.dur);
+      const freeRoom = SALAS.find(sala => !eventos.some(e => e.id !== editId && e.sala === sala && e.fecha === dateISO &&
+        toMin(e.hora) < toMin(hora) + dur && toMin(hora) < toMin(e.hora) + e.dur));
+      const available = therFree && patFree && !!freeRoom;
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'wz-time-slot ' + (available ? 'wz-time-slot--avail' : 'wz-time-slot--busy');
+      btn.textContent = fmtH(hora);
+      btn.disabled = !available;
+
+      if(available){
+        btn.addEventListener('click', () => selectTimeSlot(hora, dur, freeRoom, btn));
+        hasAny = true;
+      }
+      timeSlotsGrid.appendChild(btn);
+    }
+
+    if(!hasAny){
+      const msg = document.createElement('p');
+      msg.className = 'wz-no-slots';
+      msg.textContent = 'No hay horarios disponibles para este día. Por favor selecciona otra fecha.';
+      timeSlotsGrid.appendChild(msg);
+    }
+  };
+
+  const selectTimeSlot = (hora, dur, sala, btn) => {
+    timeSlotsGrid.querySelectorAll('.wz-time-slot--selected')
+      .forEach(b => b.classList.remove('wz-time-slot--selected'));
+    btn.classList.add('wz-time-slot--selected');
+    inHora.value  = hora;
+    hidDur.value  = dur;
+    selSala.value = sala;
+    assignedRoomName.textContent = sala;
+    assignedRoomDisp.classList.remove('hidden');
+    setTimeout(() => { buildEventSummary(); goToStep(4); }, 500);
+  };
+
+  /* ── Paso 4: Resumen ── */
+  const buildEventSummary = () => {
+    const tipo = Number(selTipo.value);
+    inFolio.value = getFolio(selPaciente.value);
+    const endHora = addM(inHora.value, Number(hidDur.value));
+    eventSummaryCard.innerHTML = `
+      <div class="summary-row"><span class="label">Tipo</span><span class="value">${TIPOS[tipo]?.nombre || '—'}</span></div>
+      <div class="summary-row"><span class="label">Terapeuta</span><span class="value">${selTher.value}</span></div>
+      <div class="summary-row"><span class="label">Paciente</span><span class="value">${selPaciente.value}</span></div>
+      <div class="summary-row"><span class="label">Fecha</span><span class="value">${pISO(inFecha.value).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span></div>
+      <div class="summary-row"><span class="label">Horario</span><span class="value">${fmtH(inHora.value)} – ${fmtH(endHora)}</span></div>
+      <div class="summary-row"><span class="label">Duración</span><span class="value">${hidDur.value} min</span></div>
+      <div class="summary-row"><span class="label">Sala</span><span class="value">${selSala.value}</span></div>
+      <div class="summary-row"><span class="label">Folio</span><span class="value">${inFolio.value}</span></div>
+    `;
+  };
+
+  /* ── Navegación del wizard ── */
+  wizCalPrevBtn.addEventListener('click', () => {
+    wizardCalDate.setMonth(wizardCalDate.getMonth() - 1);
+    buildWizardCalendar();
+  });
+  wizCalNextBtn.addEventListener('click', () => {
+    wizardCalDate.setMonth(wizardCalDate.getMonth() + 1);
+    buildWizardCalendar();
+  });
+
+  step1NextBtn.addEventListener('click', () => {
+    clearValidation();
+    const errs = [];
+    if(!selTipo.value)     errs.push('Selecciona el tipo de evento.');
+    if(!selTher.value)     errs.push('Selecciona un terapeuta.');
+    if(!selPaciente.value) errs.push('Selecciona un paciente.');
+    if(errs.length){ showValidation(errs, 'error'); return; }
+    clearValidation();
+    wizardCalDate = new Date();
+    buildWizardCalendar();
+    goToStep(2);
+  });
+
+  step2BackBtn.addEventListener('click', () => { clearValidation(); goToStep(1); });
+
+  step3BackBtn.addEventListener('click', () => {
+    clearValidation();
+    assignedRoomDisp.classList.add('hidden');
+    inFecha.value = '';
+    goToStep(2);
+    buildWizardCalendar();
+  });
+
+  step4BackBtn.addEventListener('click', () => { clearValidation(); goToStep(3); });
+
   /* ---------- MODAL NUEVO / EDIT -------------------------- */
   let editing=null;
   const openModal = (f,h,ev=null) => {
-    editing=ev;
+    editing = ev && !ev._fromInbox ? ev : null;
     form.reset();
     refreshTher();
     clearValidation();
-    suggArea.classList.add('hidden');
-    availPanel.classList.add('hidden');
     clearFieldStates();
-    modalTitle.textContent=ev?'Reprogramar evento':'Nuevo Evento';
+    assignedRoomDisp.classList.add('hidden');
+    if(!ev) modalTitle.textContent='Nuevo Evento';
+    else if(ev._isRescheduling) modalTitle.textContent='Reprogramar cita (desde solicitud)';
+    else if(ev._fromInbox)      modalTitle.textContent='Nueva cita (desde solicitud)';
+    else                        modalTitle.textContent='Reprogramar evento';
     if(ev){
-      selTipo.value=ev.tipo;
-      selPaciente.value=ev.paciente;
-      inFolio.value=ev.folio;
-      selSala.value=ev.sala;
-      selTher.value=ev.ther;
-      inFee.value=ev.fee||'';
+      selTipo.value    = ev.tipo     || '';
+      selPaciente.value= ev.paciente || '';
+      inFee.value      = ev.fee      || '';
       refreshTher();
-    }else{
+      if(ev.ther) selTher.value = ev.ther;
+      inFolio.value = ev.folio || getFolio(ev.paciente || '');
+    } else {
       inFolio.value=''; inFee.value='';
     }
-    inFecha.value=f;
-    inHora.value=h;
+    wizardCalDate = new Date();
+    goToStep(1);
     modal.style.display='block';
-    // Ejecutar validación en tiempo real al abrir
-    setTimeout(runRealTimeChecks, 100);
   };
 
   btnNuevo.onclick = () => {
@@ -749,6 +1061,11 @@ document.addEventListener('DOMContentLoaded', () => {
       if(idx>=0) eventos.splice(idx,1);
     }
     eventos.push(ev);
+
+    // Notify inbox module if this save originated from an inbox action
+    if(window._pendingInboxAccept && window.Bandeja?.onEventSaved){
+      window.Bandeja.onEventSaved(window._pendingInboxAccept);
+    }
 
     filtroFecha.value = ev.fecha;
     hideConfirmation();
@@ -860,30 +1177,21 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   detClose.onclick=()=>detModal.style.display='none';
 
-  /* ---------- PRINT --------------------------------------- */
-  btnPrint.onclick=()=>{
-    const head=document.querySelector('head').innerHTML;
-    const calendarHTML=document.getElementById('calendarContainer').outerHTML;
-    const w=window.open('','','width=900,height=600');
-    w.document.write(`
-      <html><head>${head}
-        <style>
-          @media print{
-            body{margin:0;font-family:'Segoe UI',Arial,sans-serif;}
-            #calendarContainer{border:none;}
-            .time-cell,.day-header{font-size:11px}
-            .appointment{font-size:10px}
-            .status-legend{display:none;}
-          }
-        </style>
-      </head><body>${calendarHTML}</body></html>`);
-    w.document.close(); w.focus(); w.print(); w.close();
-  };
-
-  /* ---------- FILTRO TIPO & INICIO ----------------------- */
+  /* ---------- FILTROS & INICIO --------------------------- */
   filtroFecha.value = iso(new Date());
   filtroFecha.onchange = () => { render(); buildMiniCalendar(); };
-  filtroTipo.onchange = render;
+  filtroTipo.onchange    = render;
+  filtroTher.onchange    = render;
+  filtroRoom.onchange    = render;
+  filtroPatient.onchange = render;
+
+  btnResetFilters.addEventListener('click', () => {
+    filtroTipo.value    = '';
+    filtroTher.value    = '';
+    filtroRoom.value    = '';
+    filtroPatient.value = '';
+    render();
+  });
 
   /* ---------- BOTÓN REPROGRAMACIÓN MASIVA ---------------- */
   const btnBulk = document.getElementById('bulkReschedBtn');
@@ -900,4 +1208,35 @@ document.addEventListener('DOMContentLoaded', () => {
   miniCalDate = new Date();
   buildMiniCalendar();
   render();
+
+  /* ── Bandeja de Entrada: register hooks + wire tabs + init ── */
+  if(window.Bandeja){
+    window.Bandeja._showToast = showToast;
+    window.Bandeja._getEvents = () => eventos;
+    window.Bandeja._openModal = (f, h, prefillData) => openModal(f, h, prefillData);
+  }
+
+  const tabAgenda  = document.getElementById('tabAgenda');
+  const tabBandeja = document.getElementById('tabBandeja');
+  const filtersBar = document.getElementById('filters');
+
+  tabAgenda?.addEventListener('click', () => {
+    tabAgenda.classList.add('view-tab--active');
+    tabBandeja.classList.remove('view-tab--active');
+    tabAgenda.setAttribute('aria-selected', 'true');
+    tabBandeja.setAttribute('aria-selected', 'false');
+    filtersBar.classList.remove('hidden');
+    window.Bandeja?.showCalendarPanel();
+  });
+
+  tabBandeja?.addEventListener('click', () => {
+    tabBandeja.classList.add('view-tab--active');
+    tabAgenda.classList.remove('view-tab--active');
+    tabBandeja.setAttribute('aria-selected', 'true');
+    tabAgenda.setAttribute('aria-selected', 'false');
+    filtersBar.classList.add('hidden');
+    window.Bandeja?.showInboxPanel();
+  });
+
+  window.Bandeja?.init();
 });
