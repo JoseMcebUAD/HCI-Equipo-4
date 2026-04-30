@@ -1,90 +1,273 @@
 <!DOCTYPE html>
-<html lang="es">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Pacientes</title>
-  <link rel="stylesheet" href="../agenda/css/styles.css">
-  <link rel="stylesheet" href="css/pacientes.css">
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Pacientes - PsicoCentro</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container": "#eceef0",
+                        "primary-container": "#0f4c81",
+                        "secondary": "#156967",
+                        "inverse-surface": "#2d3133",
+                        "tertiary-fixed-dim": "#bdc9c6",
+                        "surface-dim": "#d8dadc",
+                        "primary": "#00355f",
+                        "on-tertiary-container": "#b0bcb9",
+                        "on-secondary-fixed": "#00201f",
+                        "on-primary": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "inverse-on-surface": "#eff1f3",
+                        "tertiary-container": "#414c4a",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#d2e4ff",
+                        "outline-variant": "#c2c7d1",
+                        "on-background": "#191c1e",
+                        "on-surface": "#191c1e",
+                        "on-primary-fixed-variant": "#07497d",
+                        "secondary-container": "#a3edea",
+                        "on-primary-container": "#8ebdf9",
+                        "on-secondary": "#ffffff",
+                        "secondary-fixed": "#a6f0ed",
+                        "on-tertiary-fixed": "#131e1c",
+                        "outline": "#727780",
+                        "on-primary-fixed": "#001c37",
+                        "on-error-container": "#93000a",
+                        "on-surface-variant": "#42474f",
+                        "inverse-primary": "#a0c9ff",
+                        "surface-container-highest": "#e0e3e5",
+                        "surface-tint": "#2d6197",
+                        "error": "#ba1a1a",
+                        "on-secondary-fixed-variant": "#00504e",
+                        "secondary-fixed-dim": "#8ad3d0",
+                        "surface-container-lowest": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "on-secondary-container": "#1c6d6b",
+                        "surface-container-low": "#f2f4f6",
+                        "surface-container-high": "#e6e8ea",
+                        "surface-bright": "#f7f9fb",
+                        "on-tertiary-fixed-variant": "#3e4947",
+                        "tertiary-fixed": "#d9e5e2",
+                        "surface-variant": "#e0e3e5",
+                        "background": "#f7f9fb",
+                        "primary-fixed-dim": "#a0c9ff",
+                        "tertiary": "#2b3534"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "unit": "4px",
+                        "margin": "32px",
+                        "gutter": "24px",
+                        "calendar-slot": "48px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "calendar-event": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "calendar-event": ["13px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                        "headline-xl": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        body {
+            background-color: #f7f9fb;
+        }
+    </style>
 </head>
+<body class="font-body-md text-on-surface">
+<!-- SideNavBar (Fixed Anchor) -->
+<aside class="w-[280px] h-full fixed left-0 top-0 border-r border-slate-200 bg-slate-50 dark:bg-slate-900 flex flex-col py-6 z-50">
+<a href="../index.html" class="px-6 mb-10 block hover:opacity-80 transition-opacity">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">health_metrics</span>
+</div>
+<div>
+<h1 class="text-xl font-bold text-blue-900 dark:text-blue-50 leading-tight uppercase tracking-wider">PsicoCentro</h1>
+<p class="text-xs text-slate-500 font-bold uppercase tracking-widest">Admin</p>
+</div>
+</div>
+</a>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors duration-200" href="../agenda/agenda.html">
+<span class="material-symbols-outlined">calendar_today</span>
+<span class="font-medium text-sm">Agenda</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors duration-200" href="../solicitudes/solicitudes.html">
+<span class="material-symbols-outlined">pending_actions</span>
+<span class="font-medium text-sm">Solicitudes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-blue-900 bg-white shadow-sm border-l-4 border-blue-800 transition-all" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-medium text-sm">Pacientes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors duration-200" href="../terapeuta/terapeuta.html">
+<span class="material-symbols-outlined">medical_services</span>
+<span class="font-medium text-sm">Terapeutas</span>
+</a>
+</nav>
+</aside>
 
-<body>
-  <header>
-    <h1>Clínica de Atención Psicológica</h1>
-    <nav>
-      <ul>
-        <li><a href="../agenda/agenda.html">Agenda</a></li>
-        <li>Paciente</li>
-        <li><a href="../terapeuta/terapeuta.html">Terapeuta</a></li>
-        <li><a href="../salas/salas.html">Salas</a></li>
-        <li><a href="../reportes/reportes.html">Reportes</a></li>
-      </ul>
-    </nav>
-  </header>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 w-[calc(100%-280px)] h-16 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm flex justify-between items-center px-8 z-40">
+<div class="flex items-center w-1/3">
+<div class="relative w-full max-w-sm">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">search</span>
+<input id="searchInput" class="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-full text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all" placeholder="Buscar pacientes o expedientes..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<button class="relative text-slate-500 hover:text-blue-700 transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-0 right-0 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="text-slate-500 hover:text-blue-700 transition-colors">
+<span class="material-symbols-outlined">settings</span>
+</button>
+<div class="flex items-center gap-3 pl-4 border-l border-slate-200">
+<div class="text-right">
+<p class="text-sm font-semibold text-blue-900">Dr. Julian Rivera</p>
+<p class="text-[10px] text-slate-500 uppercase tracking-wider">Director</p>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white border-2 border-primary/10">
+    <span class="material-symbols-outlined">person</span>
+</div>
+</div>
+</div>
+</header>
 
-  <main>
-    <section class="layout">
-      <!-- Filtros izquierda -->
-      <div class="panel filters">
-        <h3>Filtros</h3>
-        <label for="buscar-nombre">Buscar por nombre</label>
-        <input type="text" id="buscar-nombre" placeholder="Ej. Ana García">
+<!-- Main Content Area -->
+<main class="ml-[280px] pt-16 min-h-screen p-8">
+<div class="max-w-7xl mx-auto">
+<!-- Title and Primary Actions -->
+<div class="flex justify-between items-end mb-8">
+<div>
+<h2 class="font-headline-xl text-primary mb-1">Gestión de Pacientes</h2>
+<p class="text-on-surface-variant font-body-md">Administra historiales clínicos, citas pasadas y estados de los pacientes.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-5 py-2 bg-primary text-white rounded-lg font-semibold shadow-sm hover:bg-primary/90 transition-all">
+<span class="material-symbols-outlined">person_add</span>
+                        Registrar Paciente
+                    </button>
+</div>
+</div>
+<!-- Filters Section -->
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm mb-8">
+<div class="flex flex-wrap items-center gap-6">
+<div class="flex flex-col gap-1.5">
+<label class="text-label-sm text-slate-500 uppercase tracking-wide font-bold">Estado</label>
+<div class="flex gap-2" id="statusFilterButtons">
+<button class="status-btn px-4 py-1.5 rounded-full bg-primary-fixed text-on-primary-fixed-variant text-sm font-medium" data-filter="all">Todos</button>
+<button class="status-btn px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm font-medium hover:bg-slate-200 transition-colors" data-filter="Activo">Activos</button>
+<button class="status-btn px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm font-medium hover:bg-slate-200 transition-colors" data-filter="En Espera">En Espera</button>
+<button class="status-btn px-4 py-1.5 rounded-full bg-slate-100 text-slate-600 text-sm font-medium hover:bg-slate-200 transition-colors" data-filter="Archivado">Archivados</button>
+</div>
+</div>
+<div class="h-10 w-px bg-slate-200 hidden md:block"></div>
+<div class="flex flex-col gap-1.5 flex-1 min-w-[200px]">
+<label class="text-label-sm text-slate-500 uppercase tracking-wide font-bold">Tipo de Servicio</label>
+<select id="serviceSelect" class="bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-sm focus:ring-primary focus:border-primary">
+<option value="all">Todos los Servicios</option>
+<option value="Psicoterapia">Psicoterapia</option>
+<option value="Psicodiagnóstico">Psicodiagnóstico</option>
+<option value="Terapia de Pareja">Terapia de Pareja</option>
+</select>
+</div>
+</div>
+</div>
+<!-- Table Section -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 border-b border-slate-200">
+<th class="px-6 py-4 font-semibold text-slate-700 text-sm uppercase tracking-wider">Nombre del Paciente</th>
+<th class="px-6 py-4 font-semibold text-slate-700 text-sm uppercase tracking-wider">Identificador</th>
+<th class="px-6 py-4 font-semibold text-slate-700 text-sm uppercase tracking-wider">Última Visita</th>
+<th class="px-6 py-4 font-semibold text-slate-700 text-sm uppercase tracking-wider">Servicio</th>
+<th class="px-6 py-4 font-semibold text-slate-700 text-sm uppercase tracking-wider">Estado</th>
+<th class="px-6 py-4 font-semibold text-slate-700 text-sm uppercase tracking-wider text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100" id="patientsTableBody">
+<!-- Inject via JS -->
+</tbody>
+</table>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-slate-50 flex items-center justify-between border-t border-slate-200">
+<p class="text-sm text-slate-500">Mostrando <span id="paginationCount" class="font-bold">0</span> pacientes</p>
+<div class="flex items-center gap-2">
+<button class="p-2 rounded border border-slate-200 bg-white text-slate-400 hover:text-primary disabled:opacity-50">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="px-3 py-1 rounded border border-primary bg-primary text-white text-sm font-medium">1</button>
+<button class="p-2 rounded border border-slate-200 bg-white text-slate-400 hover:text-primary">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
 
-        <label for="tipo-servicio">Tipo de servicio</label>
-        <select id="tipo-servicio">
-          <option value="">Todos</option>
-          <option value="psicoterapia">Psicoterapia</option>
-          <option value="psicodiagnostico">Psicodiagnóstico</option>
-        </select>
-
-        <label>Estado del paciente</label>
-        <div class="estados-container">
-          <div class="estado-option">
-            <input type="radio" id="estado-todos" name="estado" value="todos" checked>
-            <label for="estado-todos">Todos</label>
-          </div>
-          <div class="estado-option">
-            <input type="radio" id="estado-activo" name="estado" value="activo">
-            <label for="estado-activo">Activos</label>
-          </div>
-          <div class="estado-option">
-            <input type="radio" id="estado-espera" name="estado" value="espera">
-            <label for="estado-espera">En espera</label>
-          </div>
-          <div class="estado-option">
-            <input type="radio" id="estado-archivado" name="estado" value="archivado">
-            <label for="estado-archivado">Archivados</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Lista de pacientes -->
-      <div class="panel main-panel">
-        <h3>Pacientes</h3>
-        <div class="patient-list">
-          <!-- Paciente Activo -->
-          <a href="detalle_paciente_activo.html" class="patient-item" data-estado="activo" data-servicio="psicoterapia">
-            <span>María López - Psicoterapia</span>
-            <span class="patient-status activo">Activo</span>
-          </a>
-          
-          <!-- Paciente en Espera -->
-          <a href="detalle_paciente_espera.html" class="patient-item" data-estado="espera" data-servicio="">
-            <span>Carlos Ruiz - Sin tipo</span>
-            <span class="patient-status espera">En espera</span>
-          </a>
-          
-          <!-- Paciente Archivado -->
-          <a href="detalle_paciente_archivado.html" class="patient-item" data-estado="archivado" data-servicio="psicodiagnostico">
-            <span>Ana García - Psicodiagnóstico</span>
-            <span class="patient-status archivado">Archivado</span>
-          </a>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <script src="js/pacientes.js"></script>
-</body>
-</html>
+<!-- Dashboard Stats Summary -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+<div class="w-12 h-12 bg-blue-50 rounded-lg flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-3xl">diversity_1</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 font-medium">Pacientes Activos</p>
+<p class="text-2xl font-bold text-blue-900" id="statActive">0</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+<div class="w-12 h-12 bg-emerald-50 rounded-lg flex items-center justify-center text-emerald-600">
+<span class="material-symbols-outlined text-3xl">add_task</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 font-medium">Sesiones esta Semana</p>
+<p class="text-2xl font-bold text-blue-900" id="statSessions">0</p>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+<div class="w-12 h-12 bg-amber-50 rounded-lg flex items-center justify-center text-amber-600">
+<span class="material-symbols-outlined text-3xl">hourglass_empty</span>
+</div>
+<div>
+<p class="text-sm text-slate-500 font-medium">Nuevos Registros</p>
+<p class="text-2xl font-bold text-blue-900">4</p>
+</div>
+</div>
+</div>
+</div>
+</main>
+<script src="js/pacientes.js"></script>
+</body></html>
