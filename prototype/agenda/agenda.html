@@ -1,256 +1,349 @@
 <!DOCTYPE html>
-<html lang="es">
+<html class="light" lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Clínica – Agenda</title>
-  <link rel="stylesheet" href="css/styles.css" />
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PsicoCentro Admin - Agenda de Sesiones</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/agenda.css">
+    <script src="js/tailwind-config.js"></script>
 </head>
-<body>
-  <!-- ================= CABECERA ================= -->
-  <header>
-    <h1>Clínica de Atención Psicológica</h1>
-    <nav>
-      <ul>
-        <li><a href="agenda.html" class="active">Agenda</a></li>
-        <li><a href="../pacientes/pacientes.html">Pacientes</a></li>
-        <li><a href="../terapeuta/terapeuta.html">Terapeutas</a></li>
-        <li><a href="../salas/salas.html">Salas</a></li>
-        <li><a href="../reportes/reportes.html">Reportes</a></li>
-      </ul>
-    </nav>
-  </header>
+<body class="bg-background text-on-surface antialiased overflow-hidden flex flex-col h-screen">
 
-  <!-- ================= CONTENIDO ================= -->
-  <main>
-    <div class="main-container">
-      <!-- -------- SIDEBAR: Mini Calendario -------- -->
-      <aside class="sidebar" id="sidebar">
-        <div class="sidebar-top">
-          <button id="sidebarToggle" title="Ocultar calendario">&#9776;</button>
+<!-- TopAppBar Section -->
+<header class="bg-white dark:bg-slate-950 text-blue-900 dark:text-blue-400 shadow-sm dark:shadow-none flex justify-between items-center w-full px-6 py-3 sticky top-0 z-50 border-b border-slate-200 dark:border-slate-800">
+    <div class="flex items-center gap-8">
+        <h1 class="text-xl font-bold tracking-tight text-blue-900 dark:text-slate-100">PsicoCentro Admin</h1>
+        <div class="hidden md:flex items-center bg-surface-container-low rounded-lg px-3 py-1.5 w-80">
+            <span class="material-symbols-outlined text-outline mr-2" data-icon="search">search</span>
+            <input id="mainSearchInput" class="bg-transparent border-none focus:ring-0 text-body-md w-full" placeholder="Buscar paciente o cita..." type="text"/>
         </div>
-        <div class="mini-cal-header">
-          <button id="prevMonth" title="Mes anterior">&#8249;</button>
-          <span id="miniCalTitle"></span>
-          <button id="nextMonth" title="Mes siguiente">&#8250;</button>
-        </div>
-        <div class="mini-calendar" id="miniCalendar">
-          <!-- generado por JS -->
-        </div>
-        <a href="reprogramacion-masiva.html" id="bulkReschedBtn" class="btn-action btn-reprog-masiva">
-                <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/><circle cx="12" cy="12" r="2"/></svg>
-                Reprogramación
-              </a>
-      </aside>
-
-      <!-- -------- ÁREA DE AGENDA -------- -->
-      <div class="content-area">
-        <!-- Barra de filtros estilo Teams -->
-        <section id="filters">
-          <input type="hidden" id="filterDate" />
-          <div class="filter-bar">
-            <button id="sidebarShowBtn" class="sidebar-show-btn hidden" title="Mostrar calendario">&#9776;</button>
-
-            <div class="filter-group">
-              <label for="filterType">Tipo de evento:</label>
-              <select id="filterType">
-                <option value="">Todos</option>
-                <option value="1">Evaluación inicial integral</option>
-                <option value="2">Cita de terapia</option>
-              </select>
-            </div>
-
-            <div class="filter-group">
-              <button id="printView" class="btn-action">
-                <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-                Imprimir
-              </button>
-              <button id="newEventBtn" class="btn-action btn-primary">
-                <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                Nuevo Evento
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Calendario semanal -->
-        <section id="calendarContainer"><!-- grid dinámico --></section>
-
-        <!-- Leyenda de estados -->
-        <div class="status-legend" id="statusLegend">
-          <span class="legend-title">Estados:</span>
-          <span class="legend-item">
-            <span class="legend-dot legend-available"></span> Disponible
-          </span>
-          <span class="legend-item">
-            <span class="legend-dot legend-occupied"></span> Ocupado
-          </span>
-          <span class="legend-item">
-            <span class="legend-dot legend-conflict"></span> Conflicto
-          </span>
-          <span class="legend-item">
-            <span class="legend-dot legend-recommended"></span> Recomendado
-          </span>
-        </div>
-      </div>
     </div>
-  </main>
-
-  <!-- ================= MODAL DETALLES ================= -->
-  <div id="appointmentModal" class="modal">
-    <div class="modal-content">
-      <span class="close-button" id="closeModal">&times;</span>
-      <h2>Detalles del Evento</h2>
-      <div id="modalInfo"></div>
-    </div>
-  </div>
-
-  <!-- ================= MODAL NUEVO / REPROG. ================= -->
-  <div id="newEventModal" class="modal">
-    <div class="modal-content">
-      <span class="close-button" id="closeNewEventModal">&times;</span>
-      <h2 id="newEventTitle">Nuevo Evento</h2>
-      <hr>
-
-      <!-- Mensajes de validación inline -->
-      <div id="validationMessages" class="validation-messages" aria-live="polite"></div>
-
-      <form id="newEventForm" novalidate>
-        <!-- Tipo -->
-         <section>
-           <div class="form-group">
-             <label for="eventType">Tipo de Evento:</label>
-             <select id="eventType" name="eventType" required>
-               <option value="">Seleccionar tipo</option>
-               <option value="1">Evaluación inicial integral</option>
-               <option value="2">Cita de Terapia</option>
-             </select>
-           </div>
-           <!-- Paciente -->
-            <div class="form-group">
-              <label for="eventPatient">Paciente:</label>
-              <select id="eventPatient" name="eventPatient" required>
-                <option value="">Seleccionar paciente</option>
-                <option>Ana Martínez</option><option>Luis García</option>
-                <option>Carmen Robles</option><option>José Romero</option>
-                <option>María Torres</option><option>Diego Fuentes</option>
-                <option>Sofía Paredes</option><option>Ricardo Vargas</option>
-                <option>Elena Castillo</option><option>Pedro Rivas</option>
-              </select>
-            </div>
-           <!-- Terapeuta -->
-            <div class="form-group" id="therapistGroup">
-              <label for="eventTherapist">Terapeuta:</label>
-              <select id="eventTherapist" name="eventTherapist"></select>
-            </div>
-             <!-- Sala -->
-           <div class="form-group">
-             <label for="eventRoom">Sala:</label>
-             <select id="eventRoom" name="eventRoom" required>
-               <option value="">Seleccionar sala</option>
-               <option>Sala 101</option><option>Sala 102</option><option>Sala 103</option>
-             </select>
-           </div>
-          </section>
-
-          <section>
-            <!-- Fecha -->
-            <div class="form-group">
-              <label for="eventDate">Fecha:</label>
-              <input type="date" id="eventDate" name="eventDate" required />
-            </div>
-
-            <!-- Hora -->
-            <div class="time-selection">
-              <div class="form-group">
-                <label for="eventStartTime">Hora Inicio:</label>
-                <input type="time" id="eventStartTime" name="eventStartTime" required />
-              </div>
-            </div>
-
-            <!-- Duración (informativa) -->
-            <div class="form-group duration-info">
-              <strong>Duración:</strong>
-              <span id="eventDurationLabel">--</span>
-              <input type="hidden" id="eventDuration" name="eventDuration" />
-            </div>
-            <!-- Folio (readonly) -->
-            <div class="form-group">
-              <label for="eventFolio">Folio:</label>
-              <input type="text" id="eventFolio" name="eventFolio" readonly />
-            </div>
-
-          </section>
-         <section>
-
-           <!-- Comprobante de Pago -->
-           <div class="form-group" id="payProofGroup">
-             <label for="payProof">Comprobante de pago (PDF, PNG, JPG – máx&nbsp;5&nbsp;MB):</label>
-             <input type="file" id="payProof" name="payProof" accept=".pdf,image/png,image/jpeg" />
-           </div>
-
-           <!-- Cuota (solo para Cita de terapia) -->
-           <div class="form-group hidden" id="feeGroup">
-             <label for="eventFee">Cuota a pagar (MXN):</label>
-             <input type="number" id="eventFee" name="eventFee" min="0" step="0.01" />
-           </div>
-         </section>
-
-        <!-- Panel de disponibilidad en tiempo real -->
-        <div id="availabilityPanel" class="availability-panel hidden">
-          <h3>
-            <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-            Disponibilidad en tiempo real
-          </h3>
-          <div id="availabilityContent" class="availability-content"></div>
-        </div>
-
-        <!-- Sugerencias de alternativas -->
-        <div id="suggestionsArea" class="suggestions-area hidden">
-          <h3>
-            <svg class="panel-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-            Horarios alternativos disponibles
-          </h3>
-          <div id="suggestionsList" class="suggestions-list"></div>
-        </div>
-
-        <button type="submit" id="saveBtn" class="btn-action btn-primary btn-save">
-          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Guardar
+    <div class="flex items-center gap-4">
+        <button class="p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors duration-200">
+            <span class="material-symbols-outlined" data-icon="notifications">notifications</span>
         </button>
-      </form>
-    </div>
-  </div>
-
-  <!-- ================= MODAL CONFIRMACIÓN ================= -->
-  <div id="confirmModal" class="modal">
-    <div class="modal-content modal-confirm">
-      <h2>
-        <svg class="panel-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Confirmar cambios
-      </h2>
-      <hr>
-      <p class="confirm-subtitle">Revise los detalles antes de aplicar los cambios:</p>
-      <div id="confirmSummary" class="confirm-summary"></div>
-      <div class="confirm-actions">
-        <button id="confirmCancelBtn" class="btn-action btn-secondary">
-          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-          Cancelar
+        <button class="p-2 rounded-full hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors duration-200">
+            <span class="material-symbols-outlined" data-icon="help">help</span>
         </button>
-        <button id="confirmSaveBtn" class="btn-action btn-primary">
-          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
-          Confirmar y guardar
-        </button>
-      </div>
+        <div class="h-8 w-8 rounded-full bg-primary-fixed overflow-hidden border border-outline-variant">
+            <img alt="Administrator Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEHW6doJU2kBAYIQVqa6uKd0FPaLlaCca0TRatppq8sW1abv2Gus0BSdVm2pibOxhPtwt5igKAgjv8nECBALtvoNShkMjS2RzDBbZE9qolCJPMLM7PL90fZdepV9es00E54b5T4u_2USWByYu8mGS6zJts_caV0khKeYabvhU7eH2aG1eTUD_0zNbSSptYiiH7eqSo5mYpCPLAgw2y7dj50-GY81WmNFRPhfsWC5NXxUv3BCpbMdzIXKLekRZ9aBdv8gBUHEKimgJs"/>
+        </div>
     </div>
-  </div>
+</header>
 
-  <!-- ================= NOTIFICACIÓN TOAST ================= -->
-  <div id="toastNotification" class="toast-notification" aria-live="polite">
-    <span id="toastMessage"></span>
-  </div>
+<div class="flex flex-1 overflow-hidden">
+    <!-- SideNavBar / Collapsible Filters Section -->
+    <aside class="fixed left-0 top-[57px] h-[calc(100vh-57px)] w-[280px] bg-slate-50 dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col p-4 overflow-y-auto hide-scrollbar z-40">
+        
+        <a href="../index.html" class="flex items-center gap-3 mb-6 px-2 hover:opacity-80 transition-opacity cursor-pointer">
+            <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white">
+                <span class="material-symbols-outlined" data-icon="medical_services" style="font-variation-settings: 'FILL' 1;">psychology</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-black text-blue-900 dark:text-white uppercase tracking-wider">Administración</h2>
+                <p class="text-[11px] text-slate-500 font-medium">Clínica Universitaria</p>
+            </div>
+        </a>
 
-  <!-- ================= SCRIPTS ================= -->
-  <script src="js/agenda.js"></script>
+        <button onclick="window.location.href='nueva_cita.html'" class="w-full bg-primary-container text-white py-3 rounded-xl font-semibold mb-6 flex items-center justify-center gap-2 shadow-sm hover:translate-y-[-2px] transition-all">
+            <span class="material-symbols-outlined" data-icon="add">add</span>
+            Nuevo Evento
+        </button>
+
+        <nav class="space-y-6">
+            <!-- Navigation Links -->
+            <div class="space-y-1">
+                <a href="../solicitudes/dashboard.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">dashboard</span> Panel Control
+                </a>
+                <a href="agenda.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-white text-blue-700 shadow-sm border-r-4 border-blue-600 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">calendar_month</span> Agenda
+                </a>
+                <a href="../solicitudes/solicitudes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">move_to_inbox</span> Solicitudes
+                </a>
+                <a href="../pacientes/detalle_paciente_activo.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">groups</span> Pacientes
+                </a>
+                <a href="../terapeuta/terapeuta.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-blue-50/50 hover:text-blue-600 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">psychology</span> Terapeutas
+                </a>
+            </div>
+
+            <!-- Patients Section (Accordion Filters) -->
+            <div class="space-y-2">
+                <div class="accordion-header cursor-pointer flex items-center justify-between px-2 text-primary font-bold text-[13px] uppercase tracking-widest">
+                    <span>Pacientes Recientes</span>
+                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                </div>
+                <div class="accordion-content bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700 space-y-3">
+                    <div class="relative">
+                        <span class="material-symbols-outlined absolute left-2 top-1.5 text-slate-400 text-[18px]">search</span>
+                        <input id="sidebarSearchInput" class="w-full pl-8 pr-3 py-1.5 text-[12px] rounded-lg border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 focus:ring-primary-container" placeholder="Buscar pacientes..." type="text"/>
+                    </div>
+                    <div id="sidebarPatientsList" class="flex flex-col gap-1">
+                        <!-- JS injected list -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rooms Section -->
+            <div class="space-y-2">
+                <div class="accordion-header cursor-pointer flex items-center justify-between px-2 text-primary font-bold text-[13px] uppercase tracking-widest">
+                    <span>Estado de Salas</span>
+                    <span class="material-symbols-outlined text-[18px]">expand_more</span>
+                </div>
+                <div class="accordion-content grid grid-cols-2 gap-2">
+                    <div class="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Sala 01</p>
+                        <p class="text-[12px] font-semibold text-secondary">Disponible</p>
+                    </div>
+                    <div class="bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-center">
+                        <p class="text-[10px] text-slate-400 uppercase font-bold">Sala 02</p>
+                        <p class="text-[12px] font-semibold text-error">Ocupada</p>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <div class="mt-auto pt-8 border-t border-slate-200 dark:border-slate-800">
+            <div class="flex items-center gap-3 p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 transition-all cursor-pointer">
+                <span class="material-symbols-outlined" data-icon="settings">settings</span>
+                <span class="text-[13px]">Configuración</span>
+            </div>
+            <div class="flex items-center gap-3 p-2 rounded-xl text-slate-600 dark:text-slate-400 hover:text-blue-800 dark:hover:text-blue-300 transition-all cursor-pointer">
+                <span class="material-symbols-outlined" data-icon="contact_support">contact_support</span>
+                <span class="text-[13px]">Soporte</span>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="ml-[280px] flex-1 flex flex-col bg-surface-bright overflow-hidden">
+        <!-- Calendar Header -->
+        <div class="px-gutter py-6 bg-white border-b border-outline-variant flex items-center justify-between">
+            <div class="flex items-center gap-6">
+                <h2 class="text-headline-md font-headline-md text-primary">Agenda de Sesiones</h2>
+                <div class="flex items-center bg-surface-container rounded-full p-1">
+                    <button id="btnViewDay" class="px-4 py-1 rounded-full text-label-sm font-label-sm text-outline hover:text-primary transition-all">Día</button>
+                    <button id="btnViewWeek" class="px-4 py-1 rounded-full text-label-sm font-label-sm bg-white shadow-sm text-primary transition-all">Semana</button>
+                    <button id="btnViewMonth" class="px-4 py-1 rounded-full text-label-sm font-label-sm text-outline hover:text-primary transition-all">Mes</button>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-primary font-bold">
+                    <button id="btnPrevWeek" class="p-1 hover:bg-surface-container rounded-full transition-colors">
+                        <span class="material-symbols-outlined">chevron_left</span>
+                    </button>
+                    <span id="currentDateRange" class="text-body-lg font-bold">Octubre 23 - 27, 2023</span>
+                    <button id="btnNextWeek" class="p-1 hover:bg-surface-container rounded-full transition-colors">
+                        <span class="material-symbols-outlined">chevron_right</span>
+                    </button>
+                </div>
+                <div class="relative">
+                    <button id="btnFilters" class="flex items-center gap-2 border border-outline px-4 py-2 rounded-lg text-label-sm font-label-sm hover:bg-surface-container-low transition-all">
+                        <span class="material-symbols-outlined text-[18px]">filter_list</span>
+                        Filtros
+                    </button>
+                    <!-- Filters Dropdown -->
+                    <div id="filtersDropdown" class="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-outline-variant z-50 hidden opacity-0 slide-up transition-all">
+                        <div class="p-2 border-b border-outline-variant">
+                            <p class="text-[10px] font-bold text-outline uppercase tracking-wider px-2">Especialidad</p>
+                            <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer mt-1">
+                                <input type="checkbox" class="filter-check rounded border-outline-variant text-primary focus:ring-primary" value="TCC" checked>
+                                <span class="text-[12px] text-slate-700">TCC</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer">
+                                <input type="checkbox" class="filter-check rounded border-outline-variant text-primary focus:ring-primary" value="Evaluación" checked>
+                                <span class="text-[12px] text-slate-700">Evaluación</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer">
+                                <input type="checkbox" class="filter-check rounded border-outline-variant text-primary focus:ring-primary" value="Pareja" checked>
+                                <span class="text-[12px] text-slate-700">Terapia de Pareja</span>
+                            </label>
+                            <label class="flex items-center gap-2 px-2 py-1.5 hover:bg-slate-50 rounded cursor-pointer">
+                                <input type="checkbox" class="filter-check rounded border-outline-variant text-primary focus:ring-primary" value="Urgencia" checked>
+                                <span class="text-[12px] text-slate-700">Urgencias</span>
+                            </label>
+                        </div>
+                        <div class="p-2">
+                            <button id="btnApplyFilters" class="w-full text-center py-1.5 bg-primary text-white text-[12px] font-bold rounded-lg hover:bg-primary/90 transition-colors">Aplicar</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calendar Grid Container -->
+        <div class="flex-1 overflow-y-auto p-gutter hide-scrollbar">
+            <div class="bg-white rounded-xl border border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
+                <!-- Day Headers -->
+                <div id="calendarHeaders" class="border-b border-outline-variant bg-surface-container-low sticky top-0 z-10" style="display: grid; grid-template-columns: 80px repeat(5, 1fr);">
+                    <div class="flex items-center justify-center border-r border-outline-variant"></div>
+                    <div id="header-0" class="flex flex-col items-center justify-center p-3 border-r border-outline-variant">
+                        <span class="text-label-sm text-outline uppercase">Lun</span>
+                        <span class="text-headline-md text-primary date-num">--</span>
+                    </div>
+                    <div id="header-1" class="flex flex-col items-center justify-center p-3 border-r border-outline-variant">
+                        <span class="text-label-sm text-outline uppercase">Mar</span>
+                        <span class="text-headline-md text-primary date-num">--</span>
+                    </div>
+                    <div id="header-2" class="flex flex-col items-center justify-center p-3 border-r border-outline-variant">
+                        <span class="text-label-sm text-outline uppercase">Mié</span>
+                        <span class="text-headline-md text-primary date-num">--</span>
+                    </div>
+                    <div id="header-3" class="flex flex-col items-center justify-center p-3 border-r border-outline-variant">
+                        <span class="text-label-sm text-outline uppercase">Jue</span>
+                        <span class="text-headline-md text-primary date-num">--</span>
+                    </div>
+                    <div id="header-4" class="flex flex-col items-center justify-center p-3">
+                        <span class="text-label-sm text-outline uppercase">Vie</span>
+                        <span class="text-headline-md text-primary date-num">--</span>
+                    </div>
+                </div>
+
+                <!-- CSS Grid Calendar Body (Populated by JS) -->
+                <div id="calendarGrid" class="strict-grid bg-white relative flex-1 overflow-y-auto">
+                    <!-- JS injects grid cells, time labels, and event cards here -->
+                </div>
+            </div>
+
+            <!-- Bento Style Stats Section -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-gutter h-48">
+                <div class="md:col-span-2 bg-white p-6 rounded-xl border border-outline-variant flex flex-col justify-between shadow-sm">
+                    <div class="flex justify-between items-start">
+                        <h3 class="text-headline-md font-bold text-primary">Ocupación Diaria</h3>
+                        <span class="text-label-sm font-bold text-secondary bg-secondary-container px-2 py-1 rounded">Alta Demanda</span>
+                    </div>
+                    <div class="flex items-end gap-2 h-16">
+                        <div class="w-full bg-primary-fixed h-3/4 rounded-t-sm"></div>
+                        <div class="w-full bg-primary-container h-full rounded-t-sm"></div>
+                        <div class="w-full bg-primary-fixed h-1/2 rounded-t-sm"></div>
+                        <div class="w-full bg-primary-fixed h-2/3 rounded-t-sm"></div>
+                        <div class="w-full bg-primary-fixed h-1/3 rounded-t-sm"></div>
+                        <div class="w-full bg-primary-fixed h-1/2 rounded-t-sm"></div>
+                        <div class="w-full bg-primary-fixed h-3/4 rounded-t-sm"></div>
+                    </div>
+                </div>
+                <div class="bg-primary text-white p-6 rounded-xl border border-outline-variant flex flex-col justify-between shadow-md">
+                    <p class="text-label-sm uppercase tracking-widest opacity-70">Pacientes Totales</p>
+                    <p id="statTotal" class="text-[32px] font-extrabold">--</p>
+                    <div class="flex items-center gap-1 text-[12px] text-primary-fixed">
+                        <span class="material-symbols-outlined text-[16px]">trending_up</span>
+                        +12% vs semana pasada
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-xl border border-outline-variant flex flex-col justify-between shadow-sm">
+                    <p class="text-label-sm uppercase tracking-widest text-outline">Espacios Disponibles</p>
+                    <p id="statAvailable" class="text-[32px] font-extrabold text-secondary">--</p>
+                    <button class="text-[12px] text-primary font-bold hover:underline text-left" onclick="window.location.href='nueva_cita.html'">Ver Horarios</button>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal de Detalle de Cita -->
+<div id="eventModal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[60] flex items-center justify-center p-6 hidden">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden slide-up">
+        <div class="p-6 border-b border-blue-50 flex justify-between items-start">
+            <div>
+                <span id="modalTag" class="inline-block px-2 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded mb-2 uppercase">Confirmada</span>
+                <h3 id="modalPatient" class="text-xl font-bold text-blue-900">Elena Rodriguez</h3>
+                <p id="modalType" class="text-sm text-slate-500">Terapia Cognitivo Conductual</p>
+            </div>
+            <button id="closeModal" class="p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="p-6 space-y-4">
+            <div class="flex items-center gap-3 text-slate-700">
+                <span class="material-symbols-outlined text-primary">event</span>
+                <span id="modalDate" class="font-medium">Lunes, 23 de Octubre 2023</span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-700">
+                <span class="material-symbols-outlined text-primary">schedule</span>
+                <span id="modalTime" class="font-medium">09:00 AM - 10:30 AM</span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-700">
+                <span class="material-symbols-outlined text-primary">medical_services</span>
+                <span id="modalDoctor" class="font-medium">Dr. Marcus Miller</span>
+            </div>
+            <div class="flex items-center gap-3 text-slate-700">
+                <span class="material-symbols-outlined text-primary">meeting_room</span>
+                <span id="modalRoom" class="font-medium">Sala 02</span>
+            </div>
+        </div>
+        <div class="p-6 bg-slate-50 border-t border-slate-100">
+            <div class="flex gap-3">
+                <button id="btnDeleteEvent" class="w-12 flex-shrink-0 flex items-center justify-center bg-error-container text-error rounded-xl hover:bg-error hover:text-white transition-colors" title="Eliminar Cita">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+                <button class="flex-1 py-2.5 bg-surface-container text-primary font-bold rounded-xl hover:bg-surface-container-highest transition-colors">Reprogramar</button>
+                <button class="flex-1 py-2.5 bg-primary text-white font-bold rounded-xl shadow-md shadow-primary/30 hover:bg-primary/90 hover:-translate-y-0.5 transition-all" onclick="window.location.href='../pacientes/detalle_paciente_activo.html'">Ver Expediente</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Flúido: Crear Nueva Cita -->
+<div class="fixed inset-0 bg-slate-900/50 backdrop-blur-md z-[110] hidden flex items-center justify-center p-4 transition-all duration-300 opacity-0" id="createEventModal">
+    <div class="bg-white/95 backdrop-blur-xl w-full max-w-lg rounded-3xl p-8 shadow-2xl border border-white/50 relative transform scale-95 transition-transform duration-300 pop-in-element">
+        <button class="absolute top-6 right-6 text-slate-400 hover:text-slate-700 transition-colors bg-slate-100 hover:bg-slate-200 p-2 rounded-full" id="closeCreateModal">
+            <span class="material-symbols-outlined text-[20px]">close</span>
+        </button>
+        
+        <div class="mb-6">
+            <h3 class="text-2xl font-black text-slate-800 tracking-tight mb-1">Nueva Sesión</h3>
+            <p class="text-sm text-slate-500 font-medium flex items-center gap-2">
+                <span class="material-symbols-outlined text-[16px]">schedule</span>
+                <span id="createModalDateTime">Agendando para...</span>
+            </p>
+        </div>
+
+        <div class="space-y-5">
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Paciente</label>
+                <input type="text" id="newPatientName" placeholder="Ej. Ana Pérez" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Especialidad</label>
+                    <select id="newSpecialty" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-pointer">
+                        <option value="TCC">TCC</option>
+                        <option value="Evaluación">Evaluación</option>
+                        <option value="Pareja">Terapia de Pareja</option>
+                        <option value="Urgencia">Urgencias</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Sala</label>
+                    <select id="newRoom" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all cursor-pointer">
+                        <option value="Sala 01">Sala 01</option>
+                        <option value="Sala 02">Sala 02</option>
+                        <option value="Sala 03">Sala 03</option>
+                        <option value="Sala 04">Sala 04</option>
+                    </select>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Terapeuta</label>
+                <input type="text" id="newDoctorName" placeholder="Ej. Dr. Smith" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-primary focus:border-primary outline-none transition-all">
+            </div>
+        </div>
+
+        <div class="mt-8 flex gap-3">
+            <button id="btnCancelCreate" class="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl transition-colors">Cancelar</button>
+            <button id="btnSaveCreate" class="flex-1 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 hover:-translate-y-0.5 transition-all">Guardar Sesión</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/agenda_nueva.js"></script>
 </body>
 </html>

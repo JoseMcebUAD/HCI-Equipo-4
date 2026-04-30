@@ -1,0 +1,271 @@
+<!DOCTYPE html><html class="light" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Solicitudes - PMediFlow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline-variant": "#c2c7d1",
+                        "on-tertiary-fixed": "#131e1c",
+                        "on-surface": "#191c1e",
+                        "on-tertiary-container": "#b0bcb9",
+                        "on-surface-variant": "#42474f",
+                        "surface-dim": "#d8dadc",
+                        "on-secondary-fixed": "#00201f",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#a3edea",
+                        "surface-container-low": "#f2f4f6",
+                        "secondary-fixed": "#a6f0ed",
+                        "on-tertiary": "#ffffff",
+                        "inverse-surface": "#2d3133",
+                        "surface-container-high": "#e6e8ea",
+                        "tertiary-container": "#414c4a",
+                        "surface-bright": "#f7f9fb",
+                        "primary-fixed": "#d2e4ff",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-secondary-fixed-variant": "#00504e",
+                        "primary-fixed-dim": "#a0c9ff",
+                        "on-secondary": "#ffffff",
+                        "inverse-primary": "#a0c9ff",
+                        "error-container": "#ffdad6",
+                        "background": "#f7f9fb",
+                        "primary": "#00355f",
+                        "on-primary": "#ffffff",
+                        "tertiary": "#2b3534",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-fixed-variant": "#3e4947",
+                        "surface": "#f7f9fb",
+                        "tertiary-fixed": "#d9e5e2",
+                        "secondary": "#156967",
+                        "on-primary-fixed-variant": "#07497d",
+                        "tertiary-fixed-dim": "#bdc9c6",
+                        "surface-tint": "#2d6197",
+                        "outline": "#727780",
+                        "surface-container-highest": "#e0e3e5",
+                        "on-primary-fixed": "#001c37",
+                        "on-background": "#191c1e",
+                        "error": "#ba1a1a",
+                        "on-secondary-container": "#1c6d6b",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#0f4c81",
+                        "on-primary-container": "#8ebdf9",
+                        "surface-container": "#eceef0",
+                        "secondary-fixed-dim": "#8ad3d0",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin": "32px",
+                        "calendar-slot": "48px",
+                        "gutter": "24px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "label-sm": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "calendar-event": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "body-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "label-sm": ["12px", {"lineHeight": "1", "letterSpacing": "0.02em", "fontWeight": "500"}],
+                        "headline-md": ["20px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "calendar-event": ["13px", {"lineHeight": "1.2", "fontWeight": "500"}],
+                        "body-lg": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "headline-xl": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "body-md": ["14px", {"lineHeight": "1.5", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            background-color: #f7f9fb;
+        }
+    </style>
+</head>
+<body class="font-body-md text-on-surface bg-background antialiased">
+<!-- SideNavBar Shell -->
+<aside class="fixed left-0 top-0 h-full flex flex-col w-[280px] border-r border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 font-sans Inter antialiased">
+<a href="../index.html" class="p-6 flex items-center gap-3 hover:opacity-80 transition-opacity cursor-pointer block">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-lg bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="medical_services">psychology</span>
+</div>
+<div>
+<h1 class="text-xl font-bold text-sky-900 dark:text-white uppercase tracking-wider">PMediFlow</h1>
+<p class="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Admin Portal</p>
+</div>
+</div>
+</a>
+<nav class="flex-1 px-4 space-y-1 mt-4">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="../agenda/agenda.html">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+<span class="font-medium">Agenda</span>
+</a>
+<!-- Active Tab: Requests -->
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-sky-100 dark:bg-sky-900/40 text-sky-900 dark:text-sky-100 font-semibold border-r-4 border-sky-700 transition-all opacity-90" href="#">
+<span class="material-symbols-outlined" data-icon="pending_actions" style="font-variation-settings: &quot;FILL&quot; 1;">pending_actions</span>
+<span class="font-medium">Solicitudes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="../pacientes/detalle_paciente_activo.html">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="font-medium">Pacientes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="../terapeuta/terapeuta.html">
+<span class="material-symbols-outlined" data-icon="group">psychology</span>
+<span class="font-medium">Terapeutas</span>
+</a>
+</nav>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-[280px] min-h-screen">
+<!-- TopAppBar -->
+<header class="flex items-center justify-between h-16 px-8 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 shadow-sm sticky top-0 z-10">
+<div class="flex items-center gap-4 flex-1">
+<div class="relative w-96 group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-sky-600" data-icon="search">search</span>
+<input id="searchInput" class="w-full bg-slate-100 border-none rounded-full pl-10 pr-4 py-2 text-sm focus:ring-2 focus:ring-sky-500/20 focus:bg-white transition-all" placeholder="Buscar pacientes o solicitudes..." type="text">
+</div>
+<h2 class="font-headline-md text-sky-800 ml-4">Gestión de Solicitudes</h2>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<button class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-sky-600 transition-colors relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full border-2 border-white"></span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-slate-500 hover:text-sky-600 transition-colors">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+</button>
+</div>
+<div class="h-8 w-[1px] bg-slate-200"></div>
+<div class="flex items-center gap-3">
+<div class="text-right">
+<p class="text-xs font-bold text-slate-900">Dr. Sarah Jenkins</p>
+<p class="text-[10px] text-slate-500">Administrador</p>
+</div>
+<div class="w-9 h-9 rounded-full bg-primary flex items-center justify-center text-white">
+<span class="material-symbols-outlined">person</span>
+</div>
+</div>
+</div>
+</header>
+<!-- Page Canvas -->
+<div class="p-8 max-w-7xl mx-auto">
+<!-- Summary Header Section -->
+<div class="mb-8 flex items-end justify-between">
+<div>
+<h1 class="font-headline-xl text-primary mb-2">Solicitudes de Cita</h1>
+<p class="text-on-surface-variant flex items-center gap-2">
+<span class="font-semibold text-primary">24 pendientes</span> requieren tu revisión hoy.
+                    </p>
+</div>
+<div class="flex gap-2">
+<button id="btnHistory" class="flex items-center gap-2 px-4 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:opacity-90 transition-all shadow-sm">
+<span class="material-symbols-outlined text-lg" data-icon="history">history</span>
+                        Ver Historial
+                    </button>
+</div>
+</div>
+<!-- Filters & List Area -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-[0px_4px_20px_rgba(0,0,0,0.04)] overflow-hidden">
+<div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+<div class="flex items-center gap-2" id="filterButtons">
+<button class="filter-btn px-4 py-1.5 bg-primary text-white rounded-full text-sm font-medium" data-filter="all">Todas</button>
+<button class="filter-btn px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full text-sm font-medium hover:border-primary transition-colors" data-filter="Pendiente">Pendientes</button>
+<button class="filter-btn px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full text-sm font-medium hover:border-primary transition-colors" data-filter="Urgente">Urgentes</button>
+<button class="filter-btn px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full text-sm font-medium hover:border-primary transition-colors" data-filter="Hoy">Hoy</button>
+</div>
+<button id="btnAdvancedFilters" class="flex items-center gap-1 text-sm font-medium text-primary hover:underline">
+<span class="material-symbols-outlined text-lg" data-icon="filter_list">filter_list</span>
+                        Filtros Avanzados
+                    </button>
+</div>
+<!-- Request Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="text-slate-400 font-label-sm uppercase bg-white border-b border-slate-100">
+<th class="px-6 py-4 font-semibold tracking-wider">Paciente</th>
+<th class="px-6 py-4 font-semibold tracking-wider">Tipo de Servicio</th>
+<th class="px-6 py-4 font-semibold tracking-wider">Preferencia Horaria</th>
+<th class="px-6 py-4 font-semibold tracking-wider">Estado</th>
+<th class="px-6 py-4 font-semibold tracking-wider text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100" id="requestsTableBody">
+<!-- JS will inject rows here -->
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-6 py-4 bg-white border-t border-slate-100 flex items-center justify-between text-sm text-slate-500">
+<p class="" id="paginationLabel">Mostrando <span class="font-semibold" id="paginationCount">0</span> solicitudes</p>
+<div class="flex items-center gap-2">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">
+<span class="material-symbols-outlined text-base" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-white font-medium">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-slate-200 text-slate-400 hover:bg-slate-50">
+<span class="material-symbols-outlined text-base" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+
+<!-- Modal de Reprogramación -->
+<div class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[110] hidden flex items-center justify-center p-4 transition-all duration-300 opacity-0" id="rescheduleModal">
+    <div class="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl transform scale-95 transition-transform duration-300 pop-in-element">
+        <h3 class="text-lg font-bold text-slate-800 mb-4">Reprogramar Solicitud</h3>
+        <p class="text-sm text-slate-600 mb-4" id="reschedulePatientName">Paciente: </p>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">Nueva Fecha</label>
+                <input type="date" id="rescheduleDate" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">Nueva Hora</label>
+                <select id="rescheduleTime" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-primary">
+                    <option value="08:00 AM">08:00 AM</option>
+                    <option value="09:00 AM">09:00 AM</option>
+                    <option value="10:00 AM">10:00 AM</option>
+                    <option value="11:00 AM">11:00 AM</option>
+                    <option value="12:00 PM">12:00 PM</option>
+                    <option value="01:00 PM">01:00 PM</option>
+                    <option value="02:00 PM">02:00 PM</option>
+                    <option value="03:00 PM">03:00 PM</option>
+                    <option value="04:00 PM">04:00 PM</option>
+                    <option value="05:00 PM">05:00 PM</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-6 flex gap-2">
+            <button id="btnCancelReschedule" class="flex-1 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 transition-colors">Cancelar</button>
+            <button id="btnConfirmReschedule" class="flex-1 py-2 bg-primary text-white font-semibold rounded-lg hover:bg-primary-container transition-colors">Confirmar</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/solicitudes.js"></script>
+</body></html>
