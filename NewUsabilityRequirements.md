@@ -17,10 +17,10 @@
 
 |Field|Description|
 |---|---|
-|**Name**|Action reversibility window|
-|**Description**|The system must allow the user to undo an executed action (such as scheduling, modifying, or deleting an appointment) within a maximum window of 5 seconds after it was performed.|
-|**Justification**|To provide the user with a time window to correct immediate actions without penalty.|
-|**Acceptance Criterion**|During the 5 seconds following an action, a clear undo option is displayed; once that time elapses, the action is considered confirmed.|
+|**Name**|Deletion reversibility window|
+|**Description**|The system must allow the user to undo the deletion of an appointment within a maximum window of 5 seconds after the deletion is performed.|
+|**Justification**|To provide the user with a limited time window to recover from accidental appointment deletions without permanent data loss.|
+|**Acceptance Criterion**|For 5 seconds after an appointment is deleted, a clear and visible undo option must be displayed; once this time elapses, the deletion is considered final and irreversible.|
 
 ---
 
