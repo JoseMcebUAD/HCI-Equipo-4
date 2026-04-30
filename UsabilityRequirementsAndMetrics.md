@@ -2,31 +2,25 @@
 
 ## 1. Non-Functional Requirements (NFR) - Usability
 
-### NFR-01: Error Prevention and Recovery
-* **Description:** The system shall proactively mitigate user errors through guided workflows and provide intuitive, non-destructive recovery mechanisms to maintain task continuity.
-* **Acceptance Criteria:**
-    * **Constraint Validation:** Prevent the selection of incompatible scheduling parameters (e.g., conflicting time, therapist, or room allocations).
-    * **Explicit Confirmation:** Require deliberate user confirmation prior to executing destructive or critical actions.
-    * **Input Optimization:** Favor constrained choices (e.g., dropdowns, date pickers) over free-text input to minimize data entry errors.
-    * **Predictive Warnings:** Display contextual warnings detailing the consequences of an action prior to its final execution (e.g., "The appointment will be scheduled for June 4 at 17:00").
-    * **Action Reversibility:** Provide a grace period allowing users to seamlessly undo actions immediately following their execution.
-    * **Actionable Feedback:** Ensure error messages are specific, non-technical, and clearly state the required resolution steps.
-    * **Graceful Recovery:** Allow users to rectify localized errors without losing previously entered valid data or restarting the entire workflow.
+**Error Prevention and Handling**
+* **UR-01:** The agenda module shall prevent the selection of conflicting scheduling parameters, including overlapping time slots, double-booked therapists, and unavailable rooms.
+* **UR-02:** The system shall require explicit user confirmation prior to the execution of any critical or destructive action (e.g., canceling a therapy appointment).
+* **UR-03:** The interface shall prioritize constrained selection inputs (such as dropdown menus and interactive date pickers) over free-text manual entry to minimize formatting errors.
+* **UR-04:** The system shall display predictive, contextual warnings detailing the outcome of an action before its final execution (e.g., "The appointment will be scheduled for June 4 at 17:00").
+* **UR-05:** The system shall provide a grace period that allows administrative users to revert actions immediately following their execution.
+* **UR-06:** The system shall display error messages using non-technical, solution-oriented language that explicitly states the required steps for resolution.
+* **UR-07:** The system shall allow users to rectify localized form errors without losing previously entered valid data or requiring a complete workflow restart.
 
-### NFR-02: System Status Visibility
-* **Description:** The system must provide continuous, low-effort visibility into its current operational state and data, ensuring users remain informed without relying on memory.
-* **Acceptance Criteria:**
-    * **Persistent Status Display:** Maintain constant visibility of the schedule's availability and current booking status.
-    * **Real-time Feedback:** Deliver immediate, perceivable interface feedback in response to every user interaction.
-    * **Visual Consistency:** Enforce a standardized, system-wide color-coding paradigm to represent different appointment states clearly.
+**System Status Visibility**
+* **UR-08:** The system shall continuously and prominently display the real-time availability and booking status of the clinic's schedule.
+* **UR-09:** The interface shall generate immediate, perceivable visual feedback in response to all user interactions.
+* **UR-10:** The system shall employ a standardized, system-wide color-coding scheme to clearly differentiate between various appointment states (e.g., pending, confirmed, canceled).
 
-### NFR-03: Cognitive Load Reduction
-* **Description:** The interface shall minimize cognitive friction by streamlining workflows, reducing visual clutter, and avoiding reliance on the user's short-term memory.
-* **Acceptance Criteria:**
-    * **Contextual Relevance:** Display exclusively the information and interactive controls relevant to the active context or step.
-    * **Sequential Workflows:** Organize complex procedures into logical, sequential, and predictable steps.
-    * **Data Entry Minimization:** Reduce mandatory manual data entry to the absolute minimum required for task completion.
-    * **Interactive Density Control:** Limit the density of simultaneous interactive elements to prevent choice overload and visual fatigue.
+**Cognitive Load Management**
+* **UR-11:** The system shall display exclusively the information and interactive controls that are strictly necessary for the user's current context or task step.
+* **UR-12:** The system shall organize complex administrative procedures into logical, sequential, and predictable steps.
+* **UR-13:** The system shall restrict mandatory manual data entry to the absolute minimum required for successful task completion.
+* **UR-14:** The interface shall limit the density of simultaneous interactive elements on a single screen to prevent visual clutter and reduce decision fatigue.
 
 ---
 
@@ -70,7 +64,7 @@
 ### M6 - Perceived Satisfaction Level
 * **Description:** A subjective assessment capturing the user's perceived ease of use and overall interaction experience.
 * **Objective:** Quantify user satisfaction and perceived cognitive effort.
-* **Formula:** `Average Satisfaction Score = (Sum of Likert Ratings) / Total Number of Users` 
-*(Measured via a 5-point Likert scale where 1 = Very difficult and 5 = Very easy)*.
+* **Formula:** `Average Satisfaction Score = (Sum of Likert Ratings) / Total Number of Users`
+*(Measured via a 5-point Likert scale where 1 = Very difficult and 5 = Very easy).*
 * **Measurement Method:** Administer a post-task question asking users: "How easy was it to use the system?". Aggregate the scores to find the mean satisfaction level.
 * **Justification:** Quantitative metrics cannot capture user sentiment. High perceived satisfaction is crucial for long-term system adoption, user trust, and overall acceptance.
