@@ -1,126 +1,188 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html class="light" lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Clínica de Psicología - Bienestar Emocional Integral</title>
-    <link href="style.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PsicoCentro - Bienestar Emocional Integral</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f4c81',
+                        secondary: '#5eb5b2',
+                        accent: '#ff7e5f',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at top right, #e0f2fe, transparent),
+                        radial-gradient(circle at bottom left, #f0fdf4, transparent);
+        }
+    </style>
 </head>
+<body class="bg-slate-50 text-slate-900 antialiased font-sans">
 
-<body>
-    <header class="header">
-        <div class="logo-container">
-            <img alt="Logo Clínica de Psicología" class="logo" src="img/logo.png">
-            <h1 class="clinic-name">Centro de Psicología Integral</h1>
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-[100] glass-effect border-b border-slate-200/50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white shadow-lg shadow-primary/20">
+                    <span class="material-symbols-outlined">psychology</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-black text-blue-900 tracking-tight leading-none uppercase">PsicoCentro</h1>
+                    <p class="text-[10px] font-bold text-slate-500 tracking-[0.2em] uppercase">Clínica Universitaria</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="agenda/agenda.html" class="text-sm font-bold text-slate-600 hover:text-primary transition-colors uppercase tracking-widest">Horarios</a>
+                <a href="ver_cita/ver_cita.html" class="text-sm font-bold text-slate-600 hover:text-primary transition-colors uppercase tracking-widest text-xs">Mis Citas</a>
+                <a href="Primer_Contacto/solicitar-cita.html" class="bg-primary text-white px-6 py-3 rounded-full text-sm font-bold shadow-xl shadow-primary/30 hover:translate-y-[-2px] hover:shadow-2xl transition-all">
+                    Reservar Sesión
+                </a>
+            </div>
         </div>
-        <nav class="nav">
-            <a href="agenda/agenda.html">Horarios Disponibles</a>
-            <a href="Primer_Contacto/solicitar-cita.html">Reservar Cita</a>
-            <a href="ver_cita/ver_cita.html">Mis Citas Programadas</a>
-        </nav>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative pt-40 pb-20 overflow-hidden hero-gradient">
+        <div class="max-w-7xl mx-auto px-6 relative z-10 grid lg:grid-cols-2 gap-12 items-center">
+            <div class="animate-fade-in">
+                <span class="inline-block px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-[10px] font-black uppercase tracking-[0.3em] mb-6">Atención Profesional</span>
+                <h2 class="text-5xl lg:text-7xl font-black text-slate-900 leading-[1.1] tracking-tight mb-8">
+                    Tu bienestar <span class="text-primary italic">emocional</span> es nuestra prioridad.
+                </h2>
+                <p class="text-lg text-slate-600 mb-10 leading-relaxed font-medium max-w-xl">
+                    Ofrecemos acompañamiento profesional en un entorno seguro y confidencial. Nuestros especialistas están comprometidos con tu crecimiento personal y salud mental bajo un enfoque universitario de excelencia.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="Primer_Contacto/solicitar-cita.html" class="px-8 py-4 bg-primary text-white rounded-2xl font-bold shadow-2xl shadow-primary/30 hover:opacity-90 transition-all flex items-center gap-2">
+                        Comenzar Proceso <span class="material-symbols-outlined">arrow_forward</span>
+                    </a>
+                    <a href="agenda/agenda.html" class="px-8 py-4 bg-white text-slate-700 rounded-2xl font-bold border border-slate-200 hover:bg-slate-50 transition-all">
+                        Ver Disponibilidad
+                    </a>
+                </div>
+            </div>
+            <div class="relative group">
+                <div class="absolute -inset-4 bg-primary/10 rounded-3xl blur-3xl opacity-50 transition-opacity group-hover:opacity-70"></div>
+                <img alt="Terapia psicológica" class="relative rounded-3xl shadow-2xl w-full h-[500px] object-cover" src="img/img_01.png">
+                <div class="absolute bottom-8 left-8 bg-white/90 backdrop-blur-md p-6 rounded-2xl shadow-xl border border-white/50 animate-bounce">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-600">
+                            <span class="material-symbols-outlined">verified</span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-black text-slate-900 uppercase">Especialistas Activos</p>
+                            <p class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Atención Inmediata</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </header>
 
-    <main class="main-content">
-        <section class="welcome-section">
-            <h2>Tu bienestar emocional es nuestra prioridad</h2>
-            <p>En nuestro centro ofrecemos acompañamiento profesional en un entorno seguro y confidencial. Nuestros
-                especialistas están comprometidos con tu crecimiento personal y salud mental.</p>
-            <div class="hero-image">
-                <img alt="Terapia psicológica profesional" src="img/img_01.png">
+    <!-- Services Grid -->
+    <section class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <h3 class="text-xs font-black text-primary uppercase tracking-[0.4em] mb-4">Nuestra Especialidad</h3>
+                <h2 class="text-4xl font-black text-slate-900 tracking-tight">Servicios Integrales de Salud Mental</h2>
             </div>
-        </section>
-
-        <section class="actions-section">
-            <h3>Gestiona tu atención psicológica</h3>
-            <div class="button-group">
-                <a class="primary-btn" href="agenda/agenda.html">
-                    📅 Consultar Disponibilidad<br>
-                    <span class="btn-subtext">Ver horarios de nuestros especialistas</span>
-                </a>
-                <a class="primary-btn" href="Primer_Contacto/solicitar-cita.html">
-                    📝 Reservar Nueva Cita<br>
-                    <span class="btn-subtext">Agenda tu sesión con un profesional</span>
-                </a>
-                <a class="primary-btn" href="ver_cita/ver_cita.html">
-                    🔍 Administrar Mis Citas<br>
-                    <span class="btn-subtext">Revisar, modificar o cancelar citas existentes</span>
-                </a>
+            
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1 -->
+                <div class="group p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-primary transition-all duration-500 cursor-pointer">
+                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-primary mb-8 shadow-sm group-hover:bg-blue-400 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-3xl">psychology</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-4 group-hover:text-white">Evaluación y Diagnóstico</h4>
+                    <p class="text-slate-500 group-hover:text-blue-100 leading-relaxed text-sm">Enfoque clínico integral basado en evidencia científica para planes de intervención personalizados.</p>
+                </div>
+                <!-- Card 2 -->
+                <div class="group p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-primary transition-all duration-500 cursor-pointer">
+                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-primary mb-8 shadow-sm group-hover:bg-blue-400 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-3xl">groups</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-4 group-hover:text-white">Terapia Cognitivo-Conductual</h4>
+                    <p class="text-slate-500 group-hover:text-blue-100 leading-relaxed text-sm">Intervenciones supervisadas por especialistas para el tratamiento de ansiedad, depresión y más.</p>
+                </div>
+                <!-- Card 3 -->
+                <div class="group p-8 rounded-3xl bg-slate-50 border border-slate-100 hover:bg-primary transition-all duration-500 cursor-pointer">
+                    <div class="w-14 h-14 bg-white rounded-2xl flex items-center justify-center text-primary mb-8 shadow-sm group-hover:bg-blue-400 group-hover:text-white transition-all">
+                        <span class="material-symbols-outlined text-3xl">school</span>
+                    </div>
+                    <h4 class="text-xl font-bold text-slate-900 mb-4 group-hover:text-white">Atención Psicoeducativa</h4>
+                    <p class="text-slate-500 group-hover:text-blue-100 leading-relaxed text-sm">Programas especializados para estudiantes con enfoque en estrés académico y orientación.</p>
+                </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="info-section fade-in slide-up">
-            <h3>Nuestros servicios</h3>
-            <ul>
+    <!-- Call to Action -->
+    <section class="py-20">
+        <div class="max-w-5xl mx-auto px-6">
+            <div class="bg-primary rounded-[40px] p-12 lg:p-20 text-center relative overflow-hidden shadow-3xl">
+                <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#fff 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <h2 class="text-3xl lg:text-5xl font-black text-white mb-8 relative z-10 leading-tight">¿Listo para dar el primer paso?</h2>
+                <div class="flex justify-center gap-6 relative z-10">
+                    <a href="Primer_Contacto/solicitar-cita.html" class="bg-white text-primary px-10 py-5 rounded-2xl font-black shadow-xl hover:scale-105 transition-all">
+                        AGENDAR AHORA
+                    </a>
+                </div>
+                <p class="mt-8 text-blue-200 text-sm font-medium relative z-10">Más de 5,000 vidas impactadas positivamente.</p>
+            </div>
+        </div>
+    </section>
 
-                <li
-                    data-descripcion="Evaluación psicológica integral con enfoque en diagnóstico clínico y planes de intervención basados en evidencia científica">
-                    Evaluación y Diagnóstico Psicológico
-                </li>
-                <li
-                    data-descripcion="Estudio detallado del contexto socioeconómico del paciente para adaptar el tratamiento y garantizar accesibilidad">
-                    Estudio Socioeconómico y Adaptación Terapéutica
-                </li>
-                <li
-                    data-descripcion="Intervenciones basadas en investigaciones recientes, con supervisión de docentes especializados">
-                    Terapia Cognitivo-Conductual Universitaria
-                </li>
-                <li
-                    data-descripcion="Programas de atención psicológica para estudiantes de la facultad, con enfoque en estrés académico y orientación vocacional">
-                    Atención Psicoeducativa
-                </li>
-                <li
-                    data-descripcion="Participación en investigaciones clínicas con protocolos aprobados por el comité de ética de la facultad">
-                    Programas de Investigación Clínica
-                </li>
-                <li
-                    data-descripcion="Talleres psicoeducativos abiertos a la comunidad sobre salud mental, prevención y desarrollo humano">
-                    Extensión Comunitaria
-                </li>
-
-            </ul>
-        </section>
-
-    </main>
-
-    <footer class="footer">
-        <p>&copy; 2025 Centro de Psicología Integral. <br>
-            Teléfono: 555-123-4567 | Email: contacto@psicologiaintegral.com<br>
-            Horario de atención: Lunes a Viernes de 9:00 a 20:00 hrs</p>
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-16">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12 border-b border-slate-800 pb-12 mb-12">
+            <div class="col-span-2">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="w-10 h-10 bg-white/10 flex items-center justify-center rounded-xl text-white">
+                        <span class="material-symbols-outlined">psychology</span>
+                    </div>
+                    <h1 class="text-xl font-black text-white uppercase tracking-tight">PsicoCentro</h1>
+                </div>
+                <p class="max-w-sm text-sm leading-relaxed">Institución comprometida con la salud mental comunitaria y la formación de excelencia clínica.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Acceso Rápido</h4>
+                <ul class="space-y-4 text-sm font-medium">
+                    <li><a href="agenda/agenda.html" class="hover:text-white transition-colors">Disponibilidad</a></li>
+                    <li><a href="Primer_Contacto/solicitar-cita.html" class="hover:text-white transition-colors">Nueva Cita</a></li>
+                    <li><a href="ver_cita/ver_cita.html" class="hover:text-white transition-colors">Gestión de Citas</a></li>
+                    <li><a href="solicitudes/solicitudes.html" class="hover:text-white transition-colors">Acceso Administrativo</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Contacto</h4>
+                <p class="text-sm mb-2">555-123-4567</p>
+                <p class="text-sm">contacto@psicocentro.edu.mx</p>
+                <p class="text-xs mt-4">Lunes - Viernes: 9:00 AM - 8:00 PM</p>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 flex justify-between items-center text-[10px] font-bold uppercase tracking-[0.2em]">
+            <p>&copy; 2025 PSICOCENTRO CLÍNICA UNIVERSITARIA</p>
+            <p>TODOS LOS DERECHOS RESERVADOS</p>
+        </div>
     </footer>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const servicios = document.querySelectorAll('.info-section li');
-
-            servicios.forEach(servicio => {
-                servicio.addEventListener('click', function () {
-                    this.classList.toggle('servicio-expandido');
-                });
-
-                servicio.addEventListener('mouseenter', function () {
-                    this.style.transform = 'translateY(-5px)';
-                });
-
-                servicio.addEventListener('mouseleave', function () {
-                    if (!this.classList.contains('servicio-expandido')) {
-                        this.style.transform = 'translateY(0)';
-                    }
-                });
-            });
-
-            const elementos = document.querySelectorAll('.fade-in');
-            elementos.forEach(elemento => {
-                elemento.style.opacity = '0';
-                setTimeout(() => {
-                    elemento.style.transition = 'opacity 1s ease-out';
-                    elemento.style.opacity = '1';
-                }, 100);
-            });
-        });
-    </script>
-
 </body>
-
 </html>

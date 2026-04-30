@@ -114,24 +114,26 @@
 </div>
 </div>
 </a>
-<nav class="flex-1 px-4 space-y-1 mt-4">
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="../agenda/agenda.html">
-<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
-<span class="font-medium">Agenda</span>
-</a>
-<!-- Active Tab: Requests -->
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-sky-100 dark:bg-sky-900/40 text-sky-900 dark:text-sky-100 font-semibold border-r-4 border-sky-700 transition-all opacity-90" href="#">
-<span class="material-symbols-outlined" data-icon="pending_actions" style="font-variation-settings: &quot;FILL&quot; 1;">pending_actions</span>
-<span class="font-medium">Solicitudes</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="../pacientes/pacientes.html">
-<span class="material-symbols-outlined" data-icon="group">group</span>
-<span class="font-medium">Pacientes</span>
-</a>
-<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors" href="../terapeuta/terapeuta.html">
-<span class="material-symbols-outlined" data-icon="group">psychology</span>
-<span class="font-medium">Terapeutas</span>
-</a>
+<nav class="flex-1 px-4 space-y-1 mt-8">
+
+    <a href="../agenda/agenda.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+        <span class="material-symbols-outlined text-[20px]">calendar_today</span> Agenda
+    </a>
+    <a href="solicitudes.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+        <span class="material-symbols-outlined text-[20px]">move_to_inbox</span> Solicitudes
+    </a>
+    <a href="../pacientes/pacientes.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+        <span class="material-symbols-outlined text-[20px]">group</span> Pacientes
+    </a>
+    <a href="../terapeuta/terapeuta.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+        <span class="material-symbols-outlined text-[20px]">psychology</span> Terapeutas
+    </a>
+    <a href="../salas/salas.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+        <span class="material-symbols-outlined text-[20px]">meeting_room</span> Salas
+    </a>
+    <a href="../reportes/reportes.html" class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 transition-colors text-sm font-medium">
+        <span class="material-symbols-outlined text-[20px]">analytics</span> Reportes
+    </a>
 </nav>
 </aside>
 <!-- Main Content Area -->
@@ -192,6 +194,7 @@
 <button class="filter-btn px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full text-sm font-medium hover:border-primary transition-colors" data-filter="Pendiente">Pendientes</button>
 <button class="filter-btn px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full text-sm font-medium hover:border-primary transition-colors" data-filter="Urgente">Urgentes</button>
 <button class="filter-btn px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full text-sm font-medium hover:border-primary transition-colors" data-filter="Hoy">Hoy</button>
+<button class="filter-btn px-4 py-1.5 bg-white text-slate-600 border border-slate-200 rounded-full text-sm font-medium hover:border-primary transition-colors" data-filter="Reprogramaciones">Reprogramaciones</button>
 </div>
 <button id="btnAdvancedFilters" class="flex items-center gap-1 text-sm font-medium text-primary hover:underline">
 <span class="material-symbols-outlined text-lg" data-icon="filter_list">filter_list</span>

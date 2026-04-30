@@ -1,87 +1,166 @@
 <!DOCTYPE html>
-<html lang="es">
+<html class="light" lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administrador: Reportes y Configuración</title>
-  <link rel="stylesheet" href="../agenda/css/styles.css">
-  <link rel="stylesheet" href="css/reportes.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PsicoCentro Admin - Reportes y Configuración</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="../agenda/js/tailwind-config.js"></script>
 </head>
-<body>
-  <header>
-    <h1>Clínica de Atención Psicológica</h1>
-    <nav>
-      <ul>
-        <li><a href="../agenda/agenda.html">Agenda</a></li>
-        <li><a href="../pacientes/pacientes.html">Pacientes</a></li>
-        <li><a href="../terapeuta/terapeuta.html">Terapeutas</a></li>
-        <li><a href="../salas/salas.html">Salas</a></li>
-        <li><a href="reportes.html" class="active">Reportes</a></li>
-      </ul>
-    </nav>
-  </header>
+<body class="bg-slate-50 text-slate-900 antialiased flex flex-col h-screen overflow-hidden">
 
-  <main>
-    <!-- Menú de pestañas -->
-    <div class="tab-menu">
-      <button id="tabReportes" class="active">Reportes</button>
-      <button id="tabConfiguracion">Configuración</button>
+<!-- Header -->
+<header class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center z-50">
+    <div class="flex items-center gap-8">
+        <h1 class="text-xl font-bold tracking-tight text-blue-900">PsicoCentro Admin</h1>
     </div>
+    <div class="flex items-center gap-4">
+        <button class="p-2 rounded-full hover:bg-slate-50 transition-colors">
+            <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">AD</div>
+    </div>
+</header>
 
-    <!-- Sección: Reportes -->
-    <section id="reportesSection" class="tab-content">
-      <h2>Generar Reporte</h2>
-      <form id="formReporte">
-        <div class="form-group">
-          <label for="fechaInicio">Fecha de inicio:</label>
-          <input type="date" id="fechaInicio" required>
-        </div>
-        <div class="form-group">
-          <label for="fechaFin">Fecha de fin:</label>
-          <input type="date" id="fechaFin" required>
-        </div>
-        <div class="form-group">
-          <label for="filtroServicio">Tipo de reporte:</label>
-          <select id="filtroServicio">
-            <option value="">-- Todos --</option>
-            <option value="psicodiagnostico">Economico</option>
-            <option value="terapia">Citas</option>
-          </select>
-        </div>
-        <button type="submit">Generar Reporte</button>
-      </form>
-      <div id="reporteResultado">
-        <!-- Aquí se mostrarán los resultados del reporte -->
-      </div>
-    </section>
+<div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-[280px] bg-white border-r border-slate-200 p-4 flex flex-col hide-scrollbar overflow-y-auto">
+        <a href="../index.html" class="flex items-center gap-3 mb-6 px-2 hover:opacity-80 transition-opacity">
+            <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white">
+                <span class="material-symbols-outlined">psychology</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-black text-blue-900 uppercase tracking-wider">Administración</h2>
+                <p class="text-[11px] text-slate-500 font-medium">Clínica Universitaria</p>
+            </div>
+        </a>
 
-    <!-- Sección: Configuración -->
-    <section id="configuracionSection" class="tab-content" style="display:none;">
-      <h2>Configuración del Sistema</h2>
-      <form id="formConfiguracion">
-        <div class="form-group">
-          <label for="notificaciones">Notificaciones automáticas:</label>
-          <select id="notificaciones">
-            <option value="habilitado">Habilitado</option>
-            <option value="deshabilitado">Deshabilitado</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label for="tiempoEspera">Tiempo de espera (minutos) para marcar cita como no asistida:</label>
-          <input type="number" id="tiempoEspera" min="0" required>
-        </div>
-        <div class="form-group">
-          <label for="maxReprogramaciones">Máximo reprogramaciones por paciente:</label>
-          <input type="number" id="maxReprogramaciones" min="0" required>
-        </div>
-        <button type="submit">Guardar Configuración</button>
-      </form>
-      <div id="configResultado">
-        <!-- Mensaje de configuración guardada -->
-      </div>
-    </section>
-  </main>
+        <nav class="space-y-6">
+            <div class="space-y-1">
 
-  <script src="js/reportes.js"></script>
+                <a href="../agenda/agenda.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">calendar_month</span> Agenda
+                </a>
+                <a href="../solicitudes/solicitudes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">move_to_inbox</span> Solicitudes
+                </a>
+                <a href="../pacientes/pacientes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">groups</span> Pacientes
+                </a>
+                <a href="../terapeuta/terapeuta.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">psychology</span> Terapeutas
+                </a>
+                <a href="../salas/salas.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">meeting_room</span> Salas
+                </a>
+                <a href="reportes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 shadow-sm border-r-4 border-blue-600 transition-all text-sm font-bold">
+                    <span class="material-symbols-outlined text-[20px]">analytics</span> Reportes
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-8">
+        <div class="max-w-4xl mx-auto">
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-900 mb-2">Análisis y Sistema</h2>
+                <p class="text-slate-500">Genera reportes operativos y configura los parámetros de la clínica.</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex gap-4 mb-8 bg-white p-2 rounded-2xl border border-slate-100 shadow-sm">
+                <button id="tabReportes" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all bg-blue-50 text-blue-700 shadow-sm">Reportes</button>
+                <button id="tabConfiguracion" class="flex-1 py-3 rounded-xl text-sm font-bold transition-all text-slate-500 hover:bg-slate-50">Configuración</button>
+            </div>
+
+            <!-- Reportes Section -->
+            <section id="reportesSection" class="space-y-6">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-black text-slate-900 mb-6">Generar Reporte Personalizado</h3>
+                    <form id="formReporte" class="grid grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Fecha Inicio</label>
+                            <input type="date" id="fechaInicio" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Fecha Fin</label>
+                            <input type="date" id="fechaFin" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tipo de Reporte</label>
+                            <select id="filtroServicio" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                                <option value="">-- Todos --</option>
+                                <option value="economico">Reporte Económico (Ingresos)</option>
+                                <option value="citas">Reporte de Citas y Asistencia</option>
+                                <option value="productividad">Productividad por Terapeuta</option>
+                            </select>
+                        </div>
+                        <div class="col-span-2">
+                            <button type="submit" class="w-full bg-primary text-white py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl hover:translate-y-[-2px] transition-all flex items-center justify-center gap-2">
+                                <span class="material-symbols-outlined">download</span>
+                                Generar y Descargar Reporte
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="reporteResultado" class="hidden animate-slide-up">
+                    <div class="bg-emerald-50 border border-emerald-100 p-6 rounded-2xl flex items-center gap-4">
+                        <div class="w-12 h-12 bg-emerald-100 rounded-xl flex items-center justify-center text-emerald-600">
+                            <span class="material-symbols-outlined">check_circle</span>
+                        </div>
+                        <div>
+                            <p class="text-emerald-900 font-bold">Reporte generado con éxito</p>
+                            <p class="text-emerald-700 text-sm">El archivo PDF se ha descargado automáticamente en su ordenador.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Configuracion Section -->
+            <section id="configuracionSection" class="hidden space-y-6">
+                <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
+                    <h3 class="text-xl font-black text-slate-900 mb-6">Configuración Global del Sistema</h3>
+                    <form id="formConfiguracion" class="space-y-6">
+                        <div class="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+                            <div>
+                                <p class="text-sm font-bold text-slate-800">Notificaciones Automáticas</p>
+                                <p class="text-xs text-slate-500">Enviar recordatorios por email 24h antes.</p>
+                            </div>
+                            <select id="notificaciones" class="bg-white border-slate-200 rounded-lg px-3 py-1.5 text-sm font-bold text-slate-600 outline-none">
+                                <option value="habilitado">Habilitado</option>
+                                <option value="deshabilitado">Deshabilitado</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tolerancia de Espera (min)</label>
+                                <input type="number" id="tiempoEspera" value="15" min="0" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                                <p class="text-[10px] text-slate-400 mt-1">Tiempo antes de marcar como "No Asistió".</p>
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Máx. Reprogramaciones</label>
+                                <input type="number" id="maxReprogramaciones" value="3" min="0" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                                <p class="text-[10px] text-slate-400 mt-1">Límite permitido por cada cita agendada.</p>
+                            </div>
+                        </div>
+
+                        <div class="pt-4">
+                            <button type="submit" class="w-full bg-blue-900 text-white py-4 rounded-2xl font-bold shadow-lg hover:shadow-xl transition-all">
+                                Guardar Cambios de Configuración
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </div>
+    </main>
+</div>
+
+<script src="js/reportes.js"></script>
 </body>
 </html>

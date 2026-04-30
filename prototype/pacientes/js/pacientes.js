@@ -5,48 +5,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let patients = [
         {
-            id: 1,
-            name: "María López",
-            email: "maria.lopez@email.com",
-            patientId: "#PT-5521",
-            lastVisit: `20 Oct, ${currentYear}`,
-            service: "Psicoterapia",
-            status: "Activo",
-            initials: "ML",
-            colorClass: "bg-primary/10 text-primary"
+            id: 1, name: "María López", email: "maria.lopez@email.com", phone: "5551234567",
+            patientId: "#PT-5521", lastVisit: `20 Oct, ${currentYear}`, service: "Psicoterapia",
+            status: "Activo", initials: "ML", colorClass: "bg-primary/10 text-primary"
         },
         {
-            id: 2,
-            name: "Carlos Ruiz",
-            email: "c.ruiz@email.com",
-            patientId: "#PT-3342",
-            lastVisit: `15 Oct, ${currentYear}`,
-            service: "Ninguno",
-            status: "En Espera",
-            initials: "CR",
-            colorClass: "bg-secondary/10 text-secondary"
+            id: 2, name: "Carlos Ruiz", email: "c.ruiz@email.com", phone: "5559876543",
+            patientId: "#PT-3342", lastVisit: `15 Oct, ${currentYear}`, service: "Ninguno",
+            status: "En Espera", initials: "CR", colorClass: "bg-secondary/10 text-secondary"
         },
         {
-            id: 3,
-            name: "Ana García",
-            email: "agarcia88@email.com",
-            patientId: "#PT-8890",
-            lastVisit: `12 Sep, ${currentYear}`,
-            service: "Psicodiagnóstico",
-            status: "Archivado",
-            initials: "AG",
-            colorClass: "bg-slate-100 text-slate-500"
+            id: 3, name: "Ana García", email: "agarcia88@email.com", phone: "5554567890",
+            patientId: "#PT-8890", lastVisit: `12 Sep, ${currentYear}`, service: "Psicodiagnóstico",
+            status: "Archivado", initials: "AG", colorClass: "bg-slate-100 text-slate-500"
         },
         {
-            id: 4,
-            name: "Roberto Gómez",
-            email: "rgomez@email.com",
-            patientId: "#PT-1224",
-            lastVisit: `05 Nov, ${currentYear}`,
-            service: "Terapia de Pareja",
-            status: "Activo",
-            initials: "RG",
-            colorClass: "bg-primary/10 text-primary"
+            id: 4, name: "Roberto Gómez", email: "rgomez@email.com", phone: "5551112233",
+            patientId: "#PT-1224", lastVisit: `05 Nov, ${currentYear}`, service: "Terapia de Pareja",
+            status: "Activo", initials: "RG", colorClass: "bg-primary/10 text-primary"
         }
     ];
 
@@ -69,10 +45,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedService = serviceSelect.value;
 
         const filtered = patients.filter(p => {
-            // Filtro de búsqueda
+            // FR-09: Búsqueda por nombre, folio, teléfono y email
             const matchesSearch = p.name.toLowerCase().includes(searchTerm) || 
                                  p.patientId.toLowerCase().includes(searchTerm) ||
-                                 p.email.toLowerCase().includes(searchTerm);
+                                 p.email.toLowerCase().includes(searchTerm) ||
+                                 (p.phone && p.phone.includes(searchTerm));
             
             // Filtro de estado
             const matchesStatus = currentStatusFilter === 'all' || p.status === currentStatusFilter;

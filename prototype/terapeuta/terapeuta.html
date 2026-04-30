@@ -1,135 +1,210 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html class="light" lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gestor de Terapeutas</title>
-  <link rel="stylesheet" href="../agenda/css/styles.css">
-  <link rel="stylesheet" href="css/terapeuta.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PsicoCentro Admin - Gestión de Terapeutas</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="../agenda/js/tailwind-config.js"></script>
 </head>
+<body class="bg-slate-50 text-slate-900 antialiased flex flex-col h-screen overflow-hidden">
 
-<body>
-  <header>
-    <h1>Clínica de Atención Psicológica</h1>
-    <nav>
-      <ul>
-        <li><a href="../agenda/agenda.html">Agenda</a></li>
-        <li><a href="../pacientes/pacientes.html">Paciente</a></li>
-        <li>Terapeuta</li>
-        <li><a href="../salas/salas.html">Salas</a></li>
-        <li><a href="../reportes/reportes.html">Reportes</a></li>
-      </ul>
-    </nav>
-  </header>
-
-  <main class="terapeutas-container">
-    <section class="layout">
-
-
-      <!-- Panel derecho: filtros y acciones -->
-      <div class="panel filters">
-        <h3>Filtros</h3>
-        <button class="btn-action" id="btnNuevoTerapeuta">➕ Nuevo Terapeuta</button>
-
-        <label for="buscar-nombre">Buscar por nombre</label>
-        <input type="text" id="buscar-nombre" placeholder="Ej: Ana García">
-
-        <label for="tipo-servicio">Tipo de servicio</label>
-        <select id="tipo-servicio">
-          <option value="">Todos</option>
-          <option value="tipo1">Psicodiagnóstico</option>
-          <option value="tipo2">Terapia Individual</option>
-        </select>
-
-        <label for="rol-terapeuta">Rol del terapeuta</label>
-        <select id="rol-terapeuta">
-          <option value="">Todos</option>
-          <option value="activo">Activo</option>
-          <option value="pasante">Pasante</option>
-          <option value="externo">Externo</option>
-        </select>
-      </div>
-
-      <!-- Panel central: lista de terapeutas -->
-      <div class="panel">
-        <h3>Terapeutas</h3>
-        <div class="therapist-list">
-          <a href="detalle_terapeuta.html" class="therapist-list" data-nombre="Ana García" data-tipo="tipo1">
-            <span>Ana García - Psicodiagnóstico</span>
-            <span class="therapist-status">Activo</span>
-          </a>
-          <div class="therapist-list" data-nombre="Carlos Méndez" data-tipo="tipo2">
-            <span>Carlos Méndez - Terapia Individual</span>
-            <span class="therapist-status">Activo</span>
-          </div>
-          <div class="therapist-list" data-nombre="Luisa Fernández" data-tipo="tipo1">
-            <span>Luisa Fernández - Psicodiagnóstico</span>
-            <span class="therapist-status">Pasante</span>
-          </div>
+<!-- Header -->
+<header class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center z-50">
+    <div class="flex items-center gap-8">
+        <h1 class="text-xl font-bold tracking-tight text-blue-900">PsicoCentro Admin</h1>
+        <div class="hidden md:flex items-center bg-slate-100 rounded-lg px-3 py-1.5 w-80">
+            <span class="material-symbols-outlined text-slate-400 mr-2">search</span>
+            <input id="searchInput" class="bg-transparent border-none focus:ring-0 text-sm w-full" placeholder="Buscar terapeuta..." type="text"/>
         </div>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal para nuevo/editar terapeuta -->
-  <div class="modal" id="modalTerapeuta">
-    <div class="modal-content">
-      <span class="close-button close-modal">&times;</span>
-      <h2 id="modalTitle">Nuevo Terapeuta</h2>
-      <hr/>
-      <form id="formTerapeuta">
-        <!-- Sección 1: Datos del terapeuta -->
-        <section class="form-section">
-          <div class="form-group">
-            <label for="nombre">Nombre completo</label>
-            <input type="text" id="nombre" required>
-          </div>
-
-          <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" required>
-          </div>
-
-          <div class="form-group">
-            <label for="telefono">Teléfono</label>
-            <input type="tel" id="telefono">
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="rol">Rol</label>
-              <select id="rol" required>
-                <option value="activo">Activo</option>
-                <option value="pasante">Pasante</option>
-                <option value="externo">Externo</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="tipo-servicio-modal">Tipo de servicio</label>
-              <select id="tipo-servicio-modal" required>
-                <option value="tipo1">Psicodiagnóstico</option>
-                <option value="tipo2">Terapia Individual</option>
-              </select>
-            </div>
-          </div>
-        </section>
-
-        <!-- Sección 2: Horarios -->
-        <section class="form-section">
-          <h3>Horarios Disponibles</h3>
-          <div id="horarios-container">
-            <!-- Los horarios se añadirán dinámicamente -->
-          </div>
-          <button type="button" class="btn-add" id="btnAddHorario">➕ Añadir Horario</button>
-        </section>
-
-        <button type="submit" id="saveBtn">Guardar</button>
-      </form>
     </div>
-  </div>
+    <div class="flex items-center gap-4">
+        <button class="p-2 rounded-full hover:bg-slate-50 transition-colors">
+            <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">
+            AD
+        </div>
+    </div>
+</header>
 
-  <script src="js/terapeuta.js"></script>
+<div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-[280px] bg-white border-r border-slate-200 p-4 flex flex-col hide-scrollbar overflow-y-auto">
+        <a href="../index.html" class="flex items-center gap-3 mb-6 px-2 hover:opacity-80 transition-opacity">
+            <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white">
+                <span class="material-symbols-outlined">psychology</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-black text-blue-900 uppercase tracking-wider">Administración</h2>
+                <p class="text-[11px] text-slate-500 font-medium">Clínica Universitaria</p>
+            </div>
+        </a>
+
+        <button id="btnNuevoTerapeuta" class="w-full bg-primary text-white py-3 rounded-xl font-semibold mb-6 flex items-center justify-center gap-2 shadow-sm hover:translate-y-[-2px] transition-all">
+            <span class="material-symbols-outlined">add</span>
+            Nuevo Terapeuta
+        </button>
+
+        <nav class="space-y-6">
+            <div class="space-y-1">
+                <a href="../agenda/agenda.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">calendar_month</span> Agenda
+                </a>
+                <a href="../solicitudes/solicitudes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">move_to_inbox</span> Solicitudes
+                </a>
+                <a href="../pacientes/pacientes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">groups</span> Pacientes
+                </a>
+                <a href="terapeuta.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 shadow-sm border-r-4 border-blue-600 transition-all text-sm font-bold">
+                    <span class="material-symbols-outlined text-[20px]">psychology</span> Terapeutas
+                </a>
+                <a href="../salas/salas.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">meeting_room</span> Salas
+                </a>
+                <a href="../reportes/reportes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">analytics</span> Reportes
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="flex justify-between items-end mb-8">
+                <div>
+                    <h2 class="text-3xl font-black text-slate-900 mb-2">Terapeutas</h2>
+                    <p class="text-slate-500">Gestión del equipo clínico y sus especialidades.</p>
+                </div>
+                <div class="flex gap-3">
+                    <select id="filterService" class="bg-white border-slate-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-primary outline-none transition-all">
+                        <option value="all">Todos los Servicios</option>
+                        <option value="Psicodiagnóstico">Psicodiagnóstico</option>
+                        <option value="Terapia Individual">Terapia Individual</option>
+                        <option value="Terapia Infantil">Terapia Infantil</option>
+                    </select>
+                    <select id="filterStatus" class="bg-white border-slate-200 rounded-xl px-4 py-2 text-sm font-medium focus:ring-primary outline-none transition-all">
+                        <option value="all">Todos los Roles</option>
+                        <option value="Activo">Activos</option>
+                        <option value="Pasante">Pasantes</option>
+                        <option value="Externo">Externos</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Total Equipo</p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-3xl font-black text-slate-900">12</h3>
+                        <span class="text-emerald-500 text-xs font-bold bg-emerald-50 px-2 py-1 rounded-lg">+2 este mes</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">En Sesión Ahora</p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-3xl font-black text-slate-900">8</h3>
+                        <span class="text-blue-500 text-xs font-bold bg-blue-50 px-2 py-1 rounded-lg">66% Capacidad</span>
+                    </div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                    <p class="text-slate-400 text-xs font-bold uppercase tracking-widest mb-2">Pendientes de Alta</p>
+                    <div class="flex items-end justify-between">
+                        <h3 class="text-3xl font-black text-slate-900">3</h3>
+                        <span class="text-amber-500 text-xs font-bold bg-amber-50 px-2 py-1 rounded-lg">Falta revisión</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Therapist Table -->
+            <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-100">
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Terapeuta</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Especialidad</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Rol</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest">Pacientes</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-400 uppercase tracking-widest text-right">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="therapistTableBody" class="divide-y divide-slate-50">
+                        <!-- JS injected -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal -->
+<div id="modalTerapeuta" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-2xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 class="text-xl font-black text-slate-900" id="modalTitle">Nuevo Terapeuta</h3>
+            <button class="close-modal text-slate-400 hover:text-slate-600 transition-colors">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="p-8 overflow-y-auto flex-1">
+            <form id="formTerapeuta" class="space-y-6">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2">
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nombre Completo</label>
+                        <input type="text" id="nombre" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Correo Electrónico</label>
+                        <input type="email" id="email" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Teléfono</label>
+                        <input type="tel" id="telefono" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Rol</label>
+                        <select id="rol" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                            <option value="Activo">Activo</option>
+                            <option value="Pasante">Pasante</option>
+                            <option value="Externo">Externo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Servicio Principal</label>
+                        <select id="tipo-servicio-modal" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                            <option value="Psicodiagnóstico">Psicodiagnóstico</option>
+                            <option value="Terapia Individual">Terapia Individual</option>
+                            <option value="Terapia Infantil">Terapia Infantil</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="pt-4">
+                    <h4 class="font-bold text-slate-800 mb-4 flex items-center gap-2">
+                        <span class="material-symbols-outlined text-blue-600">schedule</span>
+                        Disponibilidad Semanal
+                    </h4>
+                    <div id="horarios-container" class="space-y-2 mb-4">
+                        <!-- Dinámico -->
+                    </div>
+                    <button type="button" id="btnAddHorario" class="text-primary text-sm font-bold flex items-center gap-1 hover:underline">
+                        <span class="material-symbols-outlined text-[18px]">add</span> Añadir bloque de horario
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div class="p-6 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
+            <button class="close-modal px-6 py-2.5 text-sm font-bold text-slate-500 hover:text-slate-700 transition-all">Cancelar</button>
+            <button type="submit" form="formTerapeuta" class="bg-primary text-white px-8 py-2.5 rounded-xl text-sm font-bold shadow-lg hover:opacity-90 transition-all">Guardar Terapeuta</button>
+        </div>
+    </div>
+</div>
+
+<script src="js/terapeuta.js"></script>
 </body>
-
 </html>

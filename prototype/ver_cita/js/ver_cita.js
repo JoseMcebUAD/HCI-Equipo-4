@@ -79,7 +79,8 @@ document.addEventListener("DOMContentLoaded", () => {
         reprogramStatus.classList.add("hidden");
       }
     } else {
-      alert("No se encontró ninguna cita con los datos proporcionados");
+      // RNF-US-04: Mensaje claro y específico
+      showToast("No se encontró ninguna cita con esos datos. Por favor, verifica que tu nombre y contacto coincidan con lo registrado al agendar.", true);
     }
   });
 
@@ -99,20 +100,33 @@ document.addEventListener("DOMContentLoaded", () => {
   reprogramForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const reason = document.getElementById("reprogramReason").value;
-    const details = document.getElementById("reprogramDetails").value;
+    const reasonSelect = document.getElementById("reprogramReason");
+    const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
+    const details = document.getElementById("reprogramDetails").value.trim();
+
+    if (!details) {
+        showToast("Por favor, explica brevemente el motivo de tu solicitud para que el administrador pueda procesarla mejor.", true);
+        return;
+    }
+
+    // RNF-US-07: Resumen preventivo antes de confirmar
+    if (!confirm(`¿Confirmas el envío de tu solicitud de reprogramación?\n\nMotivo: ${reasonText}\nDetalles: ${details}\n\nUn administrador revisará tu caso y te contactará.`)) {
+        return;
+    }
 
     // Crear objeto de solicitud
     const requestData = {
       status: "pending",
-      reason:
-        document.getElementById("reprogramReason").options[
-          document.getElementById("reprogramReason").selectedIndex
-        ].text,
+      reason: reasonText,
       details: details,
       requestDate: new Date().toISOString().split("T")[0], // Fecha actual
       adminResponse: "",
     };
+
+    // Simular registro persistente
+    const reprogramRequests = JSON.parse(localStorage.getItem('reprogramRequests') || '[]');
+    reprogramRequests.push({ ...requestData, patientName: document.getElementById("searchName").value });
+    localStorage.setItem('reprogramRequests', JSON.stringify(reprogramRequests));
 
     // Mostrar estado de la solicitud
     showReprogramStatus(requestData);
@@ -120,7 +134,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // Limpiar formulario
     reprogramForm.reset();
     reprogramSection.classList.add("hidden");
+    showToast("Tu solicitud de reprogramación ha sido enviada. Te contactaremos pronto.");
   });
+
+  function showToast(msg, isError = false) {
+    let toast = document.getElementById("globalToast");
+    if(!toast) {
+        toast = document.createElement("div");
+        toast.id = "globalToast";
+        toast.className = "fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl z-[200] transform translate-y-20 opacity-0 transition-all duration-300 font-medium text-sm text-center min-w-[300px]";
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.className = `fixed bottom-6 left-1/2 -translate-x-1/2 px-6 py-3 rounded-xl shadow-2xl z-[200] transform translate-y-20 opacity-0 transition-all duration-300 font-medium text-sm text-center min-w-[300px] ${isError ? 'bg-red-600 text-white' : 'bg-slate-900 text-white'}`;
+    toast.classList.remove("translate-y-20", "opacity-0");
+    setTimeout(() => toast.classList.add("translate-y-20", "opacity-0"), 4000);
+  }
 
   // Función para mostrar el estado de reprogramación
   function showReprogramStatus(request) {

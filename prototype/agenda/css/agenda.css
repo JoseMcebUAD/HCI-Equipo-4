@@ -47,6 +47,29 @@
     cursor: pointer;
 }
 
+/* RNF-US-01: Celdas ocupadas y pasadas */
+.grid-cell-occupied {
+    background-color: rgba(254, 226, 226, 0.4); /* red-100 */
+    border-bottom: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    cursor: not-allowed;
+    position: relative;
+}
+.grid-cell-occupied::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(135deg, transparent, transparent 4px, rgba(239,68,68,0.06) 4px, rgba(239,68,68,0.06) 8px);
+}
+
+.grid-cell-past {
+    background-color: rgba(241, 245, 249, 0.8); /* slate-100 */
+    border-bottom: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
 .time-label-cell {
     border-bottom: 1px solid #e2e8f0;
     border-right: 1px solid #e2e8f0;

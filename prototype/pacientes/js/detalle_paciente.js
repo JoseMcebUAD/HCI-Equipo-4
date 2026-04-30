@@ -33,20 +33,55 @@ document.addEventListener('DOMContentLoaded', () => {
         badge.className = 'px-3 py-1 bg-slate-200 text-slate-600 text-label-sm rounded-full font-bold uppercase tracking-wider';
     }
 
-    // 4. Estadísticas simuladas basadas en el paciente
-    const sessions = (patient.id * 3) + 2; // Simulación
+    // 4. Estadísticas y Datos Adicionales (FR-10)
+    const sessions = (patient.id * 3) + 2; 
     const compliance = patient.status === 'Activo' ? 95 : (patient.status === 'Archivado' ? 80 : 0);
     
     document.getElementById('sessionsCount').textContent = sessions;
     document.getElementById('complianceText').textContent = `${compliance}%`;
     
-    // Animar barra de progreso
-    const progressBar = document.getElementById('progressBar');
-    setTimeout(() => {
-        progressBar.style.width = `${compliance}%`;
-    }, 300);
+    // Contacto y Expediente (FR-10)
+    if (document.getElementById('patientPhone')) {
+        document.getElementById('patientPhone').textContent = patient.phone || "No registrado";
+    }
+    if (document.getElementById('clinicalRecordRef')) {
+        document.getElementById('clinicalRecordRef').textContent = `EXP-${patient.patientId.replace('#PT-', '')}`;
+    }
 
-    // 5. Descargas
+    // 5. Historial de Últimas 5 Citas (FR-10)
+    const historyBody = document.getElementById('appointmentHistoryBody');
+    if (historyBody) {
+        const historyData = [
+            { date: '15 Oct, 2023', type: 'Psicoterapia', doctor: 'Dr. Martínez', status: 'Completada' },
+            { date: '01 Oct, 2023', type: 'Evaluación', doctor: 'Dra. Smith', status: 'Completada' },
+            { date: '15 Sep, 2023', type: 'Psicoterapia', doctor: 'Dr. Martínez', status: 'Completada' },
+            { date: '01 Sep, 2023', type: 'Entrevista', doctor: 'Lic. Rios', status: 'Completada' },
+            { date: '15 Ago, 2023', type: 'Psicoterapia', doctor: 'Dr. Martínez', status: 'Cancelada' }
+        ];
+
+        historyBody.innerHTML = historyData.map(h => `
+            <tr class="hover:bg-slate-50/50 transition-colors">
+                <td class="px-6 py-4 text-sm font-medium text-slate-700">${h.date}</td>
+                <td class="px-6 py-4 text-sm text-slate-600">${h.type}</td>
+                <td class="px-6 py-4 text-sm text-slate-600">${h.doctor}</td>
+                <td class="px-6 py-4 text-sm">
+                    <span class="px-2 py-1 ${h.status === 'Completada' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'} rounded-md text-[10px] font-bold uppercase">
+                        ${h.status}
+                    </span>
+                </td>
+            </tr>
+        `).join('');
+    }
+
+    // 6. Animar barra de progreso
+    const progressBar = document.getElementById('progressBar');
+    if (progressBar) {
+        setTimeout(() => {
+            progressBar.style.width = `${compliance}%`;
+        }, 300);
+    }
+
+    // 7. Descargas
     document.querySelectorAll('.btn-download').forEach(btn => {
         btn.addEventListener('click', () => {
             const docName = btn.getAttribute('data-name');

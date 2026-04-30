@@ -10,6 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentViewMonday = new Date(baseMonday); // Cambiará al navegar
     let currentViewMode = 'week'; // 'week', 'day'
     let currentOpenEventId = null; // Para saber qué cita eliminar
+    let undoState = null; // Para deshacer eliminación
+    let undoTimeout = null;
     
     const getDateForOffset = (offset) => {
         const d = new Date(baseMonday);
@@ -97,13 +99,27 @@ document.addEventListener('DOMContentLoaded', () => {
             const cols = currentViewMode === 'week' ? 5 : 1;
             for (let c = 0; c < cols; c++) {
                 const cell = document.createElement('div');
-                cell.className = 'grid-cell';
                 cell.style.gridColumn = `${c + 2}`;
                 cell.style.gridRow = `${rowStart}`;
                 
                 let dayOffset = currentViewMode === 'week' ? c : (today.getDay() === 0 ? 6 : today.getDay() - 1);
+                const cellDate = new Date(currentViewMonday);
+                cellDate.setDate(currentViewMonday.getDate() + dayOffset);
                 
-                cell.addEventListener('click', () => handleGridClick(dayOffset, hourValue));
+                // RNF-US-01: Marcar celdas ocupadas visualmente
+                const isOccupied = events.some(ev => ev.date.toDateString() === cellDate.toDateString() && ev.startHour === hourValue);
+                const isPast = cellDate < new Date(today.getFullYear(), today.getMonth(), today.getDate()) || (cellDate.toDateString() === today.toDateString() && hourValue < today.getHours());
+                
+                if (isPast) {
+                    cell.className = 'grid-cell grid-cell-past';
+                    cell.title = 'Horario pasado — no disponible';
+                } else if (isOccupied) {
+                    cell.className = 'grid-cell grid-cell-occupied';
+                    cell.title = 'Horario ocupado — seleccione otro';
+                } else {
+                    cell.className = 'grid-cell';
+                    cell.addEventListener('click', () => handleGridClick(dayOffset, hourValue));
+                }
                 calendarGrid.appendChild(cell);
             }
         }
@@ -214,7 +230,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         document.getElementById('statTotal').textContent = renderedCount;
-        document.getElementById('statAvailable').textContent = (currentViewMode === 'day' ? 10 - renderedCount : 50 - renderedCount).toString().padStart(2, '0');
+        const totalSlots = currentViewMode === 'day' ? TOTAL_ROWS : TOTAL_ROWS * 5;
+        const available = totalSlots - renderedCount;
+        document.getElementById('statAvailable').textContent = available.toString().padStart(2, '0');
+        
+        // FR-08: Cálculo de ocupación y alerta ≥75%
+        const occupancyPct = Math.round((renderedCount / totalSlots) * 100);
+        const occLabel = document.getElementById('occupancyLabel');
+        if (occLabel) {
+            occLabel.textContent = `${occupancyPct}%`;
+            occLabel.parentElement.className = occupancyPct >= 75 
+                ? 'text-label-sm font-bold text-error bg-error-container px-2 py-1 rounded animate-pulse' 
+                : 'text-label-sm font-bold text-secondary bg-secondary-container px-2 py-1 rounded';
+            occLabel.parentElement.querySelector('.occ-text').textContent = occupancyPct >= 75 ? '⚠ Redistribución Requerida' : 'Alta Demanda';
+        }
+        
+        // RNF-US-06: Actualizar sidebar de salas dinámicamente
+        updateRoomStatus();
     }
 
     function renderSidebarPatients(filterText = "") {
@@ -259,6 +291,39 @@ document.addEventListener('DOMContentLoaded', () => {
     let pendingCreateDate = null;
     let pendingCreateHour = null;
 
+    const therapists = [
+        { name: "Dr. Miller", busy: [{ day: 0, hour: 10 }, { day: 2, hour: 11 }] },
+        { name: "Lic. Connor", busy: [{ day: 1, hour: 10 }, { day: 3, hour: 8 }] },
+        { name: "Dra. Laura Pérez", busy: [] },
+        { name: "Dr. Carlos Sánchez", busy: [] }
+    ];
+
+    function updateCreateModalTherapists(date, hour) {
+        const select = document.getElementById('newDoctorName');
+        const day = date.getDay() - 1; // 0=Mon, 4=Fri
+        
+        const available = therapists.filter(t => {
+            const isBusyInEvents = events.some(ev => ev.doctor === t.name && ev.date.toDateString() === date.toDateString() && ev.startHour === hour);
+            const isBusyInMock = t.busy.some(b => b.day === day && b.hour === hour);
+            return !isBusyInEvents && !isBusyInMock;
+        });
+
+        if (available.length === 0) {
+            select.innerHTML = '<option value="" disabled selected>No hay terapeutas disponibles</option>';
+            showModalError("No hay terapeutas disponibles en este bloque. Elija otro horario.");
+        } else {
+            select.innerHTML = '<option value="" disabled selected>Selecciona un especialista</option>' +
+                available.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
+            document.getElementById('createModalError').classList.add('hidden');
+        }
+    }
+
+    function showModalError(msg) {
+        const err = document.getElementById('createModalError');
+        err.textContent = `⚠ ${msg}`;
+        err.classList.remove('hidden');
+    }
+
     function handleGridClick(dayOffset, clickHour) {
         const clickedDate = new Date(currentViewMonday);
         clickedDate.setDate(currentViewMonday.getDate() + dayOffset);
@@ -273,7 +338,8 @@ document.addEventListener('DOMContentLoaded', () => {
         lblCreateDateTime.textContent = `${dayStr}, ${clickedDate.getDate()} de ${monthNames[clickedDate.getMonth()]} • ${timeStr}`;
 
         document.getElementById('newPatientName').value = '';
-        document.getElementById('newDoctorName').value = '';
+        document.getElementById('createModalError').classList.add('hidden');
+        updateCreateModalTherapists(clickedDate, clickHour);
 
         createModal.classList.remove('hidden');
         setTimeout(() => {
@@ -298,14 +364,24 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target === createModal) hideCreateModal();
     });
 
-    // Validar Choques
+    // RNF-US-07 + Validar Choques
     btnSaveCreate.addEventListener('click', () => {
         const patient = document.getElementById('newPatientName').value || "Paciente Nuevo";
         const specialty = document.getElementById('newSpecialty').value;
         const room = document.getElementById('newRoom').value;
         const doctor = document.getElementById('newDoctorName').value || "Dr. Asignado";
 
-        // VERIFICAR CHOQUES
+        if (!patient.trim() || patient === "Paciente Nuevo") {
+            showModalError('El nombre del paciente es obligatorio. Por favor ingrese un nombre válido.');
+            return;
+        }
+
+        if (!doctor) {
+            showModalError('Debe seleccionar un terapeuta disponible.');
+            return;
+        }
+
+        // VERIFICAR CHOQUES (RNF-US-01)
         const conflict = events.find(ev => 
             ev.date.toDateString() === pendingCreateDate.toDateString() &&
             ev.startHour === pendingCreateHour &&
@@ -314,39 +390,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (conflict) {
             if (conflict.room === room) {
-                showToast(`Error: La ${room} ya está ocupada a esta hora.`);
+                showModalError(`Error: La ${room} ya está ocupada a esta hora. Seleccione otra sala o cambie el horario.`);
             } else {
-                showToast(`Error: El terapeuta ${doctor} ya tiene sesión a esta hora.`);
+                showModalError(`Error: ${doctor} ya tiene sesión a esta hora. Asigne otro terapeuta o elija otro horario.`);
             }
-            return; // Bloquear guardado
+            return;
         }
 
-        let bgClass, textClass, doctorClass;
-        if (specialty === "TCC") { bgClass = "bg-secondary-container border-secondary"; textClass = "text-on-secondary-container"; doctorClass = "text-secondary"; }
-        else if (specialty === "Evaluación") { bgClass = "bg-primary-fixed border-primary-container"; textClass = "text-primary-container"; doctorClass = "text-primary-container"; }
-        else if (specialty === "Pareja") { bgClass = "bg-tertiary-fixed border-tertiary-container"; textClass = "text-tertiary-container"; doctorClass = "text-tertiary-container"; }
-        else { bgClass = "bg-error-container border-error"; textClass = "text-on-error-container"; doctorClass = "text-error"; }
-
-        events.push({
-            id: Date.now(), // ID único
-            patient: patient,
-            type: specialty,
-            room: room,
-            doctor: doctor,
-            date: pendingCreateDate,
-            startHour: pendingCreateHour,
-            duration: 1, 
-            bgClass: bgClass,
-            textClass: textClass,
-            doctorClass: doctorClass
-        });
-        saveEvents();
-
-        hideCreateModal();
-        showToast("¡Sesión creada y agendada exitosamente!");
+        // RNF-US-07: Mostrar resumen preventivo antes de confirmar
+        const dias = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+        const dayStr = dias[pendingCreateDate.getDay()];
+        const timeStr = formatHour(pendingCreateHour);
+        const summaryMsg = `La cita será agendada para ${dayStr} ${pendingCreateDate.getDate()} de ${monthNames[pendingCreateDate.getMonth()]} a las ${timeStr} con ${doctor} en ${room} para ${patient} (${specialty}).`;
         
-        renderEvents(mainSearch.value);
-        renderSidebarPatients(sidebarSearch.value);
+        showConfirmModal(
+            'Confirmar nueva sesión',
+            summaryMsg,
+            () => {
+                let bgClass, textClass, doctorClass;
+                if (specialty === "TCC") { bgClass = "bg-secondary-container border-secondary"; textClass = "text-on-secondary-container"; doctorClass = "text-secondary"; }
+                else if (specialty === "Evaluación") { bgClass = "bg-primary-fixed border-primary-container"; textClass = "text-primary-container"; doctorClass = "text-primary-container"; }
+                else if (specialty === "Pareja") { bgClass = "bg-tertiary-fixed border-tertiary-container"; textClass = "text-tertiary-container"; doctorClass = "text-tertiary-container"; }
+                else { bgClass = "bg-error-container border-error"; textClass = "text-on-error-container"; doctorClass = "text-error"; }
+
+                events.push({
+                    id: Date.now(),
+                    patient, type: specialty, room, doctor,
+                    date: pendingCreateDate, startHour: pendingCreateHour, duration: 1,
+                    bgClass, textClass, doctorClass
+                });
+                saveEvents();
+                hideCreateModal();
+                showToast("¡Sesión creada y agendada exitosamente!");
+                renderEvents(mainSearch.value);
+                renderSidebarPatients(sidebarSearch.value);
+            }
+        );
     });
 
     // --- VISTAS DÍA/SEMANA/MES ---
@@ -480,42 +559,150 @@ document.addEventListener('DOMContentLoaded', () => {
     btnClose.addEventListener('click', hideModal);
     modal.addEventListener('click', (e) => { if (e.target === modal) hideModal(); });
 
-    // ELIMINAR CITA
+    // FR-03 + RNF-US-05: Cancelar cita con motivo y actor
     btnDeleteEvent.addEventListener('click', () => {
         if (!currentOpenEventId) return;
-        
-        if (confirm("¿Estás seguro de que deseas eliminar esta cita?")) {
-            // Filtrar array
-            events = events.filter(ev => ev.id !== currentOpenEventId);
-            saveEvents();
-            
-            hideModal();
-            showToast("Cita eliminada correctamente.");
-            
-            // Re-render
-            renderEvents(mainSearch.value);
-            renderSidebarPatients(sidebarSearch.value);
-        }
+        showCancelModal(currentOpenEventId);
     });
 
+    function showCancelModal(eventId) {
+        const ev = events.find(e => e.id === eventId);
+        if (!ev) return;
+        let overlay = document.getElementById('cancelModal');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'cancelModal';
+            overlay.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[120] flex items-center justify-center p-4';
+            overlay.innerHTML = `
+                <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">Cancelar Cita</h3>
+                    <p class="text-sm text-slate-500 mb-4" id="cancelPatientInfo"></p>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">Actor que cancela</label>
+                    <select id="cancelActor" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm mb-3 outline-none focus:border-blue-500">
+                        <option value="Administrativo">Administrativo</option>
+                        <option value="Paciente">Paciente</option>
+                        <option value="Terapeuta">Terapeuta</option>
+                    </select>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">Motivo</label>
+                    <textarea id="cancelReason" rows="3" required class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm mb-4 outline-none focus:border-blue-500" placeholder="Describa el motivo de la cancelación..."></textarea>
+                    <div class="flex gap-2">
+                        <button id="cancelModalClose" class="flex-1 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 transition-colors">Volver</button>
+                        <button id="cancelModalConfirm" class="flex-1 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors">Cancelar Cita</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+        }
+        document.getElementById('cancelPatientInfo').textContent = `Paciente: ${ev.patient} — ${ev.type}`;
+        document.getElementById('cancelReason').value = '';
+        overlay.classList.remove('hidden');
+        overlay.style.display = 'flex';
+
+        document.getElementById('cancelModalClose').onclick = () => { overlay.style.display = 'none'; };
+        document.getElementById('cancelModalConfirm').onclick = () => {
+            const reason = document.getElementById('cancelReason').value.trim();
+            if (!reason) { showToast('Debe indicar un motivo para cancelar la cita.', true); return; }
+            overlay.style.display = 'none';
+            hideModal();
+            // RNF-US-02: Eliminación con ventana de undo 5s
+            const deletedEvent = events.find(e => e.id === eventId);
+            events = events.filter(e => e.id !== eventId);
+            saveEvents();
+            renderEvents(mainSearch.value);
+            renderSidebarPatients(sidebarSearch.value);
+            undoState = { event: deletedEvent };
+            if (undoTimeout) clearTimeout(undoTimeout);
+            showToast('Cita cancelada. ', false, true);
+            undoTimeout = setTimeout(() => { undoState = null; }, 5000);
+        };
+    }
+
+    function handleUndo() {
+        if (!undoState) return;
+        events.push(undoState.event);
+        saveEvents();
+        undoState = null;
+        if (undoTimeout) clearTimeout(undoTimeout);
+        renderEvents(mainSearch.value);
+        renderSidebarPatients(sidebarSearch.value);
+        showToast('Cita restaurada correctamente.');
+    }
+
+    // RNF-US-05: Modal de confirmación genérico
+    function showConfirmModal(title, message, onConfirm) {
+        let overlay = document.getElementById('genericConfirmModal');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'genericConfirmModal';
+            overlay.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[120] flex items-center justify-center p-4';
+            overlay.innerHTML = `
+                <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl">
+                    <h3 id="gcmTitle" class="text-lg font-bold text-slate-800 mb-3"></h3>
+                    <p id="gcmMessage" class="text-sm text-slate-600 mb-6 leading-relaxed"></p>
+                    <div class="flex gap-2">
+                        <button id="gcmCancel" class="flex-1 py-2.5 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 transition-colors">Cancelar</button>
+                        <button id="gcmConfirm" class="flex-1 py-2.5 bg-primary text-white font-semibold rounded-lg hover:opacity-90 transition-all">Confirmar</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+        }
+        document.getElementById('gcmTitle').textContent = title;
+        document.getElementById('gcmMessage').textContent = message;
+        overlay.style.display = 'flex';
+        document.getElementById('gcmCancel').onclick = () => { overlay.style.display = 'none'; };
+        document.getElementById('gcmConfirm').onclick = () => { overlay.style.display = 'none'; onConfirm(); };
+    }
+
+    // RNF-US-06: Actualizar estado de salas dinámicamente
+    function updateRoomStatus() {
+        const roomCards = document.querySelectorAll('.accordion-content.grid .bg-white');
+        const rooms = ['Sala 01', 'Sala 02'];
+        const now = new Date();
+        roomCards.forEach((card, i) => {
+            const roomName = rooms[i];
+            if (!roomName) return;
+            const occupied = events.some(ev => ev.room === roomName && ev.date.toDateString() === now.toDateString() && ev.startHour <= now.getHours() && (ev.startHour + ev.duration) > now.getHours());
+            const statusEl = card.querySelector('p:last-child');
+            if (statusEl) {
+                statusEl.textContent = occupied ? 'Ocupada' : 'Disponible';
+                statusEl.className = occupied ? 'text-[12px] font-semibold text-error' : 'text-[12px] font-semibold text-secondary';
+            }
+        });
+    }
+
     // --- TOAST NOTIFICATIONS ---
-    function showToast(msg) {
+    function showToast(msg, isError = false, withUndo = false) {
         let toast = document.getElementById('globalToast');
         if (!toast) {
             toast = document.createElement('div');
             toast.id = 'globalToast';
-            toast.className = 'fixed bottom-6 right-6 bg-slate-900 text-white px-6 py-3 rounded-lg shadow-xl z-[100] transform transition-all duration-300 translate-y-20 opacity-0 font-medium text-sm';
             document.body.appendChild(toast);
         }
-        toast.textContent = msg;
+        const bgColor = isError ? 'bg-red-600' : 'bg-slate-900';
+        toast.className = `fixed bottom-6 right-6 ${bgColor} text-white px-6 py-3 rounded-lg shadow-xl z-[100] transform transition-all duration-300 translate-y-20 opacity-0 font-medium text-sm flex items-center gap-3`;
         
-        setTimeout(() => {
-            toast.classList.remove('translate-y-20', 'opacity-0');
-        }, 10);
+        if (withUndo) {
+            toast.innerHTML = `<span>${msg}</span><button onclick="document.dispatchEvent(new CustomEvent('undoDelete'))" class="bg-white/20 hover:bg-white/30 px-3 py-1 rounded font-bold text-xs transition-colors">DESHACER (5s)</button>`;
+        } else {
+            toast.innerHTML = `<span>${msg}</span>`;
+        }
         
-        setTimeout(() => {
-            toast.classList.add('translate-y-20', 'opacity-0');
-        }, 3000);
+        setTimeout(() => toast.classList.remove('translate-y-20', 'opacity-0'), 10);
+        setTimeout(() => toast.classList.add('translate-y-20', 'opacity-0'), withUndo ? 5000 : 3000);
+    }
+
+    document.addEventListener('undoDelete', handleUndo);
+
+    // Conectar botón Reprogramar del modal de detalle
+    const btnReprogramar = document.querySelector('#eventModal .bg-surface-container');
+    if (btnReprogramar) {
+        btnReprogramar.addEventListener('click', () => {
+            if (!currentOpenEventId) return;
+            const ev = events.find(e => e.id === currentOpenEventId);
+            if (ev) {
+                localStorage.setItem('reprogramarEvent', JSON.stringify(ev));
+                window.location.href = 'reprogramar.html';
+            }
+        });
     }
 
     // --- INICIALIZACIÓN ---

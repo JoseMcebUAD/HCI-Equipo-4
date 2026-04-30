@@ -1,79 +1,153 @@
 <!DOCTYPE html>
-<html lang="es">
+<html class="light" lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mi Próxima Cita</title>
-  <link rel="stylesheet" href="css/ver_cita.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PsicoCentro - Consultar Mi Cita</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0f4c81',
+                    },
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-  <div class="container">
-    <h1>Consulta tu próxima cita</h1>
-    
-    <!-- Sección de búsqueda -->
-    <div class="search-section">
-      <h2>Buscar cita</h2>
-      <form id="searchForm">
-        <label for="searchName">Nombre (paciente o tutor)</label>
-        <input type="text" id="searchName" placeholder="Ingresa tu nombre completo" required value="Pedro Martínez">
+<body class="bg-slate-50 text-slate-900 antialiased font-sans min-h-screen flex flex-col">
 
-        <label for="searchContact">Teléfono o Correo electrónico</label>
-        <input type="text" id="searchContact" placeholder="Ingresa tu teléfono o correo" required value="pedro.martinez@example.com">
-
-        <button type="submit">Buscar cita</button>
-        <a href="../index.html" class="main-button back-button">← Regresar</a>
-      </form>
-    </div>
-    
-    <!-- Información de la cita -->
-    <div id="appointmentInfo" class="appointment-info hidden">
-      <h2>Tu próxima cita</h2>
-      <div class="appointment-details">
-        <p><strong>Fecha:</strong> <span id="appointmentDate"></span></p>
-        <p><strong>Hora:</strong> <span id="appointmentTime"></span></p>
-        <p><strong>Especialista:</strong> <span id="appointmentSpecialist"></span></p>
-        <p><strong>Ubicación:</strong> <span id="appointmentLocation"></span></p>
-      </div>
-      
-      <button id="requestReprogramBtn">Solicitar reprogramación</button>
-    </div>
-    
-    <!-- Formulario de reprogramación -->
-    <div id="reprogramSection" class="reprogram-section hidden">
-      <h2>Solicitar reprogramación</h2>
-      <form id="reprogramForm">
-        <label for="reprogramReason">Motivo de la reprogramación</label>
-        <select id="reprogramReason" required>
-          <option value="">Selecciona un motivo</option>
-          <option value="conflict">Conflicto de horario</option>
-          <option value="emergency">Emergencia</option>
-          <option value="other">Otro</option>
-        </select>
-        
-        <label for="reprogramDetails">Explicación detallada</label>
-        <textarea id="reprogramDetails" rows="4" required></textarea>
-        
-        <button type="submit">Enviar solicitud</button>
-        <button type="button" id="cancelReprogramBtn">Cancelar</button>
-      </form>
-    </div>
-    
-    <!-- Estado de la reprogramación -->
-    <div id="reprogramStatus" class="reprogram-status hidden">
-      <h2>Estado de tu solicitud</h2>
-      <div class="status-details">
-        <p><strong>Fecha de solicitud:</strong> <span id="requestDate"></span></p>
-        <p><strong>Motivo:</strong> <span id="requestedReason"></span></p>
-        <p><strong>Explicación:</strong> <span id="requestedDetails"></span></p>
-        <p><strong>Estado:</strong> <span id="requestStatus" class="status-pending">En revisión</span></p>
-        <div id="responseMessage" class="hidden">
-          <h3>Respuesta:</h3>
-          <p><span id="adminResponse"></span></p>
+    <!-- Header / Nav -->
+    <nav class="bg-white border-b border-slate-200 px-6 h-16 flex items-center justify-between shadow-sm">
+        <a href="../index.html" class="flex items-center gap-2 text-primary font-bold hover:opacity-80 transition-opacity">
+            <span class="material-symbols-outlined">arrow_back</span>
+            Regresar al Inicio
+        </a>
+        <div class="flex items-center gap-2">
+            <div class="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center text-primary font-bold">
+                <span class="material-symbols-outlined text-[18px]">verified_user</span>
+            </div>
+            <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Portal Paciente</span>
         </div>
-      </div>
-    </div>
-  </div>
+    </nav>
 
-  <script src="js/ver_cita.js"></script>
+    <main class="flex-1 flex items-center justify-center p-6">
+        <div class="w-full max-w-xl">
+            
+            <!-- Search Section -->
+            <div id="searchSection" class="bg-white p-10 rounded-[40px] shadow-2xl shadow-blue-900/5 border border-slate-100">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-black text-slate-900 mb-2 tracking-tight text-center">Consultar mi Cita</h2>
+                    <p class="text-slate-500 text-sm font-medium text-center">Ingresa tus datos para localizar tu próxima sesión programada.</p>
+                </div>
+
+                <form id="searchForm" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Nombre Completo</label>
+                        <input type="text" id="searchName" value="Pedro Martínez" required placeholder="Ej. Juan Pérez López" class="w-full bg-slate-50 border-slate-200 rounded-2xl px-5 py-4 text-sm focus:ring-primary focus:bg-white transition-all outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Teléfono o Correo</label>
+                        <input type="text" id="searchContact" value="pedro.martinez@example.com" required placeholder="Ej. 5551234567 o email@example.com" class="w-full bg-slate-50 border-slate-200 rounded-2xl px-5 py-4 text-sm focus:ring-primary focus:bg-white transition-all outline-none">
+                    </div>
+                    <button type="submit" class="w-full bg-primary text-white py-4 rounded-2xl font-black shadow-xl shadow-primary/20 hover:opacity-90 transition-all uppercase tracking-widest text-sm">
+                        Buscar Información
+                    </button>
+                </form>
+            </div>
+
+            <!-- Result Section -->
+            <div id="appointmentInfo" class="hidden bg-white p-10 rounded-[40px] shadow-2xl shadow-blue-900/5 border border-slate-100 animate-slide-up">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center text-primary">
+                        <span class="material-symbols-outlined text-4xl">calendar_today</span>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-black text-slate-900 tracking-tight text-balance">Tu próxima sesión</h2>
+                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 rounded-full text-[10px] font-black uppercase tracking-widest">Confirmada</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6 mb-10">
+                    <div class="p-5 bg-slate-50 rounded-2xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Fecha</p>
+                        <p id="appointmentDate" class="text-sm font-bold text-slate-800 italic">—</p>
+                    </div>
+                    <div class="p-5 bg-slate-50 rounded-2xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Hora</p>
+                        <p id="appointmentTime" class="text-sm font-bold text-slate-800 italic">—</p>
+                    </div>
+                    <div class="col-span-2 p-5 bg-slate-50 rounded-2xl">
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Especialista y Ubicación</p>
+                        <p class="text-sm font-bold text-slate-800 mb-1" id="appointmentSpecialist">—</p>
+                        <p class="text-xs text-slate-500 font-medium flex items-center gap-1">
+                            <span class="material-symbols-outlined text-[14px]">location_on</span>
+                            <span id="appointmentLocation">—</span>
+                        </p>
+                    </div>
+                </div>
+
+                <button id="requestReprogramBtn" class="w-full py-4 border-2 border-slate-200 text-slate-600 rounded-2xl text-sm font-black hover:bg-slate-50 transition-all uppercase tracking-widest">
+                    Solicitar Reprogramación
+                </button>
+            </div>
+
+            <!-- Reprogram Form Section -->
+            <div id="reprogramSection" class="hidden bg-white p-10 rounded-[40px] shadow-2xl shadow-blue-900/5 border border-slate-100 animate-slide-up">
+                <div class="mb-8 text-center">
+                    <h2 class="text-2xl font-black text-slate-900 mb-2">Reprogramar Cita</h2>
+                    <p class="text-slate-500 text-sm font-medium">Un administrador revisará tu solicitud y te contactará.</p>
+                </div>
+
+                <form id="reprogramForm" class="space-y-6">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Motivo</label>
+                        <select id="reprogramReason" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-5 py-3 text-sm focus:ring-primary outline-none">
+                            <option value="">Selecciona un motivo</option>
+                            <option value="conflict">Conflicto de horario</option>
+                            <option value="emergency">Emergencia personal</option>
+                            <option value="other">Otro motivo</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Explicación breve</label>
+                        <textarea id="reprogramDetails" rows="4" required class="w-full bg-slate-50 border-slate-200 rounded-2xl px-5 py-4 text-sm focus:ring-primary outline-none" placeholder="Dinos el motivo de tu solicitud..."></textarea>
+                    </div>
+                    <div class="flex gap-4">
+                        <button type="button" id="cancelReprogramBtn" class="flex-1 py-4 text-sm font-bold text-slate-400 hover:text-slate-600">Cancelar</button>
+                        <button type="submit" class="flex-1 bg-primary text-white py-4 rounded-2xl font-black shadow-xl shadow-primary/20 hover:opacity-90 transition-all uppercase text-xs tracking-widest">Enviar Solicitud</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Status Section -->
+            <div id="reprogramStatus" class="hidden bg-white p-10 rounded-[40px] shadow-2xl shadow-blue-900/5 border border-slate-100 animate-slide-up">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center text-primary mx-auto mb-6">
+                        <span class="material-symbols-outlined text-5xl">pending</span>
+                    </div>
+                    <h2 class="text-2xl font-black text-slate-900 mb-2">Solicitud en Proceso</h2>
+                    <p id="requestStatus" class="text-xs font-black text-blue-600 uppercase tracking-[0.2em]">En Revisión</p>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-3xl space-y-4 mb-8 text-sm font-medium">
+                    <div class="flex justify-between"><span class="text-slate-400">Fecha Solicitud:</span><span id="requestDate" class="text-slate-800">—</span></div>
+                    <div class="flex justify-between"><span class="text-slate-400">Motivo:</span><span id="requestedReason" class="text-slate-800">—</span></div>
+                </div>
+
+                <div id="responseMessage" class="hidden bg-blue-50 p-6 rounded-3xl border border-blue-100">
+                    <h3 class="text-xs font-black text-blue-900 uppercase tracking-widest mb-2">Respuesta de la Clínica:</h3>
+                    <p id="adminResponse" class="text-sm text-blue-800 italic leading-relaxed">—</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script src="js/ver_cita.js"></script>
 </body>
 </html>

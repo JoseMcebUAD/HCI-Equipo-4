@@ -1,92 +1,136 @@
 <!DOCTYPE html>
-<html lang="es">
+<html class="light" lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Administración de Salas</title>
-  <link rel="stylesheet" href="../agenda/css/styles.css">
-  <link rel="stylesheet" href="css/salas.css">
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>PsicoCentro Admin - Gestión de Salas</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    <script src="../agenda/js/tailwind-config.js"></script>
 </head>
-<body>
-  <header>
-    <h1>Clínica de Atención Psicológica</h1>
-    <nav>
-      <ul>
-        <li><a href="../agenda/agenda.html">Agenda</a></li>
-        <li><a href="../pacientes/pacientes.html">Pacientes</a></li>
-        <li><a href="../terapeuta/terapeuta.html">Terapeutas</a></li>
-        <li><a href="salas.html" class="active">Salas</a></li>
-        <li><a href="../reportes/reportes.html">Reportes</a></li>
-      </ul>
-    </nav>
-  </header>
+<body class="bg-slate-50 text-slate-900 antialiased flex flex-col h-screen overflow-hidden">
 
-  <main>
-    <section id="salas-section">
-      <h2>Listado de Salas</h2>
-      <table id="salasTable">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Nombre</th>
-            <th>Servicios</th>
-            <th>Horario</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-        <tbody><!-- filas dinámicas --></tbody>
-      </table>
-      <button id="btnAgregarSala">Agregar Sala</button>
-    </section>
-
-    <!-- Modal alta / edición -->
-    <div id="modalSala" class="modal">
-      <div class="modal-content">
-        <span class="close-button" id="cerrarModalSala">&times;</span>
-        <h2 id="formTitle">Agregar Sala</h2>
-        <hr/>
-
-        <form id="salaForm">
-          <input type="hidden" id="salaId">
-
-          <!-- Sección 1: Datos de la sala -->
-          <section class="form-section">
-            <div class="form-group">
-              <label for="nombre">Nombre:</label>
-              <input type="text" id="nombre" required>
-            </div>
-
-            <div class="form-group">
-              <label>Servicios que atiende:</label>
-              <div class="servicios-opciones">
-                <label><input type="checkbox" name="servicios" value="Evaluación inicial integral"> Evaluación inicial integral</label>
-                <label><input type="checkbox" name="servicios" value="Cita de terapia"> Cita de terapia</label>
-              </div>
-            </div>
-          </section>
-
-          <!-- Sección 2: Horario -->
-          <h3 class="section-subtitle">Horario</h3>
-          <section class="form-section">
-            <div class="form-row">
-              <div class="form-group">
-                <label for="horaInicio">Hora de Inicio:</label>
-                <input type="time" id="horaInicio" min="09:00" max="18:00" required>
-              </div>
-              <div class="form-group">
-                <label for="horaFin">Hora de Fin:</label>
-                <input type="time" id="horaFin" min="09:00" max="18:00" required>
-              </div>
-            </div>
-          </section>
-
-          <button type="submit" id="guardarSala">Guardar</button>
-        </form>
-      </div>
+<!-- Header -->
+<header class="bg-white border-b border-slate-200 px-6 py-3 flex justify-between items-center z-50">
+    <div class="flex items-center gap-8">
+        <h1 class="text-xl font-bold tracking-tight text-blue-900">PsicoCentro Admin</h1>
     </div>
-  </main>
+    <div class="flex items-center gap-4">
+        <button class="p-2 rounded-full hover:bg-slate-50 transition-colors">
+            <span class="material-symbols-outlined">notifications</span>
+        </button>
+        <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold text-xs">AD</div>
+    </div>
+</header>
 
-  <script src="js/salas.js"></script>
+<div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-[280px] bg-white border-r border-slate-200 p-4 flex flex-col hide-scrollbar overflow-y-auto">
+        <a href="../index.html" class="flex items-center gap-3 mb-6 px-2 hover:opacity-80 transition-opacity">
+            <div class="w-10 h-10 bg-primary flex items-center justify-center rounded-xl text-white">
+                <span class="material-symbols-outlined">psychology</span>
+            </div>
+            <div>
+                <h2 class="text-lg font-black text-blue-900 uppercase tracking-wider">Administración</h2>
+                <p class="text-[11px] text-slate-500 font-medium">Clínica Universitaria</p>
+            </div>
+        </a>
+
+        <button id="btnAgregarSala" class="w-full bg-primary text-white py-3 rounded-xl font-semibold mb-6 flex items-center justify-center gap-2 shadow-sm hover:translate-y-[-2px] transition-all">
+            <span class="material-symbols-outlined">add</span>
+            Agregar Sala
+        </button>
+
+        <nav class="space-y-6">
+            <div class="space-y-1">
+
+                <a href="../agenda/agenda.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">calendar_month</span> Agenda
+                </a>
+                <a href="../solicitudes/solicitudes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">move_to_inbox</span> Solicitudes
+                </a>
+                <a href="../pacientes/pacientes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">groups</span> Pacientes
+                </a>
+                <a href="../terapeuta/terapeuta.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">psychology</span> Terapeutas
+                </a>
+                <a href="salas.html" class="flex items-center gap-3 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 shadow-sm border-r-4 border-blue-600 transition-all text-sm font-bold">
+                    <span class="material-symbols-outlined text-[20px]">meeting_room</span> Salas
+                </a>
+                <a href="../reportes/reportes.html" class="flex items-center gap-3 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-50 transition-all text-sm font-medium">
+                    <span class="material-symbols-outlined text-[20px]">analytics</span> Reportes
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 overflow-y-auto bg-slate-50 p-8">
+        <div class="max-w-6xl mx-auto">
+            <div class="mb-10">
+                <h2 class="text-3xl font-black text-slate-900 mb-2">Salas de Consulta</h2>
+                <p class="text-slate-500">Administración de espacios físicos y disponibilidad de recursos.</p>
+            </div>
+
+            <!-- Salas Grid (Cards) -->
+            <div id="salasGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Dinámico -->
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Modal -->
+<div id="modalSala" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center p-4">
+    <div class="bg-white w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+        <div class="p-6 border-b border-slate-100 flex justify-between items-center">
+            <h3 class="text-xl font-black text-slate-900" id="formTitle">Agregar Sala</h3>
+            <button class="close-button text-slate-400 hover:text-slate-600 transition-colors" id="cerrarModalSala">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="p-8">
+            <form id="salaForm" class="space-y-6">
+                <input type="hidden" id="salaId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Nombre de la Sala</label>
+                    <input type="text" id="nombre" required placeholder="Ej. Sala 01" class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Servicios Permitidos</label>
+                    <div class="space-y-2 mt-2">
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" name="servicios" value="Evaluación inicial integral" class="rounded text-primary focus:ring-primary">
+                            <span class="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">Evaluación inicial integral</span>
+                        </label>
+                        <label class="flex items-center gap-3 cursor-pointer group">
+                            <input type="checkbox" name="servicios" value="Cita de terapia" class="rounded text-primary focus:ring-primary">
+                            <span class="text-sm text-slate-600 group-hover:text-slate-900 transition-colors">Cita de terapia</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Hora Apertura</label>
+                        <input type="time" id="horaInicio" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Hora Cierre</label>
+                        <input type="time" id="horaFin" required class="w-full bg-slate-50 border-slate-200 rounded-xl px-4 py-3 text-sm focus:ring-primary outline-none transition-all">
+                    </div>
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" class="flex-1 py-3 text-sm font-bold text-slate-500 hover:text-slate-700 transition-all close-button">Cancelar</button>
+                    <button type="submit" id="guardarSala" class="flex-1 bg-primary text-white py-3 rounded-xl text-sm font-bold shadow-lg hover:opacity-90 transition-all">Guardar Sala</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="js/salas.js"></script>
 </body>
 </html>
-

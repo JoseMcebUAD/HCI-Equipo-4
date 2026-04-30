@@ -28,10 +28,12 @@ document.addEventListener('DOMContentLoaded', () => {
             patientId: "#PT-8821",
             type: "Evaluación Inicial",
             typeColor: "bg-sky-500",
-            dateObj: getDateOffset(1), // Mañana
-            startHour: 10, // 10 AM (Chocará con Julian Casablancas que está fijo a las 10 mañana)
+            dateObj: getDateOffset(1),
+            startHour: 10,
             status: "Urgente", 
-            isToday: false
+            isToday: false,
+            category: "nueva",
+            createdAt: getDateOffset(0)
         },
         {
             id: 2,
@@ -39,10 +41,12 @@ document.addEventListener('DOMContentLoaded', () => {
             patientId: "#PT-7742",
             type: "Sesión Seguimiento",
             typeColor: "bg-emerald-500",
-            dateObj: getDateOffset(0), // Hoy
-            startHour: 14, // 2 PM
+            dateObj: getDateOffset(0),
+            startHour: 14,
             status: "En Revisión",
-            isToday: true
+            isToday: true,
+            category: "nueva",
+            createdAt: getDateOffset(-2)
         },
         {
             id: 3,
@@ -50,10 +54,12 @@ document.addEventListener('DOMContentLoaded', () => {
             patientId: "#PT-9102",
             type: "Terapia de Pareja",
             typeColor: "bg-purple-500",
-            dateObj: getDateOffset(0), // Hoy
-            startHour: 11, // 11 AM
+            dateObj: getDateOffset(0),
+            startHour: 11,
             status: "Pendiente",
-            isToday: true 
+            isToday: true,
+            category: "nueva",
+            createdAt: getDateOffset(-1)
         },
         {
             id: 4,
@@ -61,10 +67,26 @@ document.addEventListener('DOMContentLoaded', () => {
             patientId: "#PT-1244",
             type: "Revisión Diagnóstica",
             typeColor: "bg-orange-500",
-            dateObj: getDateOffset(2), // Pasado mañana
-            startHour: 16, // 4 PM
+            dateObj: getDateOffset(2),
+            startHour: 16,
             status: "Urgente",
-            isToday: false
+            isToday: false,
+            category: "nueva",
+            createdAt: getDateOffset(-8) // FR-04: >7 días
+        },
+        {
+            id: 5,
+            patient: "Pedro Martínez",
+            patientId: "#PT-6655",
+            type: "Reprogramación",
+            typeColor: "bg-amber-500",
+            dateObj: getDateOffset(3),
+            startHour: 9,
+            status: "Pendiente",
+            isToday: false,
+            category: "reprogramacion",
+            originalDate: getDateOffset(-1),
+            createdAt: getDateOffset(-1)
         }
     ];
 
@@ -100,6 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (searchTerm && !req.patient.toLowerCase().includes(searchTerm) && !req.patientId.toLowerCase().includes(searchTerm)) return false;
             
             if (currentFilter === 'Hoy') return req.isToday;
+            if (currentFilter === 'Reprogramaciones') return req.category === 'reprogramacion';
             if (currentFilter !== 'all' && req.status !== currentFilter) return false;
             
             return true;
@@ -109,6 +132,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const badge = getBadgeConfig(req.status);
             const displayDate = formatDate(req.dateObj);
             const displayTime = getHourFormat(req.startHour);
+            // FR-04: Calcular días desde creación
+            const daysOld = req.createdAt ? Math.floor((today - req.createdAt) / (1000*60*60*24)) : 0;
             
             const tr = document.createElement('tr');
             tr.className = 'hover:bg-slate-50/80 transition-colors group slide-up';
@@ -133,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </td>
                 <td class="px-6 py-4 text-slate-600">
                     <div class="flex flex-col">
-                        <span class="font-medium text-slate-900">${displayDate} ${req.isToday ? '<span class="text-[10px] bg-blue-100 text-blue-800 px-1.5 rounded ml-1">HOY</span>' : ''}</span>
+                        <span class="font-medium text-slate-900">${displayDate} ${req.isToday ? '<span class="text-[10px] bg-blue-100 text-blue-800 px-1.5 rounded ml-1">HOY</span>' : ''}${daysOld >= 7 ? '<span class="text-[10px] bg-red-100 text-red-700 px-1.5 rounded ml-1">⚠ +7 DÍAS</span>' : ''}</span>
                         <span class="text-xs">${displayTime}</span>
                     </div>
                 </td>
@@ -206,8 +231,8 @@ document.addEventListener('DOMContentLoaded', () => {
         );
 
         if (conflict) {
-            // ¡Hay choque!
-            showToast(`Error: Conflicto de horario. Ya existe una cita a las ${getHourFormat(req.startHour)} en la agenda. Por favor, reprograma la solicitud.`, true);
+            // RNF-US-04: Mensaje claro con acción concreta
+            showToast(`Error: Ya existe una cita a las ${getHourFormat(req.startHour)} el ${formatDate(req.dateObj)} en la agenda. Use el botón "Reprogramar" para asignar un nuevo horario.`, true);
             return;
         }
 
@@ -242,11 +267,39 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleReject(id) {
-        if(confirm("¿Estás seguro de que deseas rechazar esta solicitud? El paciente será notificado.")) {
+        const req = requests.find(r => r.id === id);
+        if (!req) return;
+        // RNF-US-05: Confirmación de rechazo con motivo
+        let overlay = document.getElementById('rejectModal');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.id = 'rejectModal';
+            overlay.className = 'fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-[120] flex items-center justify-center p-4';
+            overlay.innerHTML = `
+                <div class="bg-white w-full max-w-sm rounded-2xl p-6 shadow-xl">
+                    <h3 class="text-lg font-bold text-slate-800 mb-1">Rechazar Solicitud</h3>
+                    <p class="text-sm text-slate-500 mb-4" id="rejectPatientInfo"></p>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">Motivo del rechazo</label>
+                    <textarea id="rejectReason" rows="3" class="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm mb-4 outline-none focus:border-red-400" placeholder="Indique el motivo del rechazo..."></textarea>
+                    <div class="flex gap-2">
+                        <button id="rejectCancel" class="flex-1 py-2 bg-slate-100 text-slate-700 font-semibold rounded-lg hover:bg-slate-200 transition-colors">Volver</button>
+                        <button id="rejectConfirm" class="flex-1 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition-colors">Rechazar</button>
+                    </div>
+                </div>`;
+            document.body.appendChild(overlay);
+        }
+        document.getElementById('rejectPatientInfo').textContent = `Paciente: ${req.patient} (${req.type})`;
+        document.getElementById('rejectReason').value = '';
+        overlay.style.display = 'flex';
+        document.getElementById('rejectCancel').onclick = () => { overlay.style.display = 'none'; };
+        document.getElementById('rejectConfirm').onclick = () => {
+            const reason = document.getElementById('rejectReason').value.trim();
+            if (!reason) { showToast('Debe indicar un motivo para rechazar la solicitud. El paciente será notificado.', true); return; }
+            overlay.style.display = 'none';
             requests = requests.filter(r => r.id !== id);
             renderTable();
-            showToast("Solicitud rechazada y eliminada de la bandeja.");
-        }
+            showToast('Solicitud rechazada. El paciente será notificado del motivo.');
+        };
     }
 
     function openRescheduleModal(id) {
