@@ -16,10 +16,9 @@ This document reflects the refined set of use cases. Essential operations are pr
 1. The system receives the request with the data: session type (Evaluation or Therapy), patient, therapist, room, and time slot.
 2. The system validates that the time slot falls on operational days (Monday to Friday) and within working hours.
 3. The system verifies that neither the therapist nor the room has overlapping schedules in that time slot.
-4. The system retrieves the patient’s context using UC-AG-09. If the patient has no prior appointments, the system returns an empty context (or a “no history” message) and continues normally.
-5. If the type is "Therapy", the system requires the association of a valid proof of payment (PDF/JPG/PNG ≤ 5 MB).
-6. The system assigns logical priority if the type is "Initial Evaluation".
-7. Upon passing validations, the system generates a tracking ID (folio), persists the appointment with a **Scheduled** state, and blocks the availability of the resources.
+4. If the type is "Therapy", the system includes an optional valid proof of payment (PDF/JPG/PNG ≤ 5 MB), could be paid at the end of the appointment.
+5. The system assigns logical priority if the type is "Initial Evaluation".
+6. Upon passing validations, the system generates a tracking ID (folio), persists the appointment with a **Scheduled** state, and blocks the availability of the resources.
 
 #### Alternative Flows
 - **A1 – Weekend Restriction:** The requested date is a Saturday or Sunday → the system rejects the transaction.
@@ -140,7 +139,7 @@ Affected appointments temporarily extracted from the active schedule, resources 
 1. The actor possesses read permissions.
 
 #### Main Flow
-1. The system receives the filtering parameters: Therapist ID, Room ID, Date Range, or Appointment Status.
+1. The system receives the filtering parameters: Therapist ID, Room ID, Date Range, or type of appointment (evaluación integral, cita con terapeuta, etx).
 2. The system executes the query in the database applying the filters in combination.
 3. The system returns the resulting dataset.
 
@@ -193,29 +192,4 @@ Return of occupancy metrics and alert state without altering persistent data.
 #### Postconditions
 Availability rules updated; all subsequent scheduling validations (UC-AG-01, UC-AG-02) use the new rules.
 
----
-
-### UC-AG-09: Patient Context Retrieval
-**Primary Actor:** Administrative Staff, Therapists, Coordinator  
-**Objective:** Retrieve a structured summary of a patient’s relevant data to support clinical and administrative workflows (e.g., appointment creation, session preparation, follow-up).
-
-#### Preconditions
-1. The patient’s unique identifier is valid.
-2. The actor has read permissions to access patient data.
-
-#### Main Flow
-1. The system receives the patient’s identifier (e.g., folio, name, or ID number).
-2. The system queries the patient database and aggregates:
-   - Basic identification: full name, contact details, folio.
-   - Global state: `Waitlist`, `Active`, or `Archived`.
-   - Clinical history: the last 5 processed appointments (including dates, types, outcomes).
-   - Relevant clinical notes (e.g., diagnoses, treatment plan summaries, alerts).
-3. The system packages the information into a secure, read‑only payload.
-4. The system returns the payload to the requesting actor.
-
-#### Alternative Flows
-- **I1 – Patient Not Found:** If the provided identifier does not match any patient record, the system returns an empty result with a notification indicating no match.
-
-#### Postconditions
-The patient’s data is delivered without any modification to the system state.
 
