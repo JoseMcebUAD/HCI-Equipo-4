@@ -1216,6 +1216,20 @@ input[type="file"]{
   color:#333;
 }
 
+.toast-undo{
+  margin-left:.25rem;
+  border:1px solid currentColor;
+  background:transparent;
+  color:inherit;
+  border-radius:999px;
+  padding:.2rem .55rem;
+  font-size:.78rem;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.toast-undo:hover{opacity:.9;}
+
 /* -------------- RESPONSIVE ----------------------------------------- */
 @media(max-width:768px){
   .main-container{flex-direction:column;height:auto;}
@@ -1577,6 +1591,64 @@ input[type="file"]{
 /* Archived cards hide action row */
 .request-card.card-archivada .card-actions { display: none; }
 
+/* ---------- Auditoria List ----------------------------------- */
+.audit-item{
+  background:var(--clr-bg);
+  border:1px solid var(--clr-border);
+  border-left:4px solid var(--clr-primary);
+  border-radius:var(--radius-lg);
+  box-shadow:var(--shadow-sm);
+  padding:.8rem .95rem;
+  display:flex;
+  flex-direction:column;
+  gap:.35rem;
+}
+
+.audit-item:hover{
+  box-shadow:var(--shadow-md);
+}
+
+.audit-item.audit-uc2{ border-left-color:var(--clr-info); }
+.audit-item.audit-uc3{ border-left-color:var(--clr-danger); }
+.audit-item.audit-uc4{ border-left-color:var(--clr-warning); }
+
+.audit-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.5rem;
+  flex-wrap:wrap;
+}
+
+.audit-uc-label{
+  display:inline-flex;
+  align-items:center;
+  gap:.25rem;
+  padding:.2rem .5rem;
+  border:1px solid var(--clr-border);
+  border-radius:999px;
+  font-size:.72rem;
+  font-weight:700;
+  color:var(--clr-text-secondary);
+  background:var(--clr-bg-light);
+}
+
+.audit-time{
+  font-size:.74rem;
+  color:var(--clr-text-secondary);
+}
+
+.audit-title{
+  font-size:.9rem;
+  font-weight:600;
+  color:var(--clr-text);
+}
+
+.audit-meta{
+  font-size:.8rem;
+  color:var(--clr-text-secondary);
+}
+
 /* ---------- Responsive ---------------------------------------- */
 @media (max-width: 768px) {
   .view-tabs  { padding: 0 .5rem; }
@@ -1929,6 +2001,58 @@ input[type="file"]{
 }
 
 .wz-nav--spread { justify-content:space-between; }
+
+/* ── Bulk schedule toggle (Feature 1) ──────────────────── */
+.bulk-schedule-label {
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  cursor:pointer;
+  font-weight:500;
+  font-size:.9rem;
+}
+.bulk-schedule-label input[type="checkbox"] {
+  width:18px;
+  height:18px;
+  accent-color:var(--clr-primary);
+  cursor:pointer;
+}
+.bulk-schedule-hint {
+  font-size:.78rem;
+  color:var(--clr-text-secondary);
+  margin-top:.25rem;
+  font-style:italic;
+}
+
+/* ── Bulk preview list (Step 4 summary) ───────────────── */
+.summary-divider {
+  font-weight:600;
+  color:var(--clr-primary);
+  margin:.75rem 0 .5rem;
+  font-size:.88rem;
+  border-top:1px solid var(--clr-border);
+  padding-top:.5rem;
+}
+.bulk-preview-list {
+  max-height:250px;
+  overflow-y:auto;
+  border:1px solid var(--clr-border);
+  border-radius:var(--radius);
+}
+.bulk-preview-item {
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  padding:.4rem .6rem;
+  font-size:.82rem;
+  border-bottom:1px solid var(--clr-border);
+}
+.bulk-preview-item:last-child { border-bottom:none; }
+.bulk-preview-item:nth-child(even) { background:var(--clr-bg-light); }
+.bulk-num { font-weight:700; color:var(--clr-primary); min-width:1.5rem; }
+.bulk-date { flex:1; }
+.bulk-time { color:var(--clr-text-secondary); }
+.bulk-room { color:var(--clr-primary); font-weight:500; }
 
 /* ── Responsive ──────────────────────────────────────── */
 @media(max-width:520px){

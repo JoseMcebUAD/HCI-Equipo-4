@@ -33,7 +33,6 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   /* ---------- DOM refs ----------------------------------- */
-  const inDate       = document.getElementById('rmSourceDate');
   const elCount      = document.getElementById('rmCount');
   const btnAutoAll   = document.getElementById('rmAutoAll');
   const ulPatients   = document.getElementById('rmPatientList');
@@ -45,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const elHint       = document.getElementById('rmHint');
   const btnPrevWeek  = document.getElementById('rmPrevWeek');
   const btnNextWeek  = document.getElementById('rmNextWeek');
-  const btnGoToSource= document.getElementById('rmGoToSource');
+  /* btnGoToSource removed */
   const elWeekLabel  = document.getElementById('rmWeekLabel');
 
   /* Modal por-slot */
@@ -63,6 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const batchTable   = document.getElementById('rmBatchTable').querySelector('tbody');
   const batchSummary = document.getElementById('rmBatchSummary');
 
+  /* Modal cascada */
+  const cascadeModal   = document.getElementById('rmCascadeModal');
+  const cascadeClose   = document.getElementById('rmCascadeClose');
+  const cascadeSkip    = document.getElementById('rmCascadeSkip');
+  const cascadeConfirm = document.getElementById('rmCascadeConfirm');
+  const cascadeSummary = document.getElementById('rmCascadeSummary');
+
   /* Toast */
   const toast        = document.getElementById('toastNotification');
   const toastMsg     = document.getElementById('toastMessage');
@@ -73,8 +79,25 @@ document.addEventListener('DOMContentLoaded', () => {
   let currentEvent = null;           // cita activa (la del paciente seleccionado)
   let pendingSlot = null;            // slot clicado pendiente de confirmar
   let proposedBatch = null;          // resultado del auto-all pendiente de confirmar
+  let pendingCascade = null;         // {originalFecha, originalHora, newFecha, futureEvents}
   let viewWeekStart = null;          // lunes de la semana visible en el calendario
   let lastReassignedIds = new Set(); // ids recién reasignados (para resaltarlos)
+  const appendAudit = payload => {
+    if (window.Auditoria?.log) {
+      window.Auditoria.log(payload);
+      return;
+    }
+    try {
+      const key = 'agenda_audit_logs';
+      const rows = JSON.parse(localStorage.getItem(key) || '[]');
+      rows.unshift({
+        id: `audit-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,6)}`,
+        timestamp: new Date().toISOString(),
+        ...payload
+      });
+      localStorage.setItem(key, JSON.stringify(rows.slice(0, 300)));
+    } catch (_) {}
+  };
 
   /* ---------- CARGAR DATOS DE LOCALSTORAGE --------------- */
   (function loadEvents(){
@@ -95,11 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   })();
 
-  /* ---------- PARÁMETRO ?date=YYYY-MM-DD ----------------- */
-  const params = new URLSearchParams(window.location.search);
-  const initialDate = params.get('date') || iso(isWE(new Date()) ? mon(new Date()) : new Date());
-  inDate.value = initialDate;
-  viewWeekStart = mon(pISO(initialDate));
+  /* ---------- SEMANA INICIAL ----------------------------- */
+  viewWeekStart = mon(new Date());
 
   /* ========================================================
      TOAST
@@ -177,6 +197,61 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   /* ========================================================
+     DETECCIÓN DE CITAS FUTURAS (CASCADA)
+     ======================================================== */
+  const findFutureSameDayTimeAppointments = (paciente, fecha, hora) => {
+    const baseDate = pISO(fecha);
+    const baseDayOfWeek = baseDate.getDay();
+
+    return eventos.filter(ev =>
+      ev.paciente === paciente &&
+      ev.hora === hora &&
+      ev.fecha > fecha &&
+      pISO(ev.fecha).getDay() === baseDayOfWeek
+    ).sort((a, b) => a.fecha.localeCompare(b.fecha));
+  };
+
+  const showCascadeModal = (futureEvents, paciente, hora) => {
+    let html = `
+      <div class="summary-row">
+        <span class="label">Paciente:</span>
+        <span class="value">${paciente}</span>
+      </div>
+      <div class="summary-row">
+        <span class="label">Citas futuras encontradas:</span>
+        <span class="value">${futureEvents.length}</span>
+      </div>
+      <div class="cascade-list">
+    `;
+
+    futureEvents.forEach((ev, i) => {
+      const currentDate = pISO(ev.fecha);
+      const newDate = addD(currentDate, 7);
+      const newDateISO = iso(newDate);
+      html += `
+        <div class="cascade-item">
+          <span class="cascade-num">${i + 1}.</span>
+          <span class="cascade-from">${ev.fecha} ${fmtH(ev.hora)}</span>
+          <span class="cascade-arrow">&rarr;</span>
+          <span class="cascade-to">${newDateISO} ${fmtH(ev.hora)}</span>
+        </div>`;
+    });
+
+    html += `</div>`;
+    cascadeSummary.innerHTML = html;
+    cascadeModal.style.display = 'block';
+  };
+
+  const finishReschedule = (newDate) => {
+    pendingSlot = null;
+    currentEvent = null;
+    clearMain();
+    viewWeekStart = mon(pISO(newDate));
+    renderPatientList();
+    renderCalendar();
+  };
+
+  /* ========================================================
      COLISIONES INTRA-BATCH
      ======================================================== */
   const slotKeys = ev => {
@@ -197,53 +272,46 @@ document.addEventListener('DOMContentLoaded', () => {
      SIDEBAR
      ======================================================== */
   const renderPatientList = () => {
-    const date = inDate.value;
-    const citasDelDia = eventos.filter(e => e.fecha === date);
+    // Build unique patient list from ALL events
+    const patientMap = {};
+    eventos.forEach(ev => {
+      if (!patientMap[ev.paciente]) patientMap[ev.paciente] = [];
+      patientMap[ev.paciente].push(ev);
+    });
 
-    elCount.textContent = `${citasDelDia.length} cita${citasDelDia.length === 1 ? '' : 's'} en la fecha origen`;
-    btnAutoAll.disabled = citasDelDia.length === 0;
+    const patients = Object.keys(patientMap).sort();
+    elCount.textContent = `${eventos.length} cita${eventos.length === 1 ? '' : 's'} cargada${eventos.length === 1 ? '' : 's'}`;
 
-    if (citasDelDia.length === 0) {
-      // Si hay reprogramaciones recientes, mostrarlas como referencia
-      if (lastReassignedIds.size > 0) {
-        const reasignados = eventos.filter(e => lastReassignedIds.has(e.id));
-        ulPatients.innerHTML = `<li class="rm-empty">Citas ya reprogramadas:</li>` +
-          reasignados.map(ev => `
-            <li class="assigned" data-id="${ev.id}">
-              <span class="rm-patient-name">${ev.paciente}</span>
-              <span class="rm-patient-meta">${ev.fecha} · ${fmtH(ev.hora)}</span>
-            </li>`).join('');
-
-        ulPatients.querySelectorAll('li[data-id]').forEach(li => {
-          li.addEventListener('click', () => {
-            const ev = eventos.find(e => e.id === li.dataset.id);
-            if (ev) { viewWeekStart = mon(pISO(ev.fecha)); renderCalendar(); }
-          });
-        });
-      } else {
-        ulPatients.innerHTML = '<li class="rm-empty">No hay citas en esta fecha.</li>';
-      }
+    if (patients.length === 0) {
+      ulPatients.innerHTML = '<li class="rm-empty">No hay citas registradas.</li>';
       currentEvent = null;
       clearMain();
       renderCalendar();
       return;
     }
 
-    ulPatients.innerHTML = citasDelDia.map(ev => {
-      const p = proposed[ev.id];
-      const horaActual = p ? p.hora : ev.hora;
-      const fechaActual = p ? p.fecha : ev.fecha;
-      const isAssigned = !!p;
-      const isActive = currentEvent && currentEvent.id === ev.id;
-      const fechaLabel = fechaActual === ev.fecha
-        ? fmtH(horaActual)
-        : `${fechaActual} ${fmtH(horaActual)}`;
+    ulPatients.innerHTML = patients.map(name => {
+      const evts = patientMap[name];
+      const count = evts.length;
+      const isActive = currentEvent && currentEvent.paciente === name;
+      const hasReassigned = evts.some(e => lastReassignedIds.has(e.id));
+
+      // Show individual appointments under each patient
+      const subItems = evts.sort((a,b) => a.fecha.localeCompare(b.fecha) || a.hora.localeCompare(b.hora))
+        .map(ev => {
+          const isEvActive = currentEvent && currentEvent.id === ev.id;
+          return `
+            <li class="rm-patient-sub ${isEvActive ? 'active' : ''} ${lastReassignedIds.has(ev.id) ? 'assigned' : ''}" data-id="${ev.id}">
+              <span class="rm-patient-meta">${ev.fecha} · ${fmtH(ev.hora)} · ${ev.sala}</span>
+            </li>`;
+        }).join('');
 
       return `
-        <li class="${isActive ? 'active' : ''} ${isAssigned ? 'assigned' : ''}" data-id="${ev.id}">
-          <span class="rm-patient-name">${ev.paciente}</span>
-          <span class="rm-patient-meta">${TIPOS[ev.tipo].nombre} · ${fechaLabel}</span>
-        </li>`;
+        <li class="rm-patient-group ${isActive ? 'active' : ''} ${hasReassigned ? 'assigned' : ''}">
+          <span class="rm-patient-name">${name}</span>
+          <span class="rm-patient-count">${count} cita${count === 1 ? '' : 's'}</span>
+        </li>
+        ${subItems}`;
     }).join('');
 
     ulPatients.querySelectorAll('li[data-id]').forEach(li => {
@@ -260,7 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
     elHint.classList.remove('hidden');
     elHint.textContent = currentEvent
       ? ''
-      : 'Selecciona un paciente del panel para ver horarios disponibles. Usa las flechas para navegar entre semanas.';
+      : 'Haz clic en una cita del calendario o del panel lateral para seleccionarla y ver horarios disponibles.';
   };
 
   /* ========================================================
@@ -273,19 +341,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     elPatientName.textContent = ev.paciente;
     elPatientFolio.textContent = `Folio: ${ev.folio} · ${TIPOS[ev.tipo].nombre}`;
-
-    const p = proposed[ev.id];
-    if (p) {
-      elPatientOrig.textContent = `Original: ${ev.fecha} ${fmtH(ev.hora)} → Propuesto: ${p.fecha} ${fmtH(p.hora)}`;
-    } else {
-      elPatientOrig.textContent = `Original: ${ev.fecha} ${fmtH(ev.hora)}`;
-    }
+    elPatientOrig.textContent = `Fecha: ${ev.fecha} ${fmtH(ev.hora)} · ${ev.sala}`;
 
     const cfg = TIPOS[ev.tipo] || { terapeutas: [] };
     selTher.innerHTML = cfg.terapeutas.map(t =>
       `<option value="${t}" ${t === ev.ther ? 'selected' : ''}>${t}</option>`
     ).join('');
     selTher.disabled = false;
+
+    // Navigate to the week of the selected appointment
+    viewWeekStart = mon(pISO(ev.fecha));
 
     elHint.classList.add('hidden');
     renderPatientList();
@@ -484,30 +549,111 @@ document.addEventListener('DOMContentLoaded', () => {
   slotConfirm.addEventListener('click', () => {
     if (!pendingSlot || !currentEvent) return;
 
-    // Aplicar inmediatamente: muta el evento real (no espera al batch).
+    const originalFecha = currentEvent.fecha;
+    const originalHora = currentEvent.hora;
+    const newFecha = pendingSlot.fecha;
+    const newHora = pendingSlot.hora;
+
+    // Aplicar inmediatamente: muta el evento real
     const idx = eventos.findIndex(e => e.id === currentEvent.id);
     if (idx >= 0) {
-      eventos[idx] = { ...eventos[idx], fecha: pendingSlot.fecha, hora: pendingSlot.hora };
+      eventos[idx] = { ...eventos[idx], fecha: newFecha, hora: newHora };
       lastReassignedIds.add(currentEvent.id);
       localStorage.setItem('agenda_events', JSON.stringify(eventos));
+      appendAudit({
+        uc: 'UC-AG-02',
+        action: 'Reprogramacion de cita',
+        actor: 'Personal administrativo',
+        details: {
+          folio: currentEvent.folio,
+          patient: currentEvent.paciente,
+          from: `${originalFecha} ${originalHora}`,
+          to: `${newFecha} ${newHora}`,
+          mode: 'single'
+        }
+      });
     }
     delete proposed[currentEvent.id];
 
     slotModal.style.display = 'none';
-    const newDate = pendingSlot.fecha;
-    pendingSlot = null;
-    currentEvent = null;
-    clearMain();
 
-    // Saltar a la semana del nuevo horario
-    viewWeekStart = mon(pISO(newDate));
-    renderPatientList();
-    renderCalendar();
-    showToast('Cita reprogramada', 'success');
+    // Check for future appointments to cascade
+    const futureEvents = findFutureSameDayTimeAppointments(
+      currentEvent.paciente,
+      originalFecha,
+      originalHora
+    );
+
+    if (futureEvents.length > 0) {
+      pendingCascade = {
+        originalFecha,
+        originalHora,
+        newFecha,
+        futureEvents,
+        paciente: currentEvent.paciente
+      };
+      showCascadeModal(futureEvents, currentEvent.paciente, originalHora);
+      showToast('Cita reprogramada', 'success');
+    } else {
+      finishReschedule(newFecha);
+      showToast('Cita reprogramada', 'success');
+    }
   });
 
   slotCancel.addEventListener('click', () => { slotModal.style.display = 'none'; pendingSlot = null; });
   slotClose.addEventListener('click',  () => { slotModal.style.display = 'none'; pendingSlot = null; });
+
+  /* ========================================================
+     CASCADA — confirmar / cancelar
+     ======================================================== */
+  cascadeConfirm.addEventListener('click', () => {
+    if (!pendingCascade) return;
+
+    const { futureEvents, newFecha } = pendingCascade;
+    const sorted = [...futureEvents].sort((a, b) => a.fecha.localeCompare(b.fecha));
+
+    sorted.forEach(ev => {
+      const idx = eventos.findIndex(e => e.id === ev.id);
+      if (idx >= 0) {
+        const currentDate = pISO(eventos[idx].fecha);
+        const newDate = addD(currentDate, 7);
+        eventos[idx] = { ...eventos[idx], fecha: iso(newDate) };
+        lastReassignedIds.add(ev.id);
+      }
+    });
+
+    localStorage.setItem('agenda_events', JSON.stringify(eventos));
+    cascadeModal.style.display = 'none';
+
+    const cascadeCount = sorted.length;
+    appendAudit({
+      uc: 'UC-AG-02',
+      action: 'Reprogramacion en cascada',
+      actor: 'Personal administrativo',
+      details: {
+        patient: pendingCascade.paciente,
+        baseFrom: `${pendingCascade.originalFecha} ${pendingCascade.originalHora}`,
+        baseTo: `${pendingCascade.newFecha} ${pendingCascade.originalHora}`,
+        affectedAppointments: cascadeCount
+      }
+    });
+    finishReschedule(newFecha);
+    pendingCascade = null;
+
+    showToast(`${cascadeCount + 1} cita(s) reprogramada(s) en cascada`, 'success');
+  });
+
+  cascadeSkip.addEventListener('click', () => {
+    cascadeModal.style.display = 'none';
+    if (pendingCascade) finishReschedule(pendingCascade.newFecha);
+    pendingCascade = null;
+  });
+
+  cascadeClose.addEventListener('click', () => {
+    cascadeModal.style.display = 'none';
+    if (pendingCascade) finishReschedule(pendingCascade.newFecha);
+    pendingCascade = null;
+  });
 
   /* ========================================================
      AUTO-ASIGNACIÓN BATCH
@@ -518,15 +664,17 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const buildBatchProposal = () => {
-    const date = inDate.value;
-    const citas = eventos.filter(e => e.fecha === date);
+    // Operate on the currently visible week's appointments
+    const startISO = iso(viewWeekStart);
+    const endISO = iso(addD(viewWeekStart, 4));
+    const citas = eventos.filter(e => e.fecha >= startISO && e.fecha <= endISO);
 
     const ordenadas = [...citas].sort((a, b) => priorityKey(a) - priorityKey(b));
     const taken = new Set();
     const result = [];
 
     // Reservar todos los slots ocupados por citas en otros días
-    eventos.filter(e => e.fecha !== date).forEach(e => reserveBatch(taken, e));
+    eventos.filter(e => e.fecha < startISO || e.fecha > endISO).forEach(e => reserveBatch(taken, e));
 
     for (const ev of ordenadas) {
       const alts = findAlternatives(ev, ev.id, taken);
@@ -611,6 +759,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     /* Persistir para que agenda.html refleje cambios la próxima vez */
     localStorage.setItem('agenda_events', JSON.stringify(eventos));
+    if (applied > 0) {
+      appendAudit({
+        uc: 'UC-AG-02',
+        action: 'Reprogramacion masiva',
+        actor: 'Personal administrativo',
+        details: {
+          affectedAppointments: applied,
+          firstRescheduledDate: earliestNewDate
+        }
+      });
+    }
 
     batchModal.style.display = 'none';
     proposedBatch = null;
@@ -644,28 +803,33 @@ document.addEventListener('DOMContentLoaded', () => {
     renderCalendar();
   });
 
-  btnGoToSource.addEventListener('click', () => {
-    viewWeekStart = mon(pISO(inDate.value));
-    renderCalendar();
-  });
-
-  /* ========================================================
-     FECHA ORIGEN
-     ======================================================== */
-  inDate.addEventListener('change', () => {
-    proposed = {};
-    lastReassignedIds = new Set();
-    currentEvent = null;
-    viewWeekStart = mon(pISO(inDate.value));
-    clearMain();
-    renderPatientList();
-    renderCalendar();
-  });
+  /* btnGoToSource and inDate listeners removed (Feature 3: no fecha origen) */
 
   // Cerrar modales al click fuera del contenido
   window.addEventListener('click', (e) => {
     if (e.target === slotModal)  { slotModal.style.display = 'none'; pendingSlot = null; }
     if (e.target === batchModal) { batchModal.style.display = 'none'; proposedBatch = null; }
+    if (e.target === cascadeModal) {
+      cascadeModal.style.display = 'none';
+      if (pendingCascade) finishReschedule(pendingCascade.newFecha);
+      pendingCascade = null;
+    }
+  });
+
+  // Deseleccionar cita al hacer clic fuera del calendario
+  document.addEventListener('click', (e) => {
+    if (!currentEvent) return;
+    if (e.target.closest('#rmCalendar')) return;
+    if (e.target.closest('.rm-sidebar')) return;
+    if (e.target.closest('.modal')) return;
+    if (e.target.closest('.rm-week-bar')) return;
+    if (e.target.closest('.rm-patient-header')) return;
+    if (e.target.closest('.rm-toolbar')) return;
+    currentEvent = null;
+    pendingSlot = null;
+    clearMain();
+    renderPatientList();
+    renderCalendar();
   });
 
   /* ---------- INICIO ------------------------------------- */

@@ -42,6 +42,16 @@ document.addEventListener('DOMContentLoaded', () => {
     fileType  :'Formato de comprobante no permitido.',
     fileSize  :'El archivo supera 5 MB.'
   };
+  ERR.weekend = 'No se pueden programar eventos en fin de semana. Selecciona una fecha entre lunes y viernes.';
+  ERR.hours = 'El evento excede el horario (09:00-17:30). Elige una hora de inicio que termine antes de las 17:30.';
+  ERR.slotStep = 'Solo se permiten minutos :00 o :30. Ajusta la hora al siguiente bloque disponible.';
+  ERR.patientBusy = 'El paciente ya tiene un evento que se traslapa. Selecciona otro horario.';
+  ERR.salaBusy = 'La sala esta ocupada en ese rango. Selecciona otra sala u otro horario.';
+  ERR.therBusy = 'El terapeuta esta ocupado en ese rango. Selecciona otro terapeuta u otro horario.';
+  ERR.oneEvalDay = 'Solo se permite una evaluacion integral por dia para el paciente. Selecciona otra fecha.';
+  ERR.dateRange = 'No se permiten fechas a mas de seis meses de hoy. Selecciona una fecha dentro del rango permitido.';
+  ERR.fileType = 'Formato de comprobante no permitido. Adjunta un archivo PDF, PNG o JPG.';
+  ERR.fileSize = 'El archivo supera 5 MB. Adjunta un archivo mas ligero.';
 
   /* ---------- DOM refs ----------------------------------- */
   const grid          = document.getElementById('calendarContainer');
@@ -99,10 +109,15 @@ document.addEventListener('DOMContentLoaded', () => {
   const confirmCancelBtn= document.getElementById('confirmCancelBtn');
   const confirmSaveBtn  = document.getElementById('confirmSaveBtn');
   const closeConfirmBtn = document.getElementById('closeConfirmModal');
+  const cancelApptModal = document.getElementById('cancelApptModal');
+  const cancelApptSummary = document.getElementById('cancelApptSummary');
+  const cancelApptKeepBtn = document.getElementById('cancelApptKeepBtn');
+  const cancelApptConfirmBtn = document.getElementById('cancelApptConfirmBtn');
 
   /* --- toast --- */
   const toast       = document.getElementById('toastNotification');
   const toastMsg    = document.getElementById('toastMessage');
+  const toastUndoBtn= document.getElementById('toastUndoBtn');
 
   /* --- modal DETALLES --- */
   const detModal   = document.getElementById('appointmentModal');
@@ -112,6 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---------- DATA --------------------------------------- */
   const eventos=[];
   const folios ={};
+  const logAudit = payload => window.Auditoria?.log(payload);
+  let pendingDeletion = null;
 
   /* Restore persisted state when returning from reprogramar.html */
   (function(){
@@ -146,13 +163,77 @@ document.addEventListener('DOMContentLoaded', () => {
      TOAST NOTIFICATIONS (feedback visual inmediato)
      ======================================================== */
   let toastTimer=null;
-  const showToast = (message, type='success') => {
+  const clearToastAction = () => {
+    if(!toastUndoBtn) return;
+    toastUndoBtn.classList.add('hidden');
+    toastUndoBtn.onclick = null;
+  };
+  const showToast = (message, type='success', opts={}) => {
+    const { duration = 3000, actionLabel = null, onAction = null } = opts;
     clearTimeout(toastTimer);
     toast.className = 'toast-notification toast-show toast-' + type;
     toastMsg.textContent = message;
+    clearToastAction();
+    if(actionLabel && typeof onAction === 'function' && toastUndoBtn){
+      toastUndoBtn.textContent = actionLabel;
+      toastUndoBtn.classList.remove('hidden');
+      toastUndoBtn.onclick = () => {
+        onAction();
+        clearTimeout(toastTimer);
+        toast.classList.remove('toast-show');
+        clearToastAction();
+      };
+    }
     toastTimer = setTimeout(()=>{
       toast.classList.remove('toast-show');
-    }, 3000);
+      clearToastAction();
+    }, duration);
+  };
+
+  const finalizePendingDeletion = () => {
+    if(!pendingDeletion) return;
+    const { event } = pendingDeletion;
+    clearTimeout(pendingDeletion.timer);
+    logAudit({
+      uc: 'UC-AG-03',
+      action: 'Cancelacion de cita',
+      actor: 'Personal administrativo',
+      details: {
+        folio: event.folio,
+        patient: event.paciente,
+        from: `${event.fecha} ${event.hora}`,
+        status: 'Canceled'
+      }
+    });
+    pendingDeletion = null;
+  };
+
+  const undoPendingDeletion = () => {
+    if(!pendingDeletion) return;
+    clearTimeout(pendingDeletion.timer);
+    const { event, index } = pendingDeletion;
+    const safeIndex = Math.max(0, Math.min(index, eventos.length));
+    eventos.splice(safeIndex, 0, event);
+    pendingDeletion = null;
+    render();
+    buildMiniCalendar();
+    showToast('Cancelacion revertida. La cita fue restaurada.', 'success');
+  };
+
+  const startDeletionWindow = (event, index) => {
+    finalizePendingDeletion();
+    pendingDeletion = {
+      event,
+      index,
+      timer: setTimeout(() => {
+        finalizePendingDeletion();
+      }, 5000)
+    };
+    showToast(
+      `Cita cancelada: ${event.paciente} ${event.fecha} ${event.hora}.`,
+      'warning',
+      { duration: 5000, actionLabel: 'Deshacer', onAction: undoPendingDeletion }
+    );
   };
 
   /* ========================================================
@@ -379,9 +460,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const updateWeeklyBar = (avgPct, highDays) => {
     const bar = document.getElementById('weeklyWorkloadBar');
     if(!bar) return;
-    const colorHex = avgPct<=40 ? '#27ae60' : avgPct<=74 ? '#f0c30f' : '#e74c3c';
-    const pctClass = avgPct<=40 ? 'ww-low' : avgPct<=74 ? 'ww-mid' : 'ww-high';
-    const statusLabel = avgPct<=40 ? 'Carga baja' : avgPct<=74 ? 'Carga media' : 'Carga alta';
+    const colorHex = avgPct < 25 ? '#27ae60' : avgPct <= 75 ? '#f0c30f' : '#e74c3c';
+    const pctClass = avgPct < 25 ? 'ww-low' : avgPct <= 75 ? 'ww-mid' : 'ww-high';
+    const statusLabel = avgPct < 25 ? 'Carga baja' : avgPct <= 75 ? 'Carga media' : 'Carga alta';
     const alertHTML = highDays.length>0
       ? `<span class="ww-alert"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>${highDays.length} día(s) con carga alta &ndash; redistribución recomendada</span>`
       : '';
@@ -414,8 +495,8 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const pct=Math.round(occupied/ROWS*100);
 
-      if(pct<=40)      el.classList.add('day-low');
-      else if(pct<=74) el.classList.add('day-mid');
+      if(pct < 25)     el.classList.add('day-low');
+      else if(pct<=75) el.classList.add('day-mid');
       else            {el.classList.add('day-high'); highDays.push(f);}
 
       /* Badge de porcentaje */
@@ -425,16 +506,16 @@ document.addEventListener('DOMContentLoaded', () => {
       el.appendChild(badge);
 
       /* Tooltip */
-      const fillColor=pct<=40?'#27ae60':pct<=74?'#f0c30f':'#e74c3c';
+      const fillColor=pct < 25?'#27ae60':pct<=75?'#f0c30f':'#e74c3c';
       const tooltip=document.createElement('div');
       tooltip.className='day-load-tooltip';
       tooltip.innerHTML=`
         <div class="dlt-title">Carga del día: <strong>${pct}%</strong></div>
         <div class="dlt-bar"><div class="dlt-bar-fill" style="width:${Math.min(pct,100)}%;background:${fillColor}"></div></div>
         <div class="dlt-legend">
-          <div class="dlt-leg-item"><span class="dlt-dot" style="background:#27ae60"></span>0–40% Carga baja</div>
-          <div class="dlt-leg-item"><span class="dlt-dot" style="background:#f0c30f"></span>41–74% Carga media</div>
-          <div class="dlt-leg-item"><span class="dlt-dot" style="background:#e74c3c"></span>75–100% Carga alta</div>
+          <div class="dlt-leg-item"><span class="dlt-dot" style="background:#27ae60"></span>0-24% Carga baja</div>
+          <div class="dlt-leg-item"><span class="dlt-dot" style="background:#f0c30f"></span>25-75% Carga media</div>
+          <div class="dlt-leg-item"><span class="dlt-dot" style="background:#e74c3c"></span>76-100% Carga alta</div>
         </div>`;
       el.appendChild(tooltip);
 
@@ -723,6 +804,10 @@ document.addEventListener('DOMContentLoaded', () => {
   selPaciente.addEventListener('change', () => { inFolio.value = getFolio(selPaciente.value); });
 
   /* ---------- FORM DINÁMICO ------------------------------- */
+  /* --- refs bulk schedule --- */
+  const bulkToggle = document.getElementById('bulkScheduleToggle');
+  const bulkGroup  = document.getElementById('bulkScheduleGroup');
+
   const refreshTher = () => {
     const cfg=TIPOS[selTipo.value]||{terapeutas:[],dur:''};
     selTher.innerHTML='<option value="">Seleccionar terapeuta</option>' +
@@ -731,6 +816,11 @@ document.addEventListener('DOMContentLoaded', () => {
     hidDur.value=cfg.dur||'';
     feeGroup.classList.toggle('hidden', selTipo.value!=='2');
     payProofGrp.classList.toggle('hidden', selTipo.value==='1');
+    // Show bulk toggle only for therapy appointments
+    if(bulkGroup){
+      bulkGroup.classList.toggle('hidden', selTipo.value !== '2');
+      if(selTipo.value !== '2' && bulkToggle) bulkToggle.checked = false;
+    }
   };
 
   /* ========================================================
@@ -937,16 +1027,103 @@ document.addEventListener('DOMContentLoaded', () => {
     const tipo = Number(selTipo.value);
     inFolio.value = getFolio(selPaciente.value);
     const endHora = addM(inHora.value, Number(hidDur.value));
-    eventSummaryCard.innerHTML = `
+    const isBulk = bulkToggle && bulkToggle.checked && tipo === 2;
+
+    let html = `
       <div class="summary-row"><span class="label">Tipo</span><span class="value">${TIPOS[tipo]?.nombre || '—'}</span></div>
       <div class="summary-row"><span class="label">Terapeuta</span><span class="value">${selTher.value}</span></div>
       <div class="summary-row"><span class="label">Paciente</span><span class="value">${selPaciente.value}</span></div>
-      <div class="summary-row"><span class="label">Fecha</span><span class="value">${pISO(inFecha.value).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span></div>
-      <div class="summary-row"><span class="label">Horario</span><span class="value">${fmtH(inHora.value)} – ${fmtH(endHora)}</span></div>
-      <div class="summary-row"><span class="label">Duración</span><span class="value">${hidDur.value} min</span></div>
-      <div class="summary-row"><span class="label">Sala</span><span class="value">${selSala.value}</span></div>
       <div class="summary-row"><span class="label">Folio</span><span class="value">${inFolio.value}</span></div>
     `;
+
+    if (isBulk) {
+      const baseDate = pISO(inFecha.value);
+      const dur = Number(hidDur.value);
+      html += `<div class="summary-divider">10 citas programadas:</div>`;
+      html += `<div class="bulk-preview-list">`;
+
+      for (let w = 0; w < 10; w++) {
+        const d = addD(baseDate, w * 7);
+        const dISO = iso(d);
+
+        // Determine room availability
+        let room = selSala.value;
+        const roomBusy = eventos.some(e =>
+          e.sala === room && e.fecha === dISO &&
+          toMin(e.hora) < toMin(inHora.value) + dur && toMin(inHora.value) < toMin(e.hora) + e.dur
+        );
+        if (roomBusy) {
+          room = SALAS.find(s => !eventos.some(e =>
+            e.sala === s && e.fecha === dISO &&
+            toMin(e.hora) < toMin(inHora.value) + dur && toMin(inHora.value) < toMin(e.hora) + e.dur
+          )) || selSala.value;
+        }
+
+        const dateStr = d.toLocaleDateString('es-ES', {weekday:'short', day:'numeric', month:'short'});
+        html += `
+          <div class="bulk-preview-item">
+            <span class="bulk-num">${w + 1}.</span>
+            <span class="bulk-date">${dateStr}</span>
+            <span class="bulk-time">${fmtH(inHora.value)} – ${fmtH(endHora)}</span>
+            <span class="bulk-room">${room}</span>
+          </div>`;
+      }
+      html += `</div>`;
+    } else {
+      html += `
+        <div class="summary-row"><span class="label">Fecha</span><span class="value">${pISO(inFecha.value).toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long',year:'numeric'})}</span></div>
+        <div class="summary-row"><span class="label">Horario</span><span class="value">${fmtH(inHora.value)} – ${fmtH(endHora)}</span></div>
+        <div class="summary-row"><span class="label">Duración</span><span class="value">${hidDur.value} min</span></div>
+        <div class="summary-row"><span class="label">Sala</span><span class="value">${selSala.value}</span></div>
+      `;
+    }
+
+    eventSummaryCard.innerHTML = html;
+  };
+
+  /* ── Generar 10 citas semanales consecutivas ── */
+  const generateBulkAppointments = (baseEvent) => {
+    const appointments = [];
+    const baseDate = pISO(baseEvent.fecha);
+    const dur = baseEvent.dur;
+    const baseTs = Date.now().toString(36);
+
+    for (let week = 0; week < 10; week++) {
+      const targetDate = addD(baseDate, week * 7);
+      const targetISO = iso(targetDate);
+
+      // Try same room; fall back to any available room
+      let assignedRoom = baseEvent.sala;
+      const roomBusy = eventos.some(e =>
+        e.sala === assignedRoom && e.fecha === targetISO &&
+        toMin(e.hora) < toMin(baseEvent.hora) + dur && toMin(baseEvent.hora) < toMin(e.hora) + e.dur
+      );
+
+      if (roomBusy) {
+        assignedRoom = SALAS.find(sala =>
+          !eventos.some(e =>
+            e.sala === sala && e.fecha === targetISO &&
+            toMin(e.hora) < toMin(baseEvent.hora) + dur && toMin(baseEvent.hora) < toMin(e.hora) + e.dur
+          )
+        ) || baseEvent.sala;
+      }
+
+      appointments.push({
+        id: baseTs + '-' + week,
+        tipo: baseEvent.tipo,
+        paciente: baseEvent.paciente,
+        folio: baseEvent.folio,
+        fecha: targetISO,
+        hora: baseEvent.hora,
+        sala: assignedRoom,
+        ther: baseEvent.ther,
+        dur: baseEvent.dur,
+        fee: baseEvent.fee,
+        proof: baseEvent.proof
+      });
+    }
+
+    return appointments;
   };
 
   /* ── Navegación del wizard ── */
@@ -1022,9 +1199,11 @@ document.addEventListener('DOMContentLoaded', () => {
      MODAL DE CONFIRMACIÓN (antes de guardar cambios)
      ======================================================== */
   let pendingEvent = null;
+  let pendingBulkEvents = null;
 
   const showConfirmation = (ev) => {
     pendingEvent = ev;
+    pendingBulkEvents = null;
     const isEditing = !!editing;
     const actionText = isEditing ? 'Reprogramar' : 'Crear';
 
@@ -1044,21 +1223,69 @@ document.addEventListener('DOMContentLoaded', () => {
     confirmModal.style.display = 'block';
   };
 
+  const showBulkConfirmation = (bulkEvents) => {
+    pendingBulkEvents = bulkEvents;
+    pendingEvent = null;
+    const first = bulkEvents[0];
+    const last = bulkEvents[bulkEvents.length - 1];
+    const endHora = addM(first.hora, first.dur);
+
+    confirmSummary.innerHTML = `
+      <div class="summary-row"><span class="label">Acción:</span><span class="value">Crear 10 citas semanales</span></div>
+      <div class="summary-row"><span class="label">Paciente:</span><span class="value">${first.paciente}</span></div>
+      <div class="summary-row"><span class="label">Terapeuta:</span><span class="value">${first.ther}</span></div>
+      <div class="summary-row"><span class="label">Horario:</span><span class="value">${fmtH(first.hora)} – ${fmtH(endHora)}</span></div>
+      <div class="summary-row"><span class="label">Periodo:</span><span class="value">${pISO(first.fecha).toLocaleDateString('es-ES',{day:'numeric',month:'short'})} — ${pISO(last.fecha).toLocaleDateString('es-ES',{day:'numeric',month:'short',year:'numeric'})}</span></div>
+      <div class="summary-row"><span class="label">Folio:</span><span class="value">${first.folio}</span></div>
+      ${first.fee!=null?`<div class="summary-row"><span class="label">Cuota:</span><span class="value">$${first.fee.toFixed(2)} MXN</span></div>`:''}
+    `;
+
+    confirmModal.style.display = 'block';
+  };
+
   const hideConfirmation = () => {
     confirmModal.style.display = 'none';
     pendingEvent = null;
+    pendingBulkEvents = null;
   };
 
   confirmCancelBtn.addEventListener('click', hideConfirmation);
   document.getElementById('closeConfirmModal')?.addEventListener('click', hideConfirmation);
 
   confirmSaveBtn.addEventListener('click', () => {
+    // Handle bulk save
+    if (pendingBulkEvents) {
+      pendingBulkEvents.forEach(ev => eventos.push(ev));
+
+      filtroFecha.value = pendingBulkEvents[0].fecha;
+      hideConfirmation();
+      modal.style.display='none';
+
+      render();
+      buildMiniCalendar();
+
+      showToast('10 citas de terapia creadas exitosamente', 'success');
+      return;
+    }
+
     if(!pendingEvent) return;
     const ev = pendingEvent;
 
     if(editing){
+      const oldEvent = { ...editing };
       const idx=eventos.findIndex(x=>x.id===editing.id);
       if(idx>=0) eventos.splice(idx,1);
+      logAudit({
+        uc: 'UC-AG-02',
+        action: 'Reprogramacion de cita',
+        actor: 'Personal administrativo',
+        details: {
+          folio: oldEvent.folio,
+          patient: oldEvent.paciente,
+          from: `${oldEvent.fecha} ${oldEvent.hora}`,
+          to: `${ev.fecha} ${ev.hora}`
+        }
+      });
     }
     eventos.push(ev);
 
@@ -1086,6 +1313,8 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     const f=payProof.files[0];
+    const isBulk = bulkToggle && bulkToggle.checked && selTipo.value === '2';
+
     const ev={
       id: editing ? editing.id : Date.now().toString(36),
       tipo: Number(selTipo.value),
@@ -1107,8 +1336,12 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    // En lugar de guardar directamente, mostrar confirmación
-    showConfirmation(ev);
+    if (isBulk && !editing) {
+      const bulkEvents = generateBulkAppointments(ev);
+      showBulkConfirmation(bulkEvents);
+    } else {
+      showConfirmation(ev);
+    }
   };
 
   /* ---------- DETALLES ------------------------------------ */
@@ -1166,6 +1399,17 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.getElementById('cancelEventBtn').onclick=()=>{
       if(confirm('¿Está seguro de que desea cancelar esta cita?')){
+        logAudit({
+          uc: 'UC-AG-03',
+          action: 'Cancelacion de cita',
+          actor: 'Personal administrativo',
+          details: {
+            folio: ev.folio,
+            patient: ev.paciente,
+            from: `${ev.fecha} ${ev.hora}`,
+            status: 'Canceled'
+          }
+        });
         const idx=eventos.findIndex(x=>x.id===ev.id);
         if(idx>=0) eventos.splice(idx,1);
         detModal.style.display='none';
@@ -1174,8 +1418,48 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast('Cita cancelada exitosamente', 'warning');
       }
     };
+    document.getElementById('cancelEventBtn').onclick=()=>{
+      const idx=eventos.findIndex(x=>x.id===ev.id);
+      if(idx<0) return;
+      cancelApptSummary.innerHTML = `
+        <div class="summary-row"><span class="label">Paciente:</span><span class="value">${ev.paciente}</span></div>
+        <div class="summary-row"><span class="label">Folio:</span><span class="value">${ev.folio}</span></div>
+        <div class="summary-row"><span class="label">Horario:</span><span class="value">${ev.fecha} ${fmtH(ev.hora)} - ${fmtH(addM(ev.hora, ev.dur))}</span></div>
+        <div class="summary-row"><span class="label">Resultado:</span><span class="value">La cita quedara cancelada y el horario liberado.</span></div>
+      `;
+      cancelApptModal.style.display='block';
+      const keepHandler = () => {
+        cancelApptModal.style.display='none';
+        cleanupCancelHandlers();
+      };
+      const confirmHandler = () => {
+        const currentIdx = eventos.findIndex(x=>x.id===ev.id);
+        if(currentIdx<0){
+          cancelApptModal.style.display='none';
+          cleanupCancelHandlers();
+          return;
+        }
+        const removed = eventos[currentIdx];
+        eventos.splice(currentIdx,1);
+        detModal.style.display='none';
+        cancelApptModal.style.display='none';
+        render();
+        buildMiniCalendar();
+        startDeletionWindow(removed, currentIdx);
+        cleanupCancelHandlers();
+      };
+      const cleanupCancelHandlers = () => {
+        cancelApptKeepBtn?.removeEventListener('click', keepHandler);
+        cancelApptConfirmBtn?.removeEventListener('click', confirmHandler);
+      };
+      cancelApptKeepBtn?.addEventListener('click', keepHandler);
+      cancelApptConfirmBtn?.addEventListener('click', confirmHandler);
+    };
   };
   detClose.onclick=()=>detModal.style.display='none';
+  window.addEventListener('beforeunload', () => {
+    finalizePendingDeletion();
+  });
 
   /* ---------- FILTROS & INICIO --------------------------- */
   filtroFecha.value = iso(new Date());
@@ -1218,25 +1502,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const tabAgenda  = document.getElementById('tabAgenda');
   const tabBandeja = document.getElementById('tabBandeja');
+  const tabAuditoria = document.getElementById('tabAuditoria');
   const filtersBar = document.getElementById('filters');
 
   tabAgenda?.addEventListener('click', () => {
     tabAgenda.classList.add('view-tab--active');
     tabBandeja.classList.remove('view-tab--active');
+    tabAuditoria?.classList.remove('view-tab--active');
     tabAgenda.setAttribute('aria-selected', 'true');
     tabBandeja.setAttribute('aria-selected', 'false');
+    tabAuditoria?.setAttribute('aria-selected', 'false');
     filtersBar.classList.remove('hidden');
     window.Bandeja?.showCalendarPanel();
+    window.Auditoria?.showCalendarPanel();
   });
 
   tabBandeja?.addEventListener('click', () => {
     tabBandeja.classList.add('view-tab--active');
     tabAgenda.classList.remove('view-tab--active');
+    tabAuditoria?.classList.remove('view-tab--active');
     tabBandeja.setAttribute('aria-selected', 'true');
     tabAgenda.setAttribute('aria-selected', 'false');
+    tabAuditoria?.setAttribute('aria-selected', 'false');
     filtersBar.classList.add('hidden');
     window.Bandeja?.showInboxPanel();
+    document.getElementById('auditPanel')?.classList.add('hidden');
+  });
+
+  tabAuditoria?.addEventListener('click', () => {
+    tabAuditoria.classList.add('view-tab--active');
+    tabAgenda.classList.remove('view-tab--active');
+    tabBandeja?.classList.remove('view-tab--active');
+    tabAuditoria.setAttribute('aria-selected', 'true');
+    tabAgenda.setAttribute('aria-selected', 'false');
+    tabBandeja?.setAttribute('aria-selected', 'false');
+    filtersBar.classList.add('hidden');
+    window.Auditoria?.showAuditPanel();
   });
 
   window.Bandeja?.init();
+  window.Auditoria?.init();
 });

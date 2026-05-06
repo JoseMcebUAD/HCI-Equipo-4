@@ -11,6 +11,7 @@
   ────────────────────────────────────────────────────────── */
   const LS_KEY       = 'agenda_inbox';
   const ARCHIVE_DAYS = 7;
+  const logAudit = payload => window.Auditoria?.log(payload);
 
   const TIPO_LABEL = {
     nueva:          'Nueva solicitud',
@@ -251,14 +252,15 @@
   }
 
   function buildCardHTML(r) {
-    const isArchived = r.estado === 'archivada' || r.estado === 'rechazada';
+    const isArchived = r.estado === 'archivada' || r.estado === 'rechazada' || r.estado === 'resolved';
     const typeClass  = isArchived          ? 'card-archivada'
                      : r.tipo === 'nueva'  ? 'card-nueva'
                      : 'card-reprogramacion';
     const badgeClass = isArchived          ? 'badge-archivada'
                      : r.tipo === 'nueva'  ? 'badge-nueva'
                      : 'badge-reprogramacion';
-    const badgeLabel = isArchived          ? (r.estado === 'rechazada' ? 'Rechazada' : 'Archivada')
+    const badgeLabel = isArchived
+                     ? (r.estado === 'rechazada' ? 'Rechazada' : r.estado === 'resolved' ? 'Resuelta' : 'Archivada')
                      : TIPO_LABEL[r.tipo];
 
     const folioRef = r.citaOriginalId
@@ -423,6 +425,18 @@
 
     function doReject() {
       updateRequest(id, { estado: 'rechazada', notas: reason.value.trim() || null });
+      logAudit({
+        uc: 'UC-AG-04',
+        action: 'Solicitud rechazada',
+        actor: 'Personal administrativo',
+        details: {
+          requestId: r.id,
+          requestType: r.tipo,
+          patient: r.paciente,
+          status: 'Rejected',
+          reason: reason.value.trim() || null
+        }
+      });
       modal.style.display = 'none';
       showToastSafe('Solicitud rechazada.', 'warning');
       renderCurrentSubtab();
@@ -451,7 +465,7 @@
     if (subtab === 'reprogramaciones')
       return all.filter(r => r.tipo === 'reprogramacion' && r.estado === 'pendiente');
     if (subtab === 'archivadas')
-      return all.filter(r => r.estado === 'archivada' || r.estado === 'rechazada');
+      return all.filter(r => r.estado === 'archivada' || r.estado === 'rechazada' || r.estado === 'resolved');
     return all;
   }
 
@@ -485,7 +499,7 @@
     const all    = loadRequests();
     const nuevas = all.filter(r => r.tipo === 'nueva' && r.estado === 'pendiente').length;
     const reprog = all.filter(r => r.tipo === 'reprogramacion' && r.estado === 'pendiente').length;
-    const arch   = all.filter(r => r.estado === 'archivada' || r.estado === 'rechazada').length;
+    const arch   = all.filter(r => r.estado === 'archivada' || r.estado === 'rechazada' || r.estado === 'resolved').length;
     const total  = nuevas + reprog;
 
     const mainBadge = document.getElementById('inboxBadge');
@@ -503,8 +517,8 @@
      PANEL VISIBILITY
   ────────────────────────────────────────────────────────── */
   function showInboxPanel() {
-    document.getElementById('calendarContainer')?.classList.add('hidden');
-    document.getElementById('statusLegend')?.classList.add('hidden');
+    document.getElementById('calendarContainer')?.classList.remove('hidden');
+    document.getElementById('statusLegend')?.classList.remove('hidden');
     document.getElementById('inboxPanel')?.classList.remove('hidden');
     renderCurrentSubtab();
     updateBadges();
@@ -529,6 +543,11 @@
     if (!toast || !toastMsg) return;
     toast.className = `toast-notification toast-show toast-${type}`;
     toastMsg.textContent = message;
+    const undo = document.getElementById('toastUndoBtn');
+    if (undo) {
+      undo.classList.add('hidden');
+      undo.onclick = null;
+    }
     setTimeout(() => toast.classList.remove('toast-show'), 3000);
   }
 
@@ -563,10 +582,24 @@
 
     onEventSaved(inboxRequestId) {
       if (!inboxRequestId) return;
-      updateRequest(inboxRequestId, { estado: 'aceptada' });
+      const req = getRequest(inboxRequestId);
+      updateRequest(inboxRequestId, { estado: 'resolved' });
+      if (req) {
+        logAudit({
+          uc: 'UC-AG-04',
+          action: 'Solicitud resuelta',
+          actor: 'Personal administrativo',
+          details: {
+            requestId: req.id,
+            requestType: req.tipo,
+            patient: req.paciente,
+            status: 'Resolved'
+          }
+        });
+      }
       window._pendingInboxAccept = null;
       updateBadges();
-      showToastSafe('Solicitud marcada como aceptada.', 'success');
+      showToastSafe('Solicitud marcada como resuelta.', 'success');
     },
 
     refresh() {

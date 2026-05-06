@@ -25,6 +25,22 @@ document.addEventListener('DOMContentLoaded', () => {
   let originalEvent = null;
   let eventos = [];
   let folios = {};
+  const appendAudit = payload => {
+    if (window.Auditoria?.log) {
+      window.Auditoria.log(payload);
+      return;
+    }
+    try {
+      const key = 'agenda_audit_logs';
+      const rows = JSON.parse(localStorage.getItem(key) || '[]');
+      rows.unshift({
+        id: `audit-${Date.now().toString(36)}-${Math.random().toString(36).slice(2,6)}`,
+        timestamp: new Date().toISOString(),
+        ...payload
+      });
+      localStorage.setItem(key, JSON.stringify(rows.slice(0, 300)));
+    } catch (_) {}
+  };
 
   try { originalEvent = JSON.parse(localStorage.getItem('reprogramar_event')); } catch(e) {}
   try { eventos = JSON.parse(localStorage.getItem('agenda_events')) || []; } catch(e) {}
@@ -171,18 +187,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const sala = elRoom.value;
     const pac  = elPatient.value;
 
-    if(!f || !h)           { errors.push('Selecciona fecha y hora.'); return errors; }
-    if(!tipo)              { errors.push('Selecciona el tipo de evento.'); return errors; }
-    if(!pac)               { errors.push('Selecciona un paciente.'); }
-    if(!ther)              { errors.push('Selecciona un terapeuta.'); }
-    if(!sala)              { errors.push('Selecciona una sala.'); }
+    if(!f || !h)           { errors.push('Selecciona fecha y hora para continuar.'); return errors; }
+    if(!tipo)              { errors.push('Selecciona el tipo de evento para continuar.'); return errors; }
+    if(!pac)               { errors.push('Selecciona un paciente de la lista.'); }
+    if(!ther)              { errors.push('Selecciona un terapeuta disponible.'); }
+    if(!sala)              { errors.push('Selecciona una sala disponible.'); }
     if(errors.length) return errors;
 
     const d = pISO(f);
-    if(isWE(d)) errors.push('No se pueden programar eventos en fin de semana.');
+    if(isWE(d)) errors.push('No se pueden programar eventos en fin de semana. Elige una fecha entre lunes y viernes.');
 
     const today = new Date(); today.setHours(0,0,0,0);
-    if(d < today) errors.push('No se pueden programar eventos en fechas pasadas.');
+    if(d < today) errors.push('No se pueden programar eventos en fechas pasadas. Selecciona una fecha de hoy en adelante.');
 
     const maxDate = new Date(today); maxDate.setMonth(maxDate.getMonth()+6);
     if(d > maxDate) errors.push('No se permiten fechas a más de seis meses de hoy.');
@@ -213,7 +229,18 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }
 
-    return errors;
+    return errors.map(msg => {
+      if(msg.includes('seis meses')) return 'No se permiten fechas a mas de seis meses de hoy. Elige una fecha dentro del rango permitido.';
+      if(msg.includes('09:00')) return 'El evento excede el horario (09:00-17:30). Elige otro horario.';
+      if(msg.includes('Solo minutos')) return 'Solo minutos :00 o :30. Ajusta la hora al siguiente bloque.';
+      if(msg.includes('traslapa')) return 'El paciente ya tiene un evento que se traslapa. Selecciona otro horario.';
+      if(msg.includes('sala') && msg.includes('ocupada')) return 'La sala esta ocupada en ese rango. Selecciona otra sala u otro horario.';
+      if(msg.includes('terapeuta') && msg.includes('ocupado')) return 'El terapeuta esta ocupado en ese rango. Selecciona otro terapeuta u otro horario.';
+      if(msg.includes('evaluaci')) return 'Solo una evaluacion integral al dia por paciente. Selecciona otra fecha.';
+      if(msg.includes('Formato de comprobante')) return 'Formato de comprobante no permitido (PDF, PNG, JPG). Adjunta un archivo valido.';
+      if(msg.includes('5 MB')) return 'El archivo supera 5 MB. Adjunta un archivo mas ligero.';
+      return msg;
+    });
   };
 
   /* ---------- PANEL DISPONIBILIDAD ------------------------- */
@@ -509,6 +536,18 @@ document.addEventListener('DOMContentLoaded', () => {
       fee,
       proof: (tipo===2 && proof) ? proof.name : originalEvent.proof
     };
+
+    appendAudit({
+      uc: 'UC-AG-02',
+      action: 'Reprogramacion de cita',
+      actor: 'Personal administrativo',
+      details: {
+        folio: originalEvent.folio,
+        patient: originalEvent.paciente,
+        from: `${originalEvent.fecha} ${originalEvent.hora}`,
+        to: `${updatedEvent.fecha} ${updatedEvent.hora}`
+      }
+    });
 
     /* Reemplazar evento en el arreglo */
     const idx = eventos.findIndex(e => e.id === originalEvent.id);

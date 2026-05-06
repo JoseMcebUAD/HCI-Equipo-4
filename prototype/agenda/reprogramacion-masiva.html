@@ -32,12 +32,10 @@
       </a>
 
       <div class="rm-toolbar-group">
-        <label for="rmSourceDate">Fecha origen:</label>
-        <input type="date" id="rmSourceDate" />
-        <span id="rmCount" class="rm-count">0 citas a reprogramar</span>
+        <span id="rmCount" class="rm-count">0 citas cargadas</span>
       </div>
 
-      <button id="rmAutoAll" class="btn-action btn-reprog-masiva" disabled>
+      <button id="rmAutoAll" class="btn-action btn-reprog-masiva hidden" disabled>
         <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9"/><polyline points="3 4 3 12 11 12"/><circle cx="12" cy="12" r="2"/></svg>
         Reprogramación Aleatoria Inteligente
       </button>
@@ -47,9 +45,9 @@
     <div class="rm-layout">
       <!-- Sidebar de pacientes afectados -->
       <aside class="rm-sidebar">
-        <h3 class="rm-sidebar-title">Pacientes afectados</h3>
+        <h3 class="rm-sidebar-title">Pacientes con citas</h3>
         <ul id="rmPatientList" class="rm-patient-list">
-          <li class="rm-empty">Selecciona una fecha con citas.</li>
+          <li class="rm-empty">No hay citas registradas.</li>
         </ul>
       </aside>
 
@@ -75,7 +73,7 @@
             <button id="rmPrevWeek" class="rm-week-btn" title="Semana anterior">&#8249;</button>
             <span id="rmWeekLabel" class="rm-week-label">—</span>
             <button id="rmNextWeek" class="rm-week-btn" title="Semana siguiente">&#8250;</button>
-            <button id="rmGoToSource" class="rm-week-jump" title="Ir a la fecha origen">Ir a fecha origen</button>
+            <!-- removed: fecha origen button -->
           </div>
           <div class="rm-legend">
             <span class="legend-item"><span class="legend-dot legend-recommended"></span> RECOMENDADO</span>
@@ -111,6 +109,37 @@
         <button id="rmSlotConfirm" class="btn-action btn-primary">
           <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
           Confirmar este horario
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL CASCADA ================= -->
+  <div id="rmCascadeModal" class="modal">
+    <div class="modal-content modal-confirm">
+      <span class="close-button" id="rmCascadeClose">&times;</span>
+      <h2>
+        <svg class="panel-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1 4 1 10 7 10"/>
+          <path d="M3.51 15a9 9 0 102.13-9.36L1 10"/>
+        </svg>
+        Recorrer citas futuras
+      </h2>
+      <hr>
+      <p class="confirm-subtitle">El paciente tiene citas futuras en el mismo horario. ¿Desea recorrerlas una semana?</p>
+      <div id="rmCascadeSummary" class="confirm-summary"></div>
+      <div class="confirm-actions">
+        <button id="rmCascadeSkip" class="btn-action btn-secondary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+          No, solo esta cita
+        </button>
+        <button id="rmCascadeConfirm" class="btn-action btn-primary">
+          <svg class="btn-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+          Sí, recorrer todas
         </button>
       </div>
     </div>
