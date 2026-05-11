@@ -1,17 +1,29 @@
 document.addEventListener("DOMContentLoaded", function () {
-  // Datos del terapeuta
-  let terapeuta = {
-    nombre: "Ana García",
-    email: "ana@clinica.com",
-    telefono: "5551234567",
-    rol: "activo",
-    servicio: "Psicodiagnóstico",
-    horarios: [
-      { dia: "Lunes", inicio: "10:00", fin: "12:00", detalle: "sesión con María López" },
-      { dia: "Miércoles", inicio: "14:00", fin: "16:00", detalle: "disponible" },
-      { dia: "Viernes", inicio: "10:00", fin: "12:00", detalle: "disponible" }
-    ]
-  };
+  // Obtener ID de la URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const therapistId = parseInt(urlParams.get('id'));
+
+  let terapeuta = null;
+
+  if (window.DB && therapistId) {
+    terapeuta = DB.terapeutas.getById(therapistId);
+  }
+
+  // Fallback if not found or no DB
+  if (!terapeuta) {
+    terapeuta = {
+      nombre: "Ana García",
+      email: "ana@clinica.com",
+      telefono: "5551234567",
+      rol: "activo",
+      servicio: "Psicodiagnóstico",
+      horarios: [
+        { dia: "Lunes", inicio: "10:00", fin: "12:00", detalle: "sesión con María López" },
+        { dia: "Miércoles", inicio: "14:00", fin: "16:00", detalle: "disponible" },
+        { dia: "Viernes", inicio: "10:00", fin: "12:00", detalle: "disponible" }
+      ]
+    };
+  }
 
   // Elementos del DOM
   const btnEditar = document.getElementById("btnEditar");
@@ -39,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("edit-email").value = terapeuta.email;
     document.getElementById("edit-telefono").value = terapeuta.telefono;
     document.getElementById("edit-rol").value = terapeuta.rol;
-    document.getElementById("edit-servicio").value = terapeuta.servicio;
+    document.getElementById("edit-servicio").value = terapeuta.servicio || terapeuta.tipoLabel;
 
     // Cargar horarios editables
     cargarHorariosEdicion();
@@ -59,22 +71,24 @@ document.addEventListener("DOMContentLoaded", function () {
     e.preventDefault();
 
     // Actualizar datos del terapeuta
-    terapeuta.email = document.getElementById("edit-email").value;
-    terapeuta.telefono = document.getElementById("edit-telefono").value;
-    terapeuta.rol = document.getElementById("edit-rol").value;
-    terapeuta.servicio = document.getElementById("edit-servicio").value;
-
-    // Actualizar horarios
-    const nuevosHorarios = [];
-    document.querySelectorAll(".horario-editable").forEach((item) => {
-      nuevosHorarios.push({
+    const updateData = {
+      email: document.getElementById("edit-email").value,
+      telefono: document.getElementById("edit-telefono").value,
+      rol: document.getElementById("edit-rol").value,
+      tipoLabel: document.getElementById("edit-servicio").value,
+      horarios: Array.from(document.querySelectorAll(".horario-editable")).map((item) => ({
         dia: item.querySelector(".edit-dia").value,
         inicio: item.querySelector(".edit-inicio").value,
         fin: item.querySelector(".edit-fin").value,
-        detalle: item.querySelector(".edit-detalle").value
-      });
-    });
-    terapeuta.horarios = nuevosHorarios;
+        detalle: item.querySelector(".edit-detalle").value || "disponible"
+      }))
+    };
+
+    if (window.DB && therapistId) {
+      terapeuta = DB.terapeutas.update(therapistId, updateData);
+    } else {
+      Object.assign(terapeuta, updateData);
+    }
 
     // Volver a modo vista
     viewMode.style.display = "block";
@@ -121,14 +135,14 @@ document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("terapeuta-telefono").textContent = terapeuta.telefono;
     document.getElementById("terapeuta-rol").textContent = 
       terapeuta.rol.charAt(0).toUpperCase() + terapeuta.rol.slice(1);
-    document.getElementById("terapeuta-servicio").textContent = terapeuta.servicio;
+    document.getElementById("terapeuta-servicio").textContent = terapeuta.tipoLabel || terapeuta.servicio;
   }
 
   // Función para generar el calendario semanal
   function generarCalendario() {
     calendarSlots.innerHTML = "";
 
-    // Generar franjas horarias de 8:00 a 18:00 en intervalos de 30 minutos
+    // Generar franjas horarias de 9:00 a 18:00 en intervalos de 30 minutos
     for (let hour = 9; hour <= 18; hour++) {
       for (let minute = 0; minute < 60; minute += 30) {
         const timeLabel = `${hour.toString().padStart(2, "0")}:${minute.toString().padStart(2, "0")}`;
@@ -143,17 +157,17 @@ document.addEventListener("DOMContentLoaded", function () {
           daySlot.dataset.day = dia;
           daySlot.dataset.time = timeLabel;
 
-          // Verificar si hay un horario en este slot
-          const horario = terapeuta.horarios.find(h => 
-            h.dia === dia && 
+          // Verificar si hay un horario en este slot (comparación insensible a mayúsculas para el día)
+          const horario = (terapeuta.horarios || []).find(h => 
+            h.dia.toLowerCase() === dia.toLowerCase() && 
             h.inicio <= timeLabel && 
             h.fin > timeLabel
           );
 
           if (horario) {
             const slot = document.createElement("div");
-            slot.className = `slot ${horario.detalle.includes("sesión") ? "ocupado" : "disponible"}`;
-            slot.textContent = horario.detalle;
+            slot.className = `slot ${(horario.detalle || "").toLowerCase().includes("sesión") ? "ocupado" : "disponible"}`;
+            slot.textContent = horario.detalle || "disponible";
             daySlot.appendChild(slot);
           }
 
@@ -168,21 +182,21 @@ document.addEventListener("DOMContentLoaded", function () {
   // Función para cargar horarios en modo edición
   function cargarHorariosEdicion() {
     horariosEdit.innerHTML = "";
-    terapeuta.horarios.forEach((horario) => {
+    (terapeuta.horarios || []).forEach((horario) => {
       const horarioItem = document.createElement("div");
       horarioItem.className = "horario-editable";
       horarioItem.innerHTML = `
         <select class="edit-dia">
-          <option value="Lunes" ${horario.dia === "Lunes" ? "selected" : ""}>Lunes</option>
-          <option value="Martes" ${horario.dia === "Martes" ? "selected" : ""}>Martes</option>
-          <option value="Miércoles" ${horario.dia === "Miércoles" ? "selected" : ""}>Miércoles</option>
-          <option value="Jueves" ${horario.dia === "Jueves" ? "selected" : ""}>Jueves</option>
-          <option value="Viernes" ${horario.dia === "Viernes" ? "selected" : ""}>Viernes</option>
+          <option value="Lunes" ${horario.dia.toLowerCase() === "lunes" ? "selected" : ""}>Lunes</option>
+          <option value="Martes" ${horario.dia.toLowerCase() === "martes" ? "selected" : ""}>Martes</option>
+          <option value="Miércoles" ${horario.dia.toLowerCase() === "miércoles" ? "selected" : ""}>Miércoles</option>
+          <option value="Jueves" ${horario.dia.toLowerCase() === "jueves" ? "selected" : ""}>Jueves</option>
+          <option value="Viernes" ${horario.dia.toLowerCase() === "viernes" ? "selected" : ""}>Viernes</option>
         </select>
         <input type="time" class="edit-inicio" value="${horario.inicio}">
         <span>a</span>
         <input type="time" class="edit-fin" value="${horario.fin}">
-        <input type="text" class="edit-detalle" value="${horario.detalle}" placeholder="disponible/sesión con...">
+        <input type="text" class="edit-detalle" value="${horario.detalle || ''}" placeholder="disponible/sesión con...">
         <button type="button" class="btn-remove-horario">✕</button>
       `;
       horariosEdit.appendChild(horarioItem);

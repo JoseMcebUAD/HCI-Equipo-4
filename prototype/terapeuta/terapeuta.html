@@ -54,19 +54,8 @@
       <!-- Panel central: lista de terapeutas -->
       <div class="panel">
         <h3>Terapeutas</h3>
-        <div class="therapist-list">
-          <a href="detalle_terapeuta.html" class="therapist-list" data-nombre="Ana García" data-tipo="tipo1">
-            <span>Ana García - Psicodiagnóstico</span>
-            <span class="therapist-status">Activo</span>
-          </a>
-          <div class="therapist-list" data-nombre="Carlos Méndez" data-tipo="tipo2">
-            <span>Carlos Méndez - Terapia Individual</span>
-            <span class="therapist-status">Activo</span>
-          </div>
-          <div class="therapist-list" data-nombre="Luisa Fernández" data-tipo="tipo1">
-            <span>Luisa Fernández - Psicodiagnóstico</span>
-            <span class="therapist-status">Pasante</span>
-          </div>
+        <div class="therapist-list" id="therapistList">
+          <!-- terapeutas dinámicos desde DB -->
         </div>
       </div>
     </section>
@@ -129,6 +118,7 @@
     </div>
   </div>
 
+  <script src="../data/db.js"></script>
   <script src="js/terapeuta.js"></script>
 </body>
 

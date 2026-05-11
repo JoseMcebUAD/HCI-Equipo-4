@@ -31,43 +31,54 @@ document.addEventListener('DOMContentLoaded', function() {
 
   formReporte.addEventListener('submit', function(e) {
     e.preventDefault();
-    // Obtener filtros del formulario
+    if (!window.DB) return;
+
     const fechaInicio = document.getElementById('fechaInicio').value;
     const fechaFin = document.getElementById('fechaFin').value;
-    const filtroServicio = document.getElementById('filtroServicio').value;
+    const filtroReporte = document.getElementById('filtroServicio').value; // 'psicodiagnostico'=Economico, 'terapia'=Citas
 
-    // Simulación: Generar datos de reporte (este ejemplo usa datos estáticos)
-    const datosReporte = [
-      { paciente: "María Aguilar", servicio: "psicodiagnostico", citas: 3 },
-      { paciente: "Carlos Ruiz", servicio: "terapia", citas: 5 },
-      { paciente: "Ana García", servicio: "psicodiagnostico", citas: 2 }
-    ];
-
-    // Filtrar datos de acuerdo a los valores ingresados
-    const datosFiltrados = datosReporte.filter(dato => {
-      // Solo aplicamos filtro de servicio si se ha seleccionado un valor
-      if (filtroServicio && dato.servicio !== filtroServicio) return false;
-      // Para este ejemplo, ignoramos la fecha, pero en un caso real deberíamos filtrar según fechaInicio y fechaFin
-      return true;
+    const allEvents = DB.eventos.getAll();
+    
+    // Filtrar por fecha
+    const filteredEvents = allEvents.filter(ev => {
+        if (!ev.fecha) return false;
+        // Normalizar fecha del evento (asumimos YYYY-MM-DD o DD/MM/YYYY)
+        // Por ahora filtro simple si el evento tiene fecha
+        const evDate = ev.fecha.includes('/') ? ev.fecha.split('/').reverse().join('-') : ev.fecha;
+        if (fechaInicio && evDate < fechaInicio) return false;
+        if (fechaFin && evDate > fechaFin) return false;
+        return true;
     });
 
-    // Renderizar resultados en una tabla
-    let html = `<table>
+    // Agrupar por paciente
+    const stats = {};
+    filteredEvents.forEach(ev => {
+        if (!stats[ev.paciente]) {
+            stats[ev.paciente] = { citas: 0, costo: 0 };
+        }
+        stats[ev.paciente].citas++;
+        stats[ev.paciente].costo += 500; // Costo base simulado
+    });
+
+    // Renderizar resultados
+    let html = `<h3>Resultados (${filteredEvents.length} citas encontradas)</h3>`;
+    html += `<table>
                   <thead>
                     <tr>
                       <th>#</th>
                       <th>Paciente</th>
-                      <th>Servicio</th>
                       <th>Citas</th>
+                      ${filtroReporte === 'psicodiagnostico' ? '<th>Ingreso Estimado</th>' : ''}
                     </tr>
                   </thead>
                   <tbody>`;
-    datosFiltrados.forEach((dato, index) => {
+    
+    Object.keys(stats).forEach((nombre, index) => {
       html += `<tr>
                  <td>${index + 1}</td>
-                 <td>${dato.paciente}</td>
-                 <td>${dato.servicio}</td>
-                 <td>${dato.citas}</td>
+                 <td>${nombre}</td>
+                 <td>${stats[nombre].citas}</td>
+                 ${filtroReporte === 'psicodiagnostico' ? `<td>$${stats[nombre].costo}</td>` : ''}
                </tr>`;
     });
     html += `</tbody></table>`;
@@ -78,37 +89,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
   const formConfiguracion = document.getElementById('formConfiguracion');
   const configResultado = document.getElementById('configResultado');
+  const btnResetDB = document.getElementById('btnResetDB');
 
-  // Al cargar la página, cargar configuración guardada, si existe
   function cargarConfiguracion() {
-    const config = localStorage.getItem('configSistema');
+    if (!window.DB) return;
+    const config = DB.config.get();
     if (config) {
-      const { notificaciones, tiempoEspera, maxReprogramaciones } = JSON.parse(config);
-      document.getElementById('notificaciones').value = notificaciones;
-      document.getElementById('tiempoEspera').value = tiempoEspera;
-      document.getElementById('maxReprogramaciones').value = maxReprogramaciones;
+      document.getElementById('notificaciones').value = config.notificaciones || 'habilitado';
+      document.getElementById('tiempoEspera').value = config.tiempoEspera || 15;
+      document.getElementById('maxReprogramaciones').value = config.maxReprogramaciones || 3;
     }
   }
 
   formConfiguracion.addEventListener('submit', function(e) {
     e.preventDefault();
-    // Obtener valores del formulario
     const notificaciones = document.getElementById('notificaciones').value;
-    const tiempoEspera = document.getElementById('tiempoEspera').value;
-    const maxReprogramaciones = document.getElementById('maxReprogramaciones').value;
+    const tiempoEspera = parseInt(document.getElementById('tiempoEspera').value);
+    const maxReprogramaciones = parseInt(document.getElementById('maxReprogramaciones').value);
 
-    // Guardar configuración en localStorage
-    const config = { notificaciones, tiempoEspera, maxReprogramaciones };
-    localStorage.setItem('configSistema', JSON.stringify(config));
+    if (window.DB) {
+        DB.config.set({ notificaciones, tiempoEspera, maxReprogramaciones });
+    }
 
-    // Mostrar mensaje de éxito
     configResultado.textContent = 'Configuración guardada correctamente.';
     setTimeout(() => {
       configResultado.textContent = '';
     }, 3000);
   });
 
-  // Inicializar la configuración al cargar la página
+  btnResetDB.addEventListener('click', () => {
+    if (confirm('¿ESTÁS SEGURO? Se borrarán todos los datos y se restablecerán los valores de fábrica.')) {
+        localStorage.clear();
+        alert('Base de datos restablecida. La página se recargará.');
+        location.reload();
+    }
+  });
+
+  // Inicializar
   cargarConfiguracion();
 });
-

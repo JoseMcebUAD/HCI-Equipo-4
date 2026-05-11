@@ -3,40 +3,53 @@ document.addEventListener('DOMContentLoaded', function() {
   const buscarNombreInput = document.getElementById('buscar-nombre');
   const tipoServicioSelect = document.getElementById('tipo-servicio');
   const estadoRadios = document.querySelectorAll('input[name="estado"]');
-  const pacientesItems = document.querySelectorAll('.patient-item');
+  const patientListContainer = document.getElementById('patientList');
 
-  // Función para aplicar filtros
-  function aplicarFiltros() {
+  // Función para renderizar pacientes
+  function renderPacientes() {
+    if (!window.DB) return;
+
+    const allPacientes = DB.pacientes.getAll();
     const nombreFiltro = buscarNombreInput.value.toLowerCase();
     const servicioFiltro = tipoServicioSelect.value;
     const estadoFiltro = document.querySelector('input[name="estado"]:checked').value;
 
-    pacientesItems.forEach(paciente => {
-      const nombrePaciente = paciente.textContent.toLowerCase();
-      const servicioPaciente = paciente.getAttribute('data-servicio') || '';
-      const estadoPaciente = paciente.getAttribute('data-estado');
+    patientListContainer.innerHTML = "";
 
-      // Verificar coincidencias con los filtros
-      const nombreCoincide = nombrePaciente.includes(nombreFiltro);
-      const servicioCoincide = servicioFiltro === '' || servicioPaciente === servicioFiltro;
-      const estadoCoincide = estadoFiltro === 'todos' || estadoPaciente === estadoFiltro;
+    allPacientes.forEach(p => {
+      const nombreCoincide = p.nombre.toLowerCase().includes(nombreFiltro);
+      const servicioCoincide = servicioFiltro === '' || p.servicio === servicioFiltro;
+      const estadoCoincide = estadoFiltro === 'todos' || p.estado === estadoFiltro;
 
-      // Mostrar u ocultar según los filtros
       if (nombreCoincide && servicioCoincide && estadoCoincide) {
-        paciente.style.display = 'flex';
-      } else {
-        paciente.style.display = 'none';
+        // Determinar qué página de detalle usar
+        let detailPage = "detalle_paciente_activo.html";
+        if (p.estado === "espera") detailPage = "detalle_paciente_espera.html";
+        if (p.estado === "archivado") detailPage = "detalle_paciente_archivado.html";
+
+        const item = document.createElement("a");
+        item.href = `${detailPage}?id=${p.id}`;
+        item.className = "patient-item";
+        item.setAttribute("data-estado", p.estado);
+        item.setAttribute("data-servicio", p.servicio || "");
+        
+        item.innerHTML = `
+            <span>${p.nombre} - ${p.servicio ? (p.servicio.charAt(0).toUpperCase() + p.servicio.slice(1)) : 'Sin tipo'}</span>
+            <span class="patient-status ${p.estado}">${p.estado.charAt(0).toUpperCase() + p.estado.slice(1)}</span>
+        `;
+
+        patientListContainer.appendChild(item);
       }
     });
   }
 
   // Event listeners para los filtros
-  buscarNombreInput.addEventListener('input', aplicarFiltros);
-  tipoServicioSelect.addEventListener('change', aplicarFiltros);
+  buscarNombreInput.addEventListener('input', renderPacientes);
+  tipoServicioSelect.addEventListener('change', renderPacientes);
   estadoRadios.forEach(radio => {
-    radio.addEventListener('change', aplicarFiltros);
+    radio.addEventListener('change', renderPacientes);
   });
 
-  // Aplicar filtros al cargar la página (por si hay valores por defecto)
-  aplicarFiltros();
+  // Inicialización
+  renderPacientes();
 });

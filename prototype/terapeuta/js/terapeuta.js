@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function () {
   // Elementos del DOM
-  const therapistItems = document.querySelectorAll(".therapist-item");
   const btnNuevoTerapeuta = document.getElementById("btnNuevoTerapeuta");
   const modal = document.getElementById("modalTerapeuta");
   const closeModal = document.querySelectorAll(".close-modal");
@@ -10,75 +9,99 @@ document.addEventListener("DOMContentLoaded", function () {
   const buscarNombre = document.getElementById("buscar-nombre");
   const tipoServicio = document.getElementById("tipo-servicio");
   const rolTerapeuta = document.getElementById("rol-terapeuta");
-  const therapistListContainer = document.querySelector(".therapist-list");
+  const therapistListContainer = document.getElementById("therapistList");
 
-  buscarNombre.addEventListener("input", aplicarFiltros);
-  tipoServicio.addEventListener("change", aplicarFiltros);
-  rolTerapeuta.addEventListener("change", aplicarFiltros);
+  let currentEditId = null;
 
-  // Datos de ejemplo
-  const terapeutas = [
-    {
-      id: 1,
-      nombre: "Ana García",
-      email: "ana@clinica.com",
-      telefono: "5551234567",
-      rol: "activo",
-      tipo: "tipo1",
-      horarios: [],
-    },
-    {
-      id: 2,
-      nombre: "Carlos Méndez",
-      email: "carlos@clinica.com",
-      telefono: "5557654321",
-      rol: "activo",
-      tipo: "tipo2",
-      horarios: [],
-    },
-    {
-      id: 3,
-      nombre: "Luisa Fernández",
-      email: "luisa@clinica.com",
-      telefono: "5559876543",
-      rol: "pasante",
-      tipo: "tipo1",
-      horarios: [],
-    },
-  ];
+  // Listeners para filtros
+  buscarNombre.addEventListener("input", renderTerapeutas);
+  tipoServicio.addEventListener("change", renderTerapeutas);
+  rolTerapeuta.addEventListener("change", renderTerapeutas);
 
-  function aplicarFiltros() {
+  // Cargar y mostrar terapeutas
+  function renderTerapeutas() {
+    if (!window.DB) return;
+    
+    const allTerapeutas = DB.terapeutas.getAll();
     const nombreFiltro = buscarNombre.value.toLowerCase();
     const tipoFiltro = tipoServicio.value;
     const rolFiltro = rolTerapeuta.value;
 
-    // Obtener todos los elementos de terapeutas
-    const therapists = document.querySelectorAll(
-      ".therapist-list > div, .therapist-list > a"
-    );
+    therapistListContainer.innerHTML = "";
 
-    therapists.forEach((therapist) => {
-      const nombre = therapist.dataset.nombre.toLowerCase();
-      const tipo = therapist.dataset.tipo;
-      const rol = therapist
-        .querySelector(".therapist-status")
-        .textContent.toLowerCase();
-
-      const coincideNombre =
-        nombre.includes(nombreFiltro) || nombreFiltro === "";
-      const coincideTipo = tipo === tipoFiltro || tipoFiltro === "";
-      const coincideRol = rol === rolFiltro || rolFiltro === "";
+    allTerapeutas.forEach((t) => {
+      const coincideNombre = t.nombre.toLowerCase().includes(nombreFiltro) || nombreFiltro === "";
+      const coincideTipo = t.tipo === tipoFiltro || tipoFiltro === "";
+      const coincideRol = t.rol === rolFiltro || rolFiltro === "";
 
       if (coincideNombre && coincideTipo && coincideRol) {
-        therapist.style.display = "block";
-      } else {
-        therapist.style.display = "none";
+        const item = document.createElement("div");
+        item.className = "therapist-list-item-container";
+        item.style.display = "flex";
+        item.style.alignItems = "center";
+        item.style.marginBottom = "8px";
+        item.innerHTML = `
+            <div class="therapist-list" style="flex-grow: 1; margin-bottom: 0;">
+              <a href="detalle_terapeuta.html?id=${t.id}" style="text-decoration: none; color: inherit; display: flex; justify-content: space-between; width: 100%;">
+                <span>${t.nombre} - ${t.tipoLabel || (t.tipo === 'tipo1' ? 'Psicodiagnóstico' : 'Terapia Individual')}</span>
+                <span class="therapist-status">${t.rol.charAt(0).toUpperCase() + t.rol.slice(1)}</span>
+              </a>
+            </div>
+            <button class="btn-edit-small" data-id="${t.id}" style="margin-left: 10px; background: none; border: none; cursor: pointer; font-size: 1.2rem;">✏️</button>
+        `;
+        
+        item.querySelector(".btn-edit-small").addEventListener("click", (e) => {
+          e.stopPropagation();
+          openEditModal(t.id);
+        });
+
+        therapistListContainer.appendChild(item);
       }
     });
   }
 
+  function openEditModal(id) {
+    const t = DB.terapeutas.getById(id);
+    if (!t) return;
+
+    currentEditId = id;
+    document.getElementById("modalTitle").textContent = "Editar Terapeuta";
+    document.getElementById("nombre").value = t.nombre;
+    document.getElementById("email").value = t.email;
+    document.getElementById("telefono").value = t.telefono;
+    document.getElementById("rol").value = t.rol;
+    document.getElementById("tipo-servicio-modal").value = t.tipo;
+
+    horariosContainer.innerHTML = "";
+    (t.horarios || []).forEach(h => addHorarioRow(h));
+
+    modal.style.display = "block";
+  }
+
+  function addHorarioRow(h = { dia: 'lunes', inicio: '09:00', fin: '13:00' }) {
+    const horarioItem = document.createElement("div");
+    horarioItem.className = "horario-item";
+    horarioItem.innerHTML = `
+        <select class="dia-semana">
+          <option value="lunes" ${h.dia === 'lunes' ? 'selected' : ''}>Lunes</option>
+          <option value="martes" ${h.dia === 'martes' ? 'selected' : ''}>Martes</option>
+          <option value="miercoles" ${h.dia === 'miercoles' ? 'selected' : ''}>Miércoles</option>
+          <option value="jueves" ${h.dia === 'jueves' ? 'selected' : ''}>Jueves</option>
+          <option value="viernes" ${h.dia === 'viernes' ? 'selected' : ''}>Viernes</option>
+        </select>
+        <input type="time" class="hora-inicio" value="${h.inicio}">
+        <span>a</span>
+        <input type="time" class="hora-fin" value="${h.fin}">
+        <button type="button" class="btn-remove-horario">✕</button>
+      `;
+    horariosContainer.appendChild(horarioItem);
+
+    horarioItem.querySelector(".btn-remove-horario").addEventListener("click", () => horarioItem.remove());
+  }
+
   // Abrir modal para nuevo terapeuta
   btnNuevoTerapeuta.addEventListener("click", function () {
+    currentEditId = null;
     document.getElementById("modalTitle").textContent = "Nuevo Terapeuta";
     formTerapeuta.reset();
     horariosContainer.innerHTML = "";
@@ -87,138 +110,45 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Cerrar modal
   closeModal.forEach((btn) => {
-    btn.addEventListener("click", function () {
-      modal.style.display = "none";
-    });
+    btn.addEventListener("click", () => modal.style.display = "none");
   });
 
-  // Cerrar modal al hacer clic fuera
-  window.addEventListener("click", function (e) {
-    if (e.target === modal) {
-      modal.style.display = "none";
-    }
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) modal.style.display = "none";
   });
 
-  // Añadir horario
-  btnAddHorario.addEventListener("click", function () {
-    const horarioItem = document.createElement("div");
-    horarioItem.className = "horario-item";
-    horarioItem.innerHTML = `
-        <select class="dia-semana">
-          <option value="lunes">Lunes</option>
-          <option value="martes">Martes</option>
-          <option value="miercoles">Miércoles</option>
-          <option value="jueves">Jueves</option>
-          <option value="viernes">Viernes</option>
-        </select>
-        <input type="time" class="hora-inicio">
-        <span>a</span>
-        <input type="time" class="hora-fin">
-        <button type="button" class="btn-remove-horario">✕</button>
-      `;
-    horariosContainer.appendChild(horarioItem);
-
-    // Eliminar horario
-    horarioItem
-      .querySelector(".btn-remove-horario")
-      .addEventListener("click", function () {
-        horarioItem.remove();
-      });
-  });
+  btnAddHorario.addEventListener("click", () => addHorarioRow());
 
   // Enviar formulario
   formTerapeuta.addEventListener("submit", function (e) {
     e.preventDefault();
 
-    // Obtener datos del formulario
-    const nombre = document.getElementById("nombre").value;
-    const email = document.getElementById("email").value;
-    const telefono = document.getElementById("telefono").value;
-    const rol = document.getElementById("rol").value;
-    const tipo = document.getElementById("tipo-servicio-modal").value;
-
-    // Obtener horarios
-    const horarios = [];
-    document.querySelectorAll(".horario-item").forEach((item) => {
-      horarios.push({
+    const tipoSelect = document.getElementById("tipo-servicio-modal");
+    const nuevoTerapeuta = {
+      nombre: document.getElementById("nombre").value,
+      email: document.getElementById("email").value,
+      telefono: document.getElementById("telefono").value,
+      rol: document.getElementById("rol").value,
+      tipo: tipoSelect.value,
+      tipoLabel: tipoSelect.options[tipoSelect.selectedIndex].text,
+      horarios: Array.from(document.querySelectorAll(".horario-item")).map(item => ({
         dia: item.querySelector(".dia-semana").value,
         inicio: item.querySelector(".hora-inicio").value,
         fin: item.querySelector(".hora-fin").value,
-      });
-    });
+      }))
+    };
 
-    // Aquí iría la lógica para guardar en la base de datos
-    console.log({
-      nombre,
-      email,
-      telefono,
-      rol,
-      tipo,
-      horarios,
-    });
+    if (currentEditId) {
+      DB.terapeutas.update(currentEditId, nuevoTerapeuta);
+    } else {
+      DB.terapeutas.add(nuevoTerapeuta);
+    }
 
-    // Cerrar modal y actualizar lista
     modal.style.display = "none";
+    renderTerapeutas();
     alert("Terapeuta guardado correctamente");
   });
 
-  // Seleccionar terapeuta para editar
-  therapistItems.forEach((item) => {
-    item.addEventListener("click", function () {
-      const nombre = this.dataset.nombre;
-      const tipo = this.dataset.tipo;
-
-      // Buscar terapeuta en los datos
-      const terapeuta = terapeutas.find((t) => t.nombre === nombre);
-
-      if (terapeuta) {
-        document.getElementById("modalTitle").textContent = "Editar Terapeuta";
-        document.getElementById("nombre").value = terapeuta.nombre;
-        document.getElementById("email").value = terapeuta.email;
-        document.getElementById("telefono").value = terapeuta.telefono;
-        document.getElementById("rol").value = terapeuta.rol;
-        document.getElementById("tipo-servicio-modal").value = terapeuta.tipo;
-
-        // Limpiar y cargar horarios
-        horariosContainer.innerHTML = "";
-        terapeuta.horarios.forEach((horario) => {
-          const horarioItem = document.createElement("div");
-          horarioItem.className = "horario-item";
-          horarioItem.innerHTML = `
-              <select class="dia-semana">
-                <option value="lunes" ${
-                  horario.dia === "lunes" ? "selected" : ""
-                }>Lunes</option>
-                <option value="martes" ${
-                  horario.dia === "martes" ? "selected" : ""
-                }>Martes</option>
-                <option value="miercoles" ${
-                  horario.dia === "miercoles" ? "selected" : ""
-                }>Miércoles</option>
-                <option value="jueves" ${
-                  horario.dia === "jueves" ? "selected" : ""
-                }>Jueves</option>
-                <option value="viernes" ${
-                  horario.dia === "viernes" ? "selected" : ""
-                }>Viernes</option>
-              </select>
-              <input type="time" class="hora-inicio" value="${horario.inicio}">
-              <span>a</span>
-              <input type="time" class="hora-fin" value="${horario.fin}">
-              <button type="button" class="btn-remove-horario">✕</button>
-            `;
-          horariosContainer.appendChild(horarioItem);
-
-          // Eliminar horario
-          horarioItem
-            .querySelector(".btn-remove-horario")
-            .addEventListener("click", function () {
-              horarioItem.remove();
-            });
-        });
-
-        modal.style.display = "block";
-      }
-    });
-  });
+  // Inicialización
+  renderTerapeutas();
 });

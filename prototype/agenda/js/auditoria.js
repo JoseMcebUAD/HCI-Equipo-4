@@ -5,30 +5,39 @@
 (function () {
   'use strict';
 
-  const LS_KEY = 'agenda_audit_logs';
+  const LS_KEY = 'db_audit';
   const MAX_LOGS = 500;
+  const useDB = () => !!(window.DB && window.DB.audit);
 
   const readLogs = () => {
     try {
+      if (useDB()) {
+        const rows = DB.audit.getAll();
+        return Array.isArray(rows) ? rows.map(normalizeEntry) : [];
+      }
       const raw = localStorage.getItem(LS_KEY);
       const rows = raw ? JSON.parse(raw) : [];
-      return Array.isArray(rows)
-        ? rows.map(item => ({
-            id: item.id || `aud-${Math.random().toString(36).slice(2, 8)}`,
-            createdAt: item.createdAt || item.timestamp || nowIso(),
-            uc: item.uc || '',
-            action: item.action || 'Evento',
-            actor: item.actor || 'Sistema',
-            details: item.details || {}
-          }))
-        : [];
+      return Array.isArray(rows) ? rows.map(normalizeEntry) : [];
     } catch (_) {
       return [];
     }
   };
 
+  function normalizeEntry(item) {
+    return {
+      id: item.id || `aud-${Math.random().toString(36).slice(2, 8)}`,
+      createdAt: item.createdAt || item.timestamp || nowIso(),
+      uc: item.uc || '',
+      action: item.action || 'Evento',
+      actor: item.actor || 'Sistema',
+      details: item.details || {}
+    };
+  }
+
   const writeLogs = logs => {
-    localStorage.setItem(LS_KEY, JSON.stringify(logs.slice(0, MAX_LOGS)));
+    const trimmed = logs.slice(0, MAX_LOGS);
+    if (useDB()) { DB.audit.set(trimmed); return; }
+    localStorage.setItem(LS_KEY, JSON.stringify(trimmed));
   };
 
   const nowIso = () => new Date().toISOString();

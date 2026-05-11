@@ -540,64 +540,96 @@
     </div>
 </div>
 
-<script>
-    // Lógica del calendario
-    let currentDate = new Date();
-    let selectedDate = null;
-    let selectedTime = null;
+    <script src="../data/db.js"></script>
+    <script>
+        // Lógica del calendario
+        let currentDate = new Date();
+        let selectedDate = null;
+        let selectedTime = null;
 
-    function generateCalendar(date) {
-        // Implementar lógica para generar el calendario
-    }
-
-    document.querySelectorAll('.calendar-date').forEach(date => {
-        date.addEventListener('click', function () {
-            if (!this.classList.contains('disabled')) {
-                document.querySelectorAll('.calendar-date').forEach(d => d.classList.remove('selected'));
-                this.classList.add('selected');
-                selectedDate = this.textContent;
-                document.querySelector('.time-slots').classList.remove('hidden');
-            }
-        });
-    });
-
-    document.querySelectorAll('.time-slot').forEach(slot => {
-        slot.addEventListener('click', function () {
-            document.querySelectorAll('.time-slot').forEach(t => t.classList.remove('selected'));
-            this.classList.add('selected');
-            selectedTime = this.textContent;
-        });
-    });
-
-    document.getElementById('appointmentForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        if (!selectedDate || !selectedTime) {
-            alert('Por favor selecciona fecha y hora');
-            return;
+        function formatDateISO(year, month, day) {
+            return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         }
 
-        // Mostrar modal
-        const modal = document.getElementById('confirmationModal');
-        modal.style.display = 'flex';
-        setTimeout(() => modal.classList.add('show'), 10);
-
-        // Reiniciar animaciones
-        document.querySelectorAll('.checkmark__circle, .checkmark__check').forEach(el => {
-            el.style.animation = 'none';
-            void el.offsetWidth; // Trigger reflow
-            el.style.animation = null;
+        document.querySelectorAll('.calendar-date').forEach(date => {
+            date.addEventListener('click', function () {
+                if (!this.classList.contains('disabled')) {
+                    document.querySelectorAll('.calendar-date').forEach(d => d.classList.remove('selected'));
+                    this.classList.add('selected');
+                    selectedDate = formatDateISO(2023, 8, parseInt(this.textContent)); 
+                    document.querySelector('.time-slots').classList.remove('hidden');
+                }
+            });
         });
-    });
 
-    document.getElementById('modalClose').addEventListener('click', function () {
-        document.getElementById('confirmationModal').classList.remove('show');
-        setTimeout(() => {
-            window.location.href = '../index.html'; // Ajustar ruta
-        }, 300);
-    });
+        document.querySelectorAll('.time-slot').forEach(slot => {
+            slot.addEventListener('click', function () {
+                document.querySelectorAll('.time-slot').forEach(t => t.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedTime = this.textContent;
+            });
+        });
 
-</script>
-<script type="module" src="https://cdn.jsdelivr.net/npm/@material/web@latest/all.min.js"></script>
+        document.getElementById('appointmentForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            if (!selectedDate || !selectedTime) {
+                alert('Por favor selecciona fecha y hora en el calendario');
+                return;
+            }
+
+            const nombre = this.querySelector('input[type="text"]').value;
+            const fechaNac = this.querySelector('input[type="date"]').value;
+            const email = this.querySelector('input[type="email"]').value;
+            const telefono = this.querySelector('input[type="tel"]').value;
+            const motivo = this.querySelector('select').value;
+
+            const solicitud = {
+                id: 'sol-' + Date.now().toString(36),
+                nombre,
+                fechaNacimiento: fechaNac,
+                email,
+                telefono,
+                motivo,
+                fechaSolicitada: selectedDate,
+                horaSolicitada: selectedTime,
+                estado: 'pendiente',
+                fechaCreacion: new Date().toISOString()
+            };
+
+            if (window.DB) {
+                DB.solicitudes.add(solicitud);
+                DB.inbox.add({
+                    id: 'req-' + Date.now().toString(36),
+                    tipo: 'nueva',
+                    estado: 'pendiente',
+                    fechaCreacion: solicitud.fechaCreacion,
+                    paciente: nombre,
+                    telefono: telefono,
+                    tipoServicio: motivo === 'psicoterapia' ? 2 : 1,
+                    disponibilidad: [{ dia: selectedDate, horaInicio: selectedTime, horaFin: selectedTime }],
+                    notas: `Solicitud desde web. Motivo: ${motivo}`
+                });
+            }
+
+            const modal = document.getElementById('confirmationModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+
+            document.querySelectorAll('.checkmark__circle, .checkmark__check').forEach(el => {
+                el.style.animation = 'none';
+                void el.offsetWidth;
+                el.style.animation = null;
+            });
+        });
+
+        document.getElementById('modalClose').addEventListener('click', function () {
+            document.getElementById('confirmationModal').classList.remove('show');
+            setTimeout(() => {
+                window.location.href = '../index.html';
+            }, 300);
+        });
+    </script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@material/web@latest/all.min.js"></script>
 </body>
 </html>

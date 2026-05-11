@@ -9,9 +9,12 @@
   /* ──────────────────────────────────────────────────────────
      CONSTANTS
   ────────────────────────────────────────────────────────── */
-  const LS_KEY       = 'agenda_inbox';
+  const LS_KEY       = 'db_inbox'; // legacy ref
   const ARCHIVE_DAYS = 7;
   const logAudit = payload => window.Auditoria?.log(payload);
+
+  /* Use DB module if available, fallback to direct localStorage */
+  const useDB = () => !!(window.DB && window.DB.inbox);
 
   const TIPO_LABEL = {
     nueva:          'Nueva solicitud',
@@ -108,19 +111,19 @@
   }
 
   /* ──────────────────────────────────────────────────────────
-     DATA ACCESS — localStorage
+     DATA ACCESS — via DB module (or localStorage fallback)
   ────────────────────────────────────────────────────────── */
   function loadRequests() {
+    if (useDB()) return DB.inbox.getAll();
     const raw = localStorage.getItem(LS_KEY);
     if (raw) {
       try { return JSON.parse(raw); } catch (_) {}
     }
-    const data = makeMockRequests();
-    saveRequests(data);
-    return data;
+    return [];
   }
 
   function saveRequests(requests) {
+    if (useDB()) { DB.inbox.set(requests); return; }
     localStorage.setItem(LS_KEY, JSON.stringify(requests));
   }
 

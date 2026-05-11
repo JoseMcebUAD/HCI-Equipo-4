@@ -62,29 +62,14 @@
       <!-- Lista de pacientes -->
       <div class="panel main-panel">
         <h3>Pacientes</h3>
-        <div class="patient-list">
-          <!-- Paciente Activo -->
-          <a href="detalle_paciente_activo.html" class="patient-item" data-estado="activo" data-servicio="psicoterapia">
-            <span>María López - Psicoterapia</span>
-            <span class="patient-status activo">Activo</span>
-          </a>
-          
-          <!-- Paciente en Espera -->
-          <a href="detalle_paciente_espera.html" class="patient-item" data-estado="espera" data-servicio="">
-            <span>Carlos Ruiz - Sin tipo</span>
-            <span class="patient-status espera">En espera</span>
-          </a>
-          
-          <!-- Paciente Archivado -->
-          <a href="detalle_paciente_archivado.html" class="patient-item" data-estado="archivado" data-servicio="psicodiagnostico">
-            <span>Ana García - Psicodiagnóstico</span>
-            <span class="patient-status archivado">Archivado</span>
-          </a>
+        <div class="patient-list" id="patientList">
+          <!-- pacientes dinámicos desde DB -->
         </div>
       </div>
     </section>
   </main>
 
+  <script src="../data/db.js"></script>
   <script src="js/pacientes.js"></script>
 </body>
 </html>

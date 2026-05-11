@@ -12,14 +12,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const fHoraIni   = document.getElementById('horaInicio');
   const fHoraFin   = document.getElementById('horaFin');
 
-  /* ---------- estado ---------- */
-  let salas = [];
-
-  const load = () => {
-    salas = JSON.parse(localStorage.getItem('salas')||'[]');
-  };
-  const save = () => localStorage.setItem('salas', JSON.stringify(salas));
-
   /* ---------- UI helpers ---------- */
   const closeModal = () => {
     modal.style.display='none';
@@ -31,17 +23,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* ---------- render tabla ---------- */
   const render = () => {
+    if (!window.DB) return;
     tbody.innerHTML='';
+    const salas = DB.salas.getAll();
     salas.forEach((sala,i)=>{
       const tr=document.createElement('tr');
       tr.innerHTML=`
         <td>${i+1}</td>
         <td>${sala.nombre}</td>
-        <td>${sala.servicios.join(', ')}</td>
+        <td>${(sala.servicios || []).join(', ')}</td>
         <td>${sala.horaInicio} – ${sala.horaFin}</td>
         <td>
-          <button class="edit-btn" data-i="${i}">Editar</button>
-          <button class="del-btn"  data-i="${i}">Eliminar</button>
+          <button class="edit-btn" data-id="${sala.id}">Editar</button>
+          <button class="del-btn"  data-id="${sala.id}">Eliminar</button>
         </td>`;
       tbody.appendChild(tr);
     });
@@ -49,15 +43,16 @@ document.addEventListener('DOMContentLoaded', () => {
     /* eventos editar / borrar */
     tbody.querySelectorAll('.edit-btn').forEach(btn=>{
       btn.onclick=()=>{
-        const i=btn.dataset.i;
-        const s=salas[i];
-        fId.value=i;
+        const id=parseInt(btn.dataset.id);
+        const s=DB.salas.getById(id);
+        if(!s) return;
+        fId.value=id;
         fNombre.value=s.nombre;
         fHoraIni.value=s.horaInicio;
         fHoraFin.value=s.horaFin;
         /* marcar checkboxes */
         [...form.querySelectorAll('input[name="servicios"]')].forEach(c=>{
-          c.checked=s.servicios.includes(c.value);
+          c.checked=(s.servicios || []).includes(c.value);
         });
         formTitle.textContent='Editar Sala';
         openModal();
@@ -65,10 +60,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     tbody.querySelectorAll('.del-btn').forEach(btn=>{
       btn.onclick=()=>{
-        const i=btn.dataset.i;
+        const id=parseInt(btn.dataset.id);
         if(confirm('¿Eliminar esta sala?')){
-          salas.splice(i,1);
-          save(); render();
+          DB.salas.remove(id);
+          render();
         }
       };
     });
@@ -100,11 +95,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const data={nombre,servicios,horaInicio:hIni,horaFin:hFin};
 
     if(fId.value===''){          /* alta */
-      salas.push(data);
+      DB.salas.add(data);
     }else{                       /* edición */
-      salas[Number(fId.value)]=data;
+      DB.salas.update(parseInt(fId.value), data);
     }
-    save(); render(); closeModal();
+    render(); closeModal();
   };
 
   /* ---------- eventos globales ---------- */
@@ -119,6 +114,5 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onclick=e=>{ if(e.target===modal) closeModal(); };
 
   /* ---------- init ---------- */
-  load(); render();
+  render();
 });
-

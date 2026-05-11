@@ -8,78 +8,58 @@ document.addEventListener("DOMContentLoaded", () => {
   const cancelReprogramBtn = document.getElementById("cancelReprogramBtn");
   const reprogramForm = document.getElementById("reprogramForm");
 
-  // Datos de ejemplo (simulando una base de datos)
-  const sampleAppointments = [
-    {
-      name: "Juan Pérez López",
-      tutor: "María García Méndez",
-      email: "juan.perez@example.com",
-      phone: "5551234567",
-      date: "2023-12-15",
-      time: "10:00",
-      specialist: "Dra. Ana Rodríguez",
-      location: "Consultorio 3, Piso 2",
-      reprogramRequest: null,
-    },
-    {
-      name: "Pedro Martínez",
-      tutor: null,
-      email: "pedro.martinez@example.com",
-      phone: "5557654321",
-      date: "2023-12-20",
-      time: "16:30",
-      specialist: "Dr. Carlos Sánchez",
-      location: "Consultorio 5, Piso 1",
-      reprogramRequest: {
-        status: "pending",
-        reason: "emergency",
-        details: "Necesito viajar por emergencia familiar",
-        requestDate: "2023-12-19",
-        adminResponse:
-          "Hemos recibido su solicitud. Le contactaremos dentro de 24 horas para asignarle una nueva fecha.",
-      },
-    },
-  ];
+  let currentAppointment = null;
 
   // Buscar cita
   searchForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const name = document.getElementById("searchName").value.toLowerCase();
-    const contact = document
-      .getElementById("searchContact")
-      .value.toLowerCase();
+    if (!window.DB) return;
 
-    // Buscar en los datos de ejemplo
-    const appointment = sampleAppointments.find(
-      (app) =>
-        (app.name.toLowerCase().includes(name) ||
-          (app.tutor && app.tutor.toLowerCase().includes(name))) &&
-        (app.email.toLowerCase().includes(contact) ||
-          app.phone.includes(contact))
+    const nameInput = document.getElementById("searchName").value.toLowerCase();
+    const contactInput = document.getElementById("searchContact").value.toLowerCase();
+
+    // Buscar en DB.eventos
+    // Nota: El modelo de datos de eventos tiene 'paciente' (nombre)
+    // Para simplificar, buscaremos por nombre del paciente
+    const allEvents = DB.eventos.getAll();
+    const appointment = allEvents.find(ev => 
+        ev.paciente.toLowerCase().includes(nameInput)
     );
 
     if (appointment) {
+      currentAppointment = appointment;
+      
       // Mostrar información de la cita
-      document.getElementById("appointmentDate").textContent = formatDate(
-        appointment.date
-      );
-      document.getElementById("appointmentTime").textContent = appointment.time;
-      document.getElementById("appointmentSpecialist").textContent =
-        appointment.specialist;
-      document.getElementById("appointmentLocation").textContent =
-        appointment.location;
+      document.getElementById("appointmentDate").textContent = formatDate(appointment.fecha);
+      document.getElementById("appointmentTime").textContent = appointment.hora;
+      document.getElementById("appointmentSpecialist").textContent = appointment.terapeuta || "Asignado por clínica";
+      document.getElementById("appointmentLocation").textContent = appointment.sala || "Consultorio central";
 
       appointmentInfo.classList.remove("hidden");
 
-      // Mostrar estado de reprogramación si existe
-      if (appointment.reprogramRequest) {
-        showReprogramStatus(appointment.reprogramRequest);
+      // Verificar si hay solicitudes de reprogramación en el inbox relacionadas con este paciente
+      const allInbox = DB.inbox.getAll();
+      const existingRequest = allInbox.find(item => 
+        item.tipo === 'reprogramar' && 
+        item.paciente === appointment.paciente &&
+        item.estado === 'pendiente'
+      );
+
+      if (existingRequest) {
+        showReprogramStatus({
+          status: existingRequest.estado,
+          reason: existingRequest.notas.split(':')[0] || 'Conflicto',
+          details: existingRequest.notas,
+          requestDate: existingRequest.fechaCreacion.split('T')[0]
+        });
       } else {
         reprogramStatus.classList.add("hidden");
       }
     } else {
       alert("No se encontró ninguna cita con los datos proporcionados");
+      appointmentInfo.classList.add("hidden");
+      reprogramStatus.classList.add("hidden");
     }
   });
 
@@ -99,20 +79,30 @@ document.addEventListener("DOMContentLoaded", () => {
   reprogramForm.addEventListener("submit", (e) => {
     e.preventDefault();
 
-    const reason = document.getElementById("reprogramReason").value;
+    const reasonSelect = document.getElementById("reprogramReason");
+    const reasonText = reasonSelect.options[reasonSelect.selectedIndex].text;
     const details = document.getElementById("reprogramDetails").value;
 
-    // Crear objeto de solicitud
     const requestData = {
       status: "pending",
-      reason:
-        document.getElementById("reprogramReason").options[
-          document.getElementById("reprogramReason").selectedIndex
-        ].text,
+      reason: reasonText,
       details: details,
-      requestDate: new Date().toISOString().split("T")[0], // Fecha actual
+      requestDate: new Date().toISOString().split("T")[0],
       adminResponse: "",
     };
+
+    // Guardar en DB.inbox para que el admin lo vea
+    if (window.DB && currentAppointment) {
+        DB.inbox.add({
+            id: 'reprog-' + Date.now().toString(36),
+            tipo: 'reprogramar',
+            estado: 'pendiente',
+            fechaCreacion: new Date().toISOString(),
+            paciente: currentAppointment.paciente,
+            notas: `${reasonText}: ${details}`,
+            eventoId: currentAppointment.id
+        });
+    }
 
     // Mostrar estado de la solicitud
     showReprogramStatus(requestData);
@@ -122,40 +112,31 @@ document.addEventListener("DOMContentLoaded", () => {
     reprogramSection.classList.add("hidden");
   });
 
-  // Función para mostrar el estado de reprogramación
   function showReprogramStatus(request) {
-    // Mostrar fecha de solicitud
-    document.getElementById("requestDate").textContent = formatDate(
-      request.requestDate
-    );
-
-    // Mostrar motivo y detalles
+    document.getElementById("requestDate").textContent = formatDate(request.requestDate);
     document.getElementById("requestedReason").textContent = request.reason;
     document.getElementById("requestedDetails").textContent = request.details;
 
-    // Mostrar estado
-    document.getElementById("requestStatus").textContent =
-      request.status === "pending"
-        ? "En revisión"
-        : request.status === "approved"
-        ? "Aprobada"
-        : "Rechazada";
+    const statusMap = {
+        'pending': 'En revisión',
+        'pendiente': 'En revisión',
+        'approved': 'Aprobada',
+        'aprobada': 'Aprobada',
+        'rejected': 'Rechazada',
+        'rechazada': 'Rechazada'
+    };
 
-    document.getElementById("requestStatus").className =
-      request.status === "pending"
-        ? "status-pending"
-        : request.status === "approved"
-        ? "status-approved"
-        : "status-rejected";
+    const statusText = statusMap[request.status] || request.status;
+    document.getElementById("requestStatus").textContent = statusText;
 
-    // Mostrar respuesta del administrador si existe
-    if (request.adminResponse || request.status !== "pending") {
-      document.getElementById("adminResponse").textContent =
-        request.adminResponse ||
-        (request.status === "approved"
-          ? "Su solicitud ha sido aprobada. Nos pondremos en contacto con usted para asignarle una nueva fecha."
-          : "Su solicitud ha sido rechazada. Por favor mantenga su cita original o contacte a la clínica.");
+    let statusClass = "status-pending";
+    if (statusText === 'Aprobada') statusClass = "status-approved";
+    if (statusText === 'Rechazada') statusClass = "status-rejected";
+    
+    document.getElementById("requestStatus").className = statusClass;
 
+    if (request.adminResponse) {
+      document.getElementById("adminResponse").textContent = request.adminResponse;
       document.getElementById("responseMessage").classList.remove("hidden");
     } else {
       document.getElementById("responseMessage").classList.add("hidden");
@@ -164,14 +145,14 @@ document.addEventListener("DOMContentLoaded", () => {
     reprogramStatus.classList.remove("hidden");
   }
 
-  // Función para formatear fechas
   function formatDate(dateString) {
-    const options = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    };
-    return new Date(dateString).toLocaleDateString("es-ES", options);
+    if (!dateString) return "No definida";
+    // Si viene en formato DD/MM/YYYY o similar, intentar convertir
+    const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+    try {
+        return new Date(dateString).toLocaleDateString("es-ES", options);
+    } catch(e) {
+        return dateString;
+    }
   }
 });

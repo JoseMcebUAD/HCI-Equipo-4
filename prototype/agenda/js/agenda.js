@@ -20,14 +20,14 @@ document.addEventListener('DOMContentLoaded', () => {
   /* ---------- JORNADA ------------------------------------ */
   const OPEN=9, CLOSE=17, SLOT=30, ROWS=((CLOSE-OPEN)*60)/SLOT+2, MAX_M=6;
 
-  /* ---------- TIPOS EVENTO ------------------------------- */
+  /* ---------- TIPOS EVENTO (terapeutas dinámicos desde DB) - */
   const TIPOS={
-    1:{nombre:'Evaluación inicial integral',dur:60,terapeutas:['Terapeuta A','Terapeuta B']},
-    2:{nombre:'Cita de terapia',            dur:60,terapeutas:['Terap. 1','Terap. 2','Terap. 3','Terap. 4']}
+    1:{nombre:'Evaluación inicial integral',dur:60, get terapeutas(){ return window.DB ? DB.getTerapeutasPorTipo(1) : ['Terapeuta A','Terapeuta B']; }},
+    2:{nombre:'Cita de terapia',            dur:60, get terapeutas(){ return window.DB ? DB.getTerapeutasPorTipo(2) : ['Terap. 1','Terap. 2','Terap. 3','Terap. 4']; }}
   };
 
-  /* ---------- SALAS -------------------------------------- */
-  const SALAS=['Sala 101','Sala 102','Sala 103'];
+  /* ---------- SALAS (dinámicas desde DB) ------------------- */
+  const SALAS = window.DB ? DB.getSalasNombres() : ['Sala 101','Sala 102','Sala 103'];
 
   /* ---------- ERRORES ------------------------------------ */
   const ERR={
@@ -124,24 +124,64 @@ document.addEventListener('DOMContentLoaded', () => {
   const detInfo    = document.getElementById('modalInfo');
   const detClose   = document.getElementById('closeModal');
 
-  /* ---------- DATA --------------------------------------- */
-  const eventos=[];
-  const folios ={};
+  /* ---------- DATA (cargada desde DB) --------------------- */
+  const eventos = window.DB ? DB.eventos.getAll() : [];
+  const folios  = window.DB ? DB.folios.getAll()  : {};
   const logAudit = payload => window.Auditoria?.log(payload);
   let pendingDeletion = null;
+
+  /* Marca para no duplicar ejemplos */
+  if(eventos.length > 0) window['__ejemplo__'] = true;
 
   /* Restore persisted state when returning from reprogramar.html */
   (function(){
     const _evts = localStorage.getItem('agenda_events');
     const _fols = localStorage.getItem('agenda_folios');
-    if(_evts){ try{ JSON.parse(_evts).forEach(e=>eventos.push(e)); window['__ejemplo__']=true; }catch(e){} localStorage.removeItem('agenda_events'); }
+    if(_evts){ try{ JSON.parse(_evts).forEach(e=>{ eventos.push(e); }); window['__ejemplo__']=true; }catch(e){} localStorage.removeItem('agenda_events'); }
     if(_fols){ try{ Object.assign(folios,JSON.parse(_fols)); }catch(e){} localStorage.removeItem('agenda_folios'); }
   })();
+
+  /** Sincroniza el array local de eventos con DB */
+  const syncEventosDB = () => { if(window.DB) DB.eventos.set(eventos); };
+  const syncFoliosDB  = () => { if(window.DB) DB.folios.setAll(folios); };
+
+  /** Poblar los <select> de filtros y formulario con datos de DB */
+  const populateSelects = () => {
+    if(!window.DB) return;
+    const allTher = DB.terapeutas.getAll().map(t => t.nombre);
+    const allSalas = DB.getSalasNombres();
+    const allPac  = DB.getPacientesNombres();
+
+    // Filtro terapeutas
+    const fTher = filtroTher;
+    const fTherVal = fTher.value;
+    fTher.innerHTML = '<option value="">Todos</option>' + allTher.map(n => `<option>${n}</option>`).join('');
+    fTher.value = fTherVal;
+
+    // Filtro salas
+    const fRoom = filtroRoom;
+    const fRoomVal = fRoom.value;
+    fRoom.innerHTML = '<option value="">Todas</option>' + allSalas.map(n => `<option>${n}</option>`).join('');
+    fRoom.value = fRoomVal;
+
+    // Filtro pacientes
+    const fPat = filtroPatient;
+    const fPatVal = fPat.value;
+    fPat.innerHTML = '<option value="">Todos</option>' + allPac.map(n => `<option>${n}</option>`).join('');
+    fPat.value = fPatVal;
+
+    // Select paciente en form
+    const sPat = selPaciente;
+    const sPatVal = sPat.value;
+    sPat.innerHTML = '<option value="">Seleccionar paciente</option>' + allPac.map(n => `<option>${n}</option>`).join('');
+    sPat.value = sPatVal;
+  };
 
   /* ---------- HELPERS FOLIO ------------------------------ */
   const getFolio = pac => {
     if(!folios[pac]){
       folios[pac]='F-'+pac.split(' ').map(w=>w[0]).join('')+'-'+Math.random().toString(36).slice(2,6).toUpperCase();
+      syncFoliosDB();
     }
     return folios[pac];
   };
@@ -150,12 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const EJ='__ejemplo__';
   const genEj = sem => {
     if(window[EJ]) return;
-    const p1='Elena Castillo', p2='Luis García';
-    folios[p1]=getFolio(p1); folios[p2]=getFolio(p2);
-    eventos.push(
-      {id:'ex1',tipo:1,paciente:p1,fecha:iso(sem),hora:'10:00',sala:'Sala 101',ther:'Terapeuta A',dur:60,folio:folios[p1],fee:null,proof:''},
-      {id:'ex2',tipo:2,paciente:p2,fecha:iso(addD(sem,2)),hora:'09:30',sala:'Sala 102',ther:'Terap. 2',dur:60,folio:folios[p2],fee:350,proof:''}
-    );
+    /* Los datos semilla ya vienen desde DB.eventos, no se duplican */
     window[EJ]=true;
   };
 
@@ -214,6 +249,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const { event, index } = pendingDeletion;
     const safeIndex = Math.max(0, Math.min(index, eventos.length));
     eventos.splice(safeIndex, 0, event);
+    syncEventosDB();
     pendingDeletion = null;
     render();
     buildMiniCalendar();
@@ -1256,6 +1292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Handle bulk save
     if (pendingBulkEvents) {
       pendingBulkEvents.forEach(ev => eventos.push(ev));
+      syncEventosDB();
 
       filtroFecha.value = pendingBulkEvents[0].fecha;
       hideConfirmation();
@@ -1275,6 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const oldEvent = { ...editing };
       const idx=eventos.findIndex(x=>x.id===editing.id);
       if(idx>=0) eventos.splice(idx,1);
+      syncEventosDB();
       logAudit({
         uc: 'UC-AG-02',
         action: 'Reprogramacion de cita',
@@ -1288,6 +1326,7 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
     eventos.push(ev);
+    syncEventosDB();
 
     // Notify inbox module if this save originated from an inbox action
     if(window._pendingInboxAccept && window.Bandeja?.onEventSaved){
@@ -1412,6 +1451,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const idx=eventos.findIndex(x=>x.id===ev.id);
         if(idx>=0) eventos.splice(idx,1);
+        syncEventosDB();
         detModal.style.display='none';
         render();
         buildMiniCalendar();
@@ -1441,6 +1481,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const removed = eventos[currentIdx];
         eventos.splice(currentIdx,1);
+        syncEventosDB();
         detModal.style.display='none';
         cancelApptModal.style.display='none';
         render();
@@ -1489,6 +1530,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  populateSelects();
   miniCalDate = new Date();
   buildMiniCalendar();
   render();

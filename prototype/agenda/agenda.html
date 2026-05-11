@@ -75,12 +75,7 @@
               <label for="filterTherapist">Terapeuta:</label>
               <select id="filterTherapist">
                 <option value="">Todos</option>
-                <option>Terapeuta A</option>
-                <option>Terapeuta B</option>
-                <option>Terap. 1</option>
-                <option>Terap. 2</option>
-                <option>Terap. 3</option>
-                <option>Terap. 4</option>
+                <!-- opciones dinámicas desde DB -->
               </select>
             </div>
 
@@ -88,9 +83,7 @@
               <label for="filterRoom">Sala:</label>
               <select id="filterRoom">
                 <option value="">Todas</option>
-                <option>Sala 101</option>
-                <option>Sala 102</option>
-                <option>Sala 103</option>
+                <!-- opciones dinámicas desde DB -->
               </select>
             </div>
 
@@ -98,16 +91,7 @@
               <label for="filterPatient">Paciente:</label>
               <select id="filterPatient">
                 <option value="">Todos</option>
-                <option>Ana Martínez</option>
-                <option>Luis García</option>
-                <option>Carmen Robles</option>
-                <option>José Romero</option>
-                <option>María Torres</option>
-                <option>Diego Fuentes</option>
-                <option>Sofía Paredes</option>
-                <option>Ricardo Vargas</option>
-                <option>Elena Castillo</option>
-                <option>Pedro Rivas</option>
+                <!-- opciones dinámicas desde DB -->
               </select>
             </div>
 
@@ -304,16 +288,7 @@
             <label for="eventPatient">Paciente:</label>
             <select id="eventPatient" name="eventPatient" required>
               <option value="">Seleccionar paciente</option>
-              <option>Ana Martínez</option>
-              <option>Luis García</option>
-              <option>Carmen Robles</option>
-              <option>José Romero</option>
-              <option>María Torres</option>
-              <option>Diego Fuentes</option>
-              <option>Sofía Paredes</option>
-              <option>Ricardo Vargas</option>
-              <option>Elena Castillo</option>
-              <option>Pedro Rivas</option>
+              <!-- opciones dinámicas desde DB -->
             </select>
           </div>
           <div class="form-group hidden" id="bulkScheduleGroup">
@@ -507,6 +482,7 @@
   </div>
 
   <!-- ================= SCRIPTS ================= -->
+  <script src="../data/db.js"></script>
   <script src="js/agenda.js"></script>
   <script src="js/bandeja-entrada.js"></script>
   <script src="js/auditoria.js"></script>
