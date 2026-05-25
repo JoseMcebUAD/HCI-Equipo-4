@@ -69,4 +69,5 @@ Key findings: M-01 (avoidable errors), M-03 (completion without restart), and M-
 
 * **Agenda:** [agenda frame](./prototype/agenda/agenda.html)
 * **Usability Tests evidence:** [audio links](https://drive.google.com/drive/folders/1T5L61E-rVzr8L_b3Ilw5TV5gkWhFXjWy?usp=drive_link)
+* **Participation:** [percentage](./assets/individual_participation.png)
 
