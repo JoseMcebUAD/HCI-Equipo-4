@@ -25,26 +25,23 @@ Key findings: M-01 (avoidable errors), M-03 (completion without restart), and M-
 
 | File | Description |
 |------|-------------|
-| `NewUsabilityRequirements.md` | Refined usability requirements (RNF-US-01 through RNF-US-07) with name, description, justification, and acceptance criteria. |
-| `UsabilityMetrics.md` | Metric definitions for the top usability requirements, following ISO/IEC/IEEE 15939:2017 (formula, threshold, measurement method). |
-| `MetricsMeasurementTasks.md` | Metric-to-task mapping: which metrics are activated by each test task and under what conditions. |
-| `UserTest.md` | Complete test task protocol (T-01 through T-10) with participant instructions, system conditions, success criteria, and observation guides. |
-| `Final use cases.md` | Revised use cases (UC-AG-01 through UC-AG-07) reflecting the current system flow, with pre/postconditions and alternative flows. |
-| `UsabilityRequirements.md` | Initial usability requirements document from the first design phase. |
-| `Report_Usability_Attributes.md` | Analysis of test findings mapped to the Management and Prevention of Errors and User Control and Efficiency attributes, with requirements compliance table. |
-| `Report_Improvements.md` | Prioritized improvement action plan (P1–P4) with 13 concrete items, effort estimates, and recommended implementation order. |
+| `UsabilityRequirements.md` | Usability requirements (RNF-US-01 through RNF-US-07) with name, description, justification, and acceptance criteria. |
+| `use_cases.md` | Revised use cases (UC-AG-01 through UC-AG-08) reflecting the current system flow, with pre/postconditions and alternative flows. |
+| `MetricsMeasurementTasks.md` | Five usability metrics (M-01 through M-05) following ISO/IEC/IEEE 15939:2017 — formula, threshold, measurement method, and collection procedure. |
+| `usability_attributes_selection_rationale.md` | Rationale for the selection of the three project usability attributes (Low error rate, Satisfaction, Learnability) and how they apply to the system and its target user profile. |
+| `usability_atributes_report.md` | Empirical analysis of test findings mapped to the Management and Prevention of Errors and User Control and Efficiency attributes, with requirements compliance tables per finding. |
+| `usability_testing_overview.md` | Complete usability testing summary: test details, materials used, evidence, metric results per participant, key findings, relation to usability attributes, and overall conclusions. |
+| `improvements_report.md` | Prioritized improvement action plan (P1–P4) with concrete items, effort estimates, and recommended implementation order derived from all four test sessions. |
 
 ### 📋 Usability Test Reports (`usability_tests/`)
 
 | File | Description |
 |------|-------------|
-| `Karla-Medina.md` | Individual report — Karla Medina, Secretary/Administrative (53). All 5 metrics failed. |
-| `Adalberto_Manzanilla.md` | Individual report — Adalberto Manzanilla, Department Head (62). All 5 metrics failed; system bug detected in rescheduling. |
-| `Elizabeth_Delgado_Cuevas.md` | Individual report — Elizabeth Delgado Cuevas, Administrative User (58). Strongest performer; M-02 and M-04 met threshold. |
-| `Selene-Romero.md` | Individual report — Selene Romero, Homemaker (56). M-02 met threshold; lowest avoidable error rate (M-01 ~10%). |
-| `Report_General.md` | Consolidated cross-participant report with metrics comparison, best/worst tables, task performance breakdown, and experience-vs-performance analysis. |
-| `Report_Usability_Attributes.md` | Attribute-level analysis: 12 findings mapped to error management/prevention and user control/efficiency with NRF compliance status. |
-| `Report_Improvements.md` | Summary improvement action plan derived from all four sessions, prioritized by severity and effort. |
+| `users/Karla-Medina.md` | Individual report — Karla Medina, Secretary/Administrative (53). All 5 metrics failed. |
+| `users/Adalberto_Manzanilla.md` | Individual report — Adalberto Manzanilla, Department Head (62). All 5 metrics failed; system bug detected in rescheduling. |
+| `users/Elizabeth_Delgado_Cuevas.md` | Individual report — Elizabeth Delgado Cuevas, Administrative User (58). Strongest performer; M-02 and M-04 met threshold. |
+| `users/Selene-Romero.md` | Individual report — Selene Romero, Homemaker (56). M-02 met threshold; lowest avoidable error rate (M-01 ~10%). |
+| `Usability_tests_report.md` | Consolidated cross-participant report with metrics comparison, best/worst tables, task performance breakdown, and experience-vs-performance analysis. |
 
 ---
 

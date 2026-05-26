@@ -9,7 +9,7 @@ _ISO/IEC/IEEE 15939:2017_
 |Field|Description|
 |---|---|
 |**Evaluated construct**|Error control and prevention|
-|**Related requirements**|RNF-US-01, RNF-US-05, RNF-US-07|
+|**Related Attribute**|Low error rate|
 |**Information need**|Do the system's prevention mechanisms effectively stop the user from executing unintended or incorrect actions?|
 |**Measured entity**|Test session with a scheduling task|
 |**Measure type**|Derived measure (observed proportion)|
@@ -28,7 +28,7 @@ _ISO/IEC/IEEE 15939:2017_
 |Field|Description|
 |---|---|
 |**Evaluated construct**|Error recoverability|
-|**Related requirements**|RNF-US-02, RNF-US-03, RNF-US-04|
+|**Related Attribute**|Low error rate|
 |**Information need**|When the user makes an error, can they recover quickly without abandoning or restarting the task?|
 |**Measured entity**|Error instance during a test session|
 |**Measure type**|Base measure (observed time)|
@@ -47,7 +47,7 @@ _ISO/IEC/IEEE 15939:2017_
 |Field|Description|
 |---|---|
 |**Evaluated construct**|Error recoverability|
-|**Related requirements**|RNF-US-03, RNF-US-04|
+|**Related Attribute**|Low error rate|
 |**Information need**|Does the user successfully complete the task without being forced to restart or abandon it due to an unresolvable error along the way?|
 |**Measured entity**|Full scheduling task per participant|
 |**Measure type**|Base measure (binary event) + derived measure (proportion)|
@@ -66,7 +66,7 @@ _ISO/IEC/IEEE 15939:2017_
 |Field|Description|
 |---|---|
 |**Evaluated construct**|Error control and prevention / Contextual orientation|
-|**Related requirements**|RNF-US-05, RNF-US-06, RNF-US-07|
+|**Related Attribute**|Satisfaction|
 |**Information need**|Does the user feel they have enough information to confirm an action without uncertainty about its outcome?|
 |**Measured entity**|User's subjective experience when confirming critical actions|
 |**Measure type**|Subjective base measure (perception scale)|
@@ -85,7 +85,7 @@ _ISO/IEC/IEEE 15939:2017_
 |Field|Description|
 |---|---|
 |**Evaluated construct**|Error recoverability|
-|**Related requirements**|RNF-US-02, RNF-US-03, RNF-US-04|
+|**Related Attribute**|Learnability|
 |**Information need**|Is the user able to resolve the errors they make on their own, without requiring external intervention?|
 |**Measured entity**|Error instances during the session|
 |**Measure type**|Derived measure (proportion)|
