@@ -130,9 +130,9 @@ Antonio (Systems Engineer, basic digital literacy) was the strongest performer w
 
 | Attribute | Metrics | Result | Interpretation |
 |---|---|---|---|
-| **Low error rate** | M-01, M-02, M-03 | M-01: 0% pass rate. M-02: 60%. M-03: 40%. | Avoidable errors remain universal, but error recovery time and task completion improved for participants with structured backgrounds. Prevention mechanisms are present but imperceptible for most of the target profile. |
-| **Satisfaction** | M-04 | 60% pass rate (3/5 participants) | Participants with structured or technical backgrounds felt confident before confirming. Less experienced users still struggled to build confidence — a partial failure of RNF-US-05, RNF-US-06, and RNF-US-07. |
-| **Learnability** | M-05 | 20% pass rate (1/5 participants) | Only Antonio resolved errors autonomously at threshold. The system's recovery mechanisms exist but are not self-explanatory for the broader target population, though they are accessible to technically-oriented users. |
+| **Low error rate** | M-01, M-02, M-03 | M-01: 0% pass rate. M-02: 60%. M-03: 40%. **Not passed** ❌ | Avoidable errors remain universal, but error recovery time and task completion improved for participants with structured backgrounds. Prevention mechanisms are present but imperceptible for most of the target profile. |
+| **Satisfaction** | M-04 | 60% pass rate (3/5 participants). **Not passed** ❌ | Participants with structured or technical backgrounds felt confident before confirming. Less experienced users still struggled to build confidence — a partial failure of RNF-US-05, RNF-US-06, and RNF-US-07. |
+| **Learnability** | M-05 | 20% pass rate (1/5 participants). **Not passed** ❌ | Only Antonio resolved errors autonomously at threshold. The system's recovery mechanisms exist but are not self-explanatory for the broader target population, though they are accessible to technically-oriented users. |
 
 For the detailed data behind each finding, see the full consolidated report: [usability_tests/Usability_tests_report.md](usability_tests/Usability_tests_report.md)
 

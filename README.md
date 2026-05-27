@@ -7,8 +7,6 @@ This repository contains the user-centered design documentation, functional HTML
 
 For this third delivery, the focus shifted to empirical evaluation. We conducted think-aloud usability sessions with four administrative-profile participants (ages 53–62) covering seven core task flows. All sessions were analyzed against five measurable metrics (M-01 through M-05), traced to the project's non-functional usability requirements (RNF-US-01 through RNF-US-07). Individual session reports were produced per participant, followed by three consolidated reports: a cross-participant analysis with comparison tables, a usability attribute analysis (Management and Prevention of Errors · User Control and Efficiency), and a prioritized improvement action plan.
 
-Key findings: M-01 (avoidable errors), M-03 (completion without restart), and M-05 (autonomous error resolution) failed across all four participants. Filter discoverability and the rescheduling flow were the most widespread issues. Elizabeth Delgado Cuevas was the strongest performer, being the only participant to meet the confidence threshold (M-04), attributable to prior experience with similar administrative systems.
-
 ---
 
 ## Repository Structure
@@ -17,7 +15,7 @@ Key findings: M-01 (avoidable errors), M-03 (completion without restart), and M-
 
 | Folder | Description |
 |--------|-------------|
-| `prototype/` | Functional HTML prototype — includes the Agenda, Patients, Therapists, Rooms, Reports, and First Contact modules. Entry point: `index.html`. |
+| `prototype/` | Functional HTML prototype — includes the Agenda, Patients, Therapists, Rooms, Reports, and First Contact modules. Entry point: `index.html`., the agenda entry point is [agenda](./prototype/agenda/agenda.html) |
 | `reschedule_protoype/` | High-fidelity prototype focused on the individual appointment rescheduling flow. Entry point: `index.html`. |
 | `usability_tests/` | Individual session reports for all four participants plus three consolidated analysis reports. |
 
@@ -28,7 +26,7 @@ Key findings: M-01 (avoidable errors), M-03 (completion without restart), and M-
 | `use_cases.md` | Revised use cases (UC-AG-01 through UC-AG-08) reflecting the current system flow, with pre/postconditions and alternative flows. |
 | `metrics_measurment_tasks.md` | Five usability metrics (M-01 through M-05) following ISO/IEC/IEEE 15939:2017 — formula, threshold, measurement method, and collection procedure. |
 | `attributes.md` | Rationale for the selection of the three project usability attributes (Low error rate, Satisfaction, Learnability), how they apply to the system and its target user profile, and empirical analysis of test findings mapped to Management and Prevention of Errors and User Control and Efficiency attributes. |
-| `usability_testing_overview.md` | Complete usability testing summary: test details, materials used, evidence, metric results per participant, key findings, relation to usability attributes, and overall conclusions. |
+| `usability_full_report.md` | Complete usability testing summary: test details, materials used, evidence, metric results per participant, key findings, relation to usability attributes, and overall conclusions. |
 
 ### 📋 Usability Test Reports (`usability_tests/`)
 
@@ -50,18 +48,13 @@ Key findings: M-01 (avoidable errors), M-03 (completion without restart), and M-
 | Agenda (main view) | [`prototype/agenda/agenda.html`](./prototype/agenda/agenda.html) |
 | Schedule new appointment | [`prototype/Primer_Contacto/solicitar-cita.html`](./prototype/Primer_Contacto/solicitar-cita.html) |
 | Reschedule appointment | [`prototype/agenda/reprogramar.html`](./prototype/agenda/reprogramar.html) |
-| Bulk rescheduling | [`prototype/agenda/reprogramacion-masiva.html`](./prototype/agenda/reprogramacion-masiva.html) |
-| Patients | [`prototype/pacientes/pacientes.html`](./prototype/pacientes/pacientes.html) |
-| Therapists | [`prototype/terapeuta/terapeuta.html`](./prototype/terapeuta/terapeuta.html) |
-| Rooms | [`prototype/salas/salas.html`](./prototype/salas/salas.html) |
-| Reports | [`prototype/reportes/reportes.html`](./prototype/reportes/reportes.html) |
-| Reschedule prototype (standalone) | [`reschedule_protoype/index.html`](./reschedule_protoype/index.html) |
+| Bulk rescheduling | [`prototype/agenda/reprogramacion-masiva.html`](./prototype/agenda/reprogramacion-masiva.html)
 
 ---
 
 ## Links & Resources
 
-* **Agenda:** [agenda frame](./prototype/agenda/agenda.html)
+* **Agenda:** [Agenda prototype](./prototype/agenda/agenda.html)
 * **Usability Tests evidence:** [audio links](https://drive.google.com/drive/folders/1T5L61E-rVzr8L_b3Ilw5TV5gkWhFXjWy?usp=drive_link)
-* **Participation:** [percentage](./assets/individual_participation.png)
+* **Participation:** [Globla participation](./assets/individual_participation.png)
 
