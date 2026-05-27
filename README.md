@@ -25,13 +25,10 @@ Key findings: M-01 (avoidable errors), M-03 (completion without restart), and M-
 
 | File | Description |
 |------|-------------|
-| `UsabilityRequirements.md` | Usability requirements (RNF-US-01 through RNF-US-07) with name, description, justification, and acceptance criteria. |
 | `use_cases.md` | Revised use cases (UC-AG-01 through UC-AG-08) reflecting the current system flow, with pre/postconditions and alternative flows. |
-| `MetricsMeasurementTasks.md` | Five usability metrics (M-01 through M-05) following ISO/IEC/IEEE 15939:2017 — formula, threshold, measurement method, and collection procedure. |
-| `usability_attributes_selection_rationale.md` | Rationale for the selection of the three project usability attributes (Low error rate, Satisfaction, Learnability) and how they apply to the system and its target user profile. |
-| `usability_atributes_report.md` | Empirical analysis of test findings mapped to the Management and Prevention of Errors and User Control and Efficiency attributes, with requirements compliance tables per finding. |
+| `metrics_measurment_tasks.md` | Five usability metrics (M-01 through M-05) following ISO/IEC/IEEE 15939:2017 — formula, threshold, measurement method, and collection procedure. |
+| `attributes.md` | Rationale for the selection of the three project usability attributes (Low error rate, Satisfaction, Learnability), how they apply to the system and its target user profile, and empirical analysis of test findings mapped to Management and Prevention of Errors and User Control and Efficiency attributes. |
 | `usability_testing_overview.md` | Complete usability testing summary: test details, materials used, evidence, metric results per participant, key findings, relation to usability attributes, and overall conclusions. |
-| `improvements_report.md` | Prioritized improvement action plan (P1–P4) with concrete items, effort estimates, and recommended implementation order derived from all four test sessions. |
 
 ### 📋 Usability Test Reports (`usability_tests/`)
 
@@ -51,7 +48,7 @@ Key findings: M-01 (avoidable errors), M-03 (completion without restart), and M-
 |--------|------|
 | Home / Dashboard | [`prototype/index.html`](./prototype/index.html) |
 | Agenda (main view) | [`prototype/agenda/agenda.html`](./prototype/agenda/agenda.html) |
-| Schedule new appointment | [`prototype/agenda/solicitar-cita.html`](./prototype/agenda/solicitar-cita.html) |
+| Schedule new appointment | [`prototype/Primer_Contacto/solicitar-cita.html`](./prototype/Primer_Contacto/solicitar-cita.html) |
 | Reschedule appointment | [`prototype/agenda/reprogramar.html`](./prototype/agenda/reprogramar.html) |
 | Bulk rescheduling | [`prototype/agenda/reprogramacion-masiva.html`](./prototype/agenda/reprogramacion-masiva.html) |
 | Patients | [`prototype/pacientes/pacientes.html`](./prototype/pacientes/pacientes.html) |
