@@ -58,3 +58,4 @@ For this third delivery, the focus shifted to empirical evaluation. We conducted
 * **Usability Tests evidence:** [audio links](https://drive.google.com/drive/folders/1T5L61E-rVzr8L_b3Ilw5TV5gkWhFXjWy?usp=drive_link)
 * **Participation:** [Globla participation](./assets/individual_participation.png)
 
+* **Video:** [link_video] (https://alumnosuady-my.sharepoint.com/:f:/g/personal/a20204314_alumnos_uady_mx/IgCjqRLJzIfiR5naOUrgYbTQAZWFV4OjSwXWmCmsAs6TN38?e=du4xBE)
